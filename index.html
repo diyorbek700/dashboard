@@ -1,0 +1,1936 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хисобим — Дешборд</title>
+<style>
+  :root{
+    --page-bg:#eef1f6;
+    --frame-bg:#ffffff;
+    --frame-border:#e7e9ee;
+    --text:#12141c;
+    --muted:#767d8f;
+    --divider:#eef0f4;
+    --soft-bg:#f6f7fa;
+    --blue:#006F7D;
+    --blue-bg:#e2f0f1;
+    --green:#17a34a;
+    --green-bg:#e8f8ee;
+    --green-dot:#22c55e;
+    --red:#e2394a;
+    --red-bg:#fdeef0;
+    --red-dot:#f2555e;
+    --salmon-dot:#f0888f;
+    --pill-active:#006F7D;
+    --shadow: 0 24px 60px -20px rgba(20,25,40,.25), 0 2px 8px rgba(20,25,40,.06);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+  }
+  body{
+    background:var(--page-bg);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-variant-numeric:tabular-nums;
+    font-feature-settings:"tnum" 1,"cv11" 1;
+    color:var(--text);
+    padding:48px 24px;
+    display:flex;
+    justify-content:center;
+  }
+
+  /* ---------- Phone frame (shared shell) ---------- */
+  .phone{
+    width:340px;
+    height:718px;
+    background:var(--frame-bg);
+    border-radius:38px;
+    border:1px solid var(--frame-border);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .statusbar{
+    height:36px;
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .statusicons{display:flex;align-items:center;gap:5px;}
+  .sig-bars{display:flex;align-items:flex-end;gap:2px;height:10px;}
+  .sig-bars span{width:3px;background:var(--text);border-radius:1px;}
+  .sig-bars span:nth-child(1){height:4px;}
+  .sig-bars span:nth-child(2){height:6px;}
+  .sig-bars span:nth-child(3){height:8px;}
+  .sig-bars span:nth-child(4){height:10px;}
+  .wifi-ic svg{width:15px;height:11px;fill:var(--text);}
+  .batt{width:22px;height:11px;border:1.3px solid var(--text);border-radius:3px;position:relative;padding:1.5px;}
+  .batt::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:var(--text);border-radius:0 2px 2px 0;}
+  .batt i{display:block;height:100%;width:82%;background:var(--text);border-radius:1px;}
+
+  /* ---------- Дешборд header + pill tabs (shared) ---------- */
+  .dash-header{flex:0 0 auto;padding:8px 22px 0;}
+  .dash-header h1{font-size:21px;font-weight:800;margin:0 0 12px;letter-spacing:-.4px;color:#0d0f16;}
+  .pill-row{display:flex;gap:8px;padding:0 22px 14px;flex:0 0 auto;}
+  .pill{
+    flex:1;text-align:center;padding:10px 6px;border-radius:20px;
+    font-size:12.2px;font-weight:700;letter-spacing:.1px;cursor:pointer;font-family:inherit;
+    border:1.5px solid #e4e7ee;background:#fff;color:#2b2f3a;
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .pill.active{background:var(--pill-active);border-color:var(--pill-active);color:#fff;box-shadow:0 6px 14px rgba(0,111,125,.28);}
+
+  /* ---------- outer tab switcher: Cash Flow / P&L / Balance Sheet ---------- */
+  .tab-content-wrap{flex:1;min-height:0;position:relative;overflow:hidden;}
+  .tab-content{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    opacity:0;transform:translateX(14px);pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .tab-content.active{opacity:1;transform:translateX(0);pointer-events:auto;}
+
+  /* ---------- inner per-report screen switcher (shared shape, used by both reports) ---------- */
+  .screens{
+    flex:1;
+    min-height:0;
+    position:relative;
+    overflow:hidden;
+  }
+  .screen{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    opacity:0;
+    transform:translateX(14px);
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .screen.active{
+    opacity:1;
+    transform:translateX(0);
+  }
+  /* only let clicks reach a screen when its whole outer tab is actually active —
+     otherwise an inactive tab's "active" inner screen sits stacked on top and
+     silently swallows clicks meant for the tab that's actually visible */
+  .tab-content.active .screen.active{
+    pointer-events:auto;
+  }
+
+  /* ---------- Cash Flow (empty placeholder) ---------- */
+  #tab-cashflow{align-items:center;justify-content:center;}
+  #tab-cashflow .empty-state{
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    padding:0 40px;text-align:center;
+  }
+  #tab-cashflow .empty-state svg{width:34px;height:34px;color:#c7cbd6;}
+  #tab-cashflow .empty-state p{font-size:12.5px;color:var(--muted);font-weight:600;margin:0;letter-spacing:.1px;}
+
+  /* =========================================================
+     #tab-pnl — scoped styles for the P&L report
+     ========================================================= */
+  #tab-pnl .header{
+    flex:0 0 auto;
+    padding:2px 20px 10px;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+  }
+  #tab-pnl .header .back{
+    width:28px;height:28px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text);
+    margin-top:1px;
+    border-radius:9px;
+    cursor:pointer;
+  }
+  #tab-pnl .header .back:hover{background:var(--soft-bg);}
+  #tab-pnl .header .back svg{width:18px;height:18px;}
+  #tab-pnl .header .titles{flex:1;min-width:0;}
+  #tab-pnl .header .titles h1{
+    font-size:15.5px;font-weight:700;margin:0 0 2px;letter-spacing:-0.3px;
+    line-height:1.28;color:#0d0f16;
+  }
+  #tab-pnl .header .titles p{
+    font-size:11.5px;color:var(--muted);margin:0;font-weight:600;letter-spacing:.1px;
+  }
+  #tab-pnl .header .titles p .date-range{color:var(--blue);font-weight:700;letter-spacing:0;}
+  #tab-pnl .header .icon-btn{
+    width:32px;height:32px;flex:0 0 auto;border-radius:10px;
+    background:var(--soft-bg);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--blue);
+  }
+  #tab-pnl .header .icon-btn svg{width:15px;height:15px;}
+
+  #tab-pnl .content{
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    padding:0 20px 10px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  #tab-pnl .content.scroll{
+    overflow-y:auto;
+    overflow-x:hidden;
+    scrollbar-width:none;
+  }
+  #tab-pnl .content.scroll::-webkit-scrollbar{display:none;}
+  #tab-pnl .content.scroll > *{flex:0 0 auto;}
+
+  #tab-pnl .segmented{
+    display:flex;background:var(--soft-bg);border-radius:11px;padding:3px;gap:3px;
+  }
+  #tab-pnl .segmented button{
+    flex:1;border:none;background:transparent;border-radius:8px;
+    padding:7px 4px;font-size:11.5px;font-weight:600;color:#5b6072;
+    letter-spacing:.1px;cursor:pointer;font-family:inherit;transition:.15s;
+  }
+  #tab-pnl .segmented button.active{background:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(0,111,125,.25);}
+
+  #tab-pnl .toolbar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:8px;
+  }
+  #tab-pnl .dropdown{
+    display:inline-flex;align-items:center;gap:5px;
+    background:var(--soft-bg);border-radius:9px;
+    padding:6px 10px;font-size:11.5px;font-weight:600;color:#2b2f3a;letter-spacing:.1px;
+    flex:0 0 auto;
+  }
+  #tab-pnl .dropdown svg{width:10px;height:10px;color:var(--muted);}
+  #tab-pnl .filter-btn{
+    width:30px;height:30px;border-radius:9px;background:var(--soft-bg);
+    display:flex;align-items:center;justify-content:center;color:var(--blue);
+    flex:0 0 auto;
+  }
+  #tab-pnl .filter-btn svg{width:14px;height:14px;}
+
+  #tab-pnl .table-wrap{flex:1;min-height:0;overflow:hidden;}
+
+  #tab-pnl table.pnl{
+    width:100%;
+    height:100%;
+    table-layout:fixed;
+    border-collapse:collapse;
+    font-size:11.3px;
+  }
+  #tab-pnl table.pnl colgroup .col-name{width:auto;}
+  #tab-pnl table.pnl colgroup .col-num{width:58px;}
+  #tab-pnl table.pnl thead th{
+    text-align:right;
+    font-weight:700;
+    font-size:9.3px;
+    color:var(--muted);
+    letter-spacing:.15px;
+    padding:0 0 4px;
+    line-height:1.25;
+  }
+  #tab-pnl table.pnl thead th:first-child{text-align:left;}
+  #tab-pnl table.pnl tbody td{
+    padding:5px 0;
+    border-bottom:1px solid var(--divider);
+    color:#3a3f4d;
+    font-weight:500;
+    line-height:1.3;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  #tab-pnl table.pnl tbody td:first-child{white-space:normal;}
+  #tab-pnl table.pnl tbody td:not(:first-child){
+    text-align:right;
+    font-weight:700;
+    color:var(--text);
+    letter-spacing:-.1px;
+    padding-left:6px;
+    white-space:nowrap;
+  }
+  #tab-pnl table.pnl tbody tr:last-child td{border-bottom:none;}
+
+  #tab-pnl tr.section{cursor:pointer;}
+  #tab-pnl tr.section td{font-weight:700;background:var(--row-bg,transparent);transition:filter .12s;}
+  #tab-pnl tr.section:hover td{filter:brightness(.97);}
+  #tab-pnl tr.section td:first-child{border-radius:8px 0 0 8px;padding-left:8px;}
+  #tab-pnl tr.section td:last-child{border-radius:0 8px 8px 0;padding-right:8px;}
+  #tab-pnl tr.section td{border-bottom:none;}
+  #tab-pnl tr.section + tr td{padding-top:8px;}
+
+  #tab-pnl tr.income{--row-bg:var(--green-bg);}
+  #tab-pnl tr.income td{color:var(--green);}
+  #tab-pnl tr.expense{--row-bg:var(--red-bg);}
+  #tab-pnl tr.expense td{color:var(--red);}
+  #tab-pnl tr.profit{--row-bg:var(--blue-bg);}
+  #tab-pnl tr.profit td{color:var(--blue);}
+
+  #tab-pnl tr.net-profit{cursor:pointer;}
+  #tab-pnl tr.net-profit td{background:var(--green-bg);color:var(--green);font-weight:800;padding:9px 0;transition:filter .12s;}
+  #tab-pnl tr.net-profit:hover td{filter:brightness(.97);}
+  #tab-pnl tr.net-profit td:first-child{border-radius:10px 0 0 10px;padding-left:10px;}
+  #tab-pnl tr.net-profit td:last-child{border-radius:0 10px 10px 0;padding-right:10px;}
+  #tab-pnl tr.spacer td{border-bottom:none;padding:3px 0 0;}
+
+  #tab-pnl .cards3{display:flex;gap:7px;}
+  #tab-pnl .mini-card{
+    flex:1;border-radius:13px;padding:10px 9px 11px;
+    display:flex;flex-direction:column;gap:6px;cursor:pointer;
+    min-width:0;
+    transition:transform .1s ease;
+  }
+  #tab-pnl .mini-card:active{transform:scale(.97);}
+  #tab-pnl .mini-card.assets{background:var(--green-bg);}
+  #tab-pnl .mini-card.expense{background:var(--red-bg);}
+  #tab-pnl .mini-card.profit{background:var(--blue-bg);}
+  #tab-pnl .mini-card .label{font-size:9.8px;font-weight:700;letter-spacing:.15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #tab-pnl .mini-card.assets .label{color:#1f8f52;}
+  #tab-pnl .mini-card.expense .label{color:#c23347;}
+  #tab-pnl .mini-card.profit .label{color:var(--blue);}
+  #tab-pnl .mini-card .value{font-size:14.5px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;}
+  #tab-pnl .mini-card .foot{display:flex;align-items:center;justify-content:space-between;}
+  #tab-pnl .mini-card .pct{font-size:10.3px;font-weight:700;letter-spacing:-.1px;}
+  #tab-pnl .mini-card.assets .pct{color:var(--green);}
+  #tab-pnl .mini-card.expense .pct{color:var(--red);}
+  #tab-pnl .mini-card.profit .pct{color:var(--green);}
+  #tab-pnl .mini-card .chev{color:var(--muted);}
+  #tab-pnl .mini-card .chev svg{width:11px;height:11px;}
+
+  #tab-pnl .section-title{font-size:13.5px;font-weight:700;letter-spacing:-.1px;color:#0d0f16;}
+
+  #tab-pnl .chip-row{display:flex;gap:6px;flex-wrap:wrap;}
+  #tab-pnl .chip{
+    border:none;border-radius:20px;background:var(--soft-bg);color:#464b58;
+    font-size:11.3px;font-weight:600;letter-spacing:.1px;padding:6px 12px;cursor:pointer;font-family:inherit;
+  }
+  #tab-pnl .chip.active{background:var(--blue);color:#fff;}
+
+  #tab-pnl .row-list{display:flex;flex-direction:column;}
+  #tab-pnl .item-row{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:9px 6px;border-radius:10px;cursor:pointer;
+    transition:background .12s;
+  }
+  #tab-pnl .item-row:hover{background:#eef1f7;}
+  #tab-pnl .item-row.hidden{display:none;}
+  #tab-pnl .item-row .name{font-size:12px;font-weight:500;color:#3a3f4d;line-height:1.35;flex:1;min-width:0;}
+  #tab-pnl .item-row .right{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
+  #tab-pnl .item-row .nums{display:flex;flex-direction:column;align-items:flex-end;line-height:1.35;}
+  #tab-pnl .item-row .num{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.1px;}
+  #tab-pnl .item-row .num.neg{color:var(--red);}
+  #tab-pnl .item-row .pct{font-size:10.3px;font-weight:700;letter-spacing:-.1px;}
+  #tab-pnl .item-row .pct.up{color:var(--green);}
+  #tab-pnl .item-row .pct.down{color:var(--red);}
+  #tab-pnl .item-row .caret{color:#c7cbd6;font-size:13px;}
+  #tab-pnl .item-row.subtotal{background:var(--soft-bg);}
+  #tab-pnl .item-row.subtotal:hover{background:#eef1f7;}
+  #tab-pnl .item-row.subtotal .name{font-weight:700;color:#1a1d29;}
+  #tab-pnl .item-row.child{padding-left:20px;}
+  #tab-pnl .item-row.child .name{color:#565c6b;}
+
+  #tab-pnl .empty-hint{
+    display:none;
+    padding:16px 6px;text-align:center;font-size:12px;color:var(--muted);font-weight:500;
+  }
+  #tab-pnl .empty-hint.visible{display:block;}
+
+  #tab-pnl .chart2{margin-top:4px;margin-bottom:10px;}
+  #tab-pnl .chart2 svg{width:100%;height:auto;display:block;}
+  #tab-pnl .chart2 .xlabels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px;padding:0 2px;}
+
+  #tab-pnl .sheet-overlay{
+    position:absolute;inset:0;background:rgba(15,17,25,.4);
+    display:flex;align-items:flex-end;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:2;
+  }
+  #tab-pnl .sheet-overlay.visible{opacity:1;}
+  #tab-pnl.active .sheet-overlay.visible{pointer-events:auto;}
+  #tab-pnl .bottom-sheet{
+    width:100%;background:#fff;border-radius:22px 22px 0 0;
+    box-shadow:0 -12px 32px rgba(20,25,40,.18);
+    padding:14px 20px 18px;
+    transform:translateY(100%);
+    transition:transform .28s cubic-bezier(.32,.72,0,1);
+  }
+  #tab-pnl .sheet-overlay.visible .bottom-sheet{transform:translateY(0);}
+  #tab-pnl .sheet-grabber{width:36px;height:4px;background:#e2e5ec;border-radius:3px;margin:0 auto 12px;}
+  #tab-pnl .sheet-close{
+    position:absolute;top:14px;right:16px;
+    width:26px;height:26px;border-radius:8px;background:var(--soft-bg);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);
+  }
+  #tab-pnl .sheet-close svg{width:11px;height:11px;}
+
+  #tab-pnl .stat-block{padding:2px 0 4px;position:relative;}
+  #tab-pnl .stat-block .label{font-size:11.8px;color:var(--muted);font-weight:600;letter-spacing:.1px;margin-bottom:5px;}
+  #tab-pnl .stat-block .value{font-size:21px;font-weight:800;letter-spacing:-.4px;color:#0d0f16;}
+  #tab-pnl .stat-block .value .unit{font-size:11.5px;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:4px;}
+  #tab-pnl .stat-block .pct{font-size:11.8px;font-weight:700;letter-spacing:-.1px;color:var(--green);margin-top:5px;}
+
+  #tab-pnl table.detail{
+    width:100%;table-layout:fixed;border-collapse:collapse;font-size:10.2px;
+  }
+  #tab-pnl table.detail col.col-name{width:auto;}
+  #tab-pnl table.detail col.col-num{width:46px;}
+  #tab-pnl table.detail col.col-pct{width:40px;}
+  #tab-pnl table.detail thead th{
+    text-align:right;font-weight:700;font-size:8.6px;color:var(--muted);letter-spacing:.1px;
+    padding:0 0 4px;line-height:1.25;
+  }
+  #tab-pnl table.detail thead th:first-child{text-align:left;}
+  #tab-pnl table.detail tbody td{
+    padding:6px 0;border-bottom:1px solid var(--divider);color:#3a3f4d;
+    font-weight:500;line-height:1.28;
+  }
+  #tab-pnl table.detail tbody td:first-child{white-space:normal;}
+  #tab-pnl table.detail tbody td:not(:first-child){
+    text-align:right;font-weight:700;color:var(--text);padding-left:4px;white-space:nowrap;
+  }
+  #tab-pnl table.detail tbody tr:last-child td{border-bottom:none;}
+  #tab-pnl table.detail td.pos{color:var(--green);}
+  #tab-pnl table.detail td.neg{color:var(--red);}
+  #tab-pnl table.detail tr.total td{background:var(--blue-bg);color:var(--blue);font-weight:800;}
+  #tab-pnl table.detail tr.total td:first-child{border-radius:9px 0 0 9px;padding-left:8px;}
+  #tab-pnl table.detail tr.total td:last-child{border-radius:0 9px 9px 0;padding-right:8px;}
+  #tab-pnl table.detail tr.total td.pos{color:var(--green);}
+
+  /* ---------- P&L period selector (Период) ---------- */
+  #tab-pnl .period-btn{
+    display:inline-flex;align-items:center;gap:6px;flex:1;min-width:0;
+    background:var(--soft-bg);border-radius:9px;
+    padding:6px 10px;font-size:11.5px;font-weight:600;color:#2b2f3a;letter-spacing:.1px;
+    cursor:pointer;
+  }
+  #tab-pnl .period-btn .p-cap{color:var(--muted);font-weight:600;flex:0 0 auto;}
+  #tab-pnl .period-btn .p-val{color:#0d0f16;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+  #tab-pnl .period-btn svg{width:10px;height:10px;color:var(--muted);flex:0 0 auto;}
+
+  /* period bottom sheet */
+  #tab-pnl .period-overlay{
+    position:absolute;inset:0;background:rgba(15,17,25,.4);
+    display:flex;align-items:flex-end;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:3;
+  }
+  #tab-pnl .period-overlay.visible{opacity:1;}
+  #tab-pnl.active .period-overlay.visible{pointer-events:auto;}
+  #tab-pnl .period-sheet{
+    width:100%;background:#fff;border-radius:22px 22px 0 0;
+    box-shadow:0 -12px 32px rgba(20,25,40,.18);
+    padding:16px 18px 18px;max-height:88%;overflow:hidden;
+    transform:translateY(100%);
+    transition:transform .28s cubic-bezier(.32,.72,0,1);
+    display:flex;flex-direction:column;
+  }
+  #tab-pnl .period-overlay.visible .period-sheet{transform:translateY(0);}
+  #tab-pnl .period-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex:0 0 auto;
+  }
+  #tab-pnl .period-head .p-back{
+    width:26px;height:26px;border-radius:8px;background:var(--soft-bg);
+    display:none;align-items:center;justify-content:center;cursor:pointer;color:var(--text);flex:0 0 auto;
+  }
+  #tab-pnl .period-head .p-back svg{width:13px;height:13px;}
+  #tab-pnl .period-head h3{font-size:15px;font-weight:800;color:var(--blue);margin:0;letter-spacing:-.2px;flex:1;}
+  #tab-pnl .period-head .p-close{
+    width:26px;height:26px;border-radius:8px;background:var(--soft-bg);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);flex:0 0 auto;
+  }
+  #tab-pnl .period-head .p-close svg{width:12px;height:12px;}
+
+  #tab-pnl .period-view{display:none;flex-direction:column;min-height:0;}
+  #tab-pnl .period-view.active{display:flex;flex:1 1 auto;min-height:0;}
+
+  /* year navigator */
+  #tab-pnl .pp-year{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    background:var(--blue-bg);border-radius:12px;padding:7px 8px;margin-bottom:14px;flex:0 0 auto;
+  }
+  #tab-pnl .pp-year .pp-nav{
+    width:32px;height:32px;border:none;border-radius:9px;background:#fff;color:var(--blue);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 6px rgba(0,111,125,.12);
+  }
+  #tab-pnl .pp-year .pp-nav svg{width:15px;height:15px;}
+  #tab-pnl .pp-year .pp-year-label{font-size:15px;font-weight:600;color:#0d0f16;letter-spacing:-.1px;}
+  #tab-pnl .pp-year .pp-year-label b{color:var(--blue);font-weight:800;}
+
+  /* scroll wrapper for the grids */
+  #tab-pnl .pp-scroll{flex:1 1 auto;overflow-y:auto;min-height:0;scrollbar-width:none;}
+  #tab-pnl .pp-scroll::-webkit-scrollbar{display:none;}
+
+  #tab-pnl .pp-section-label{
+    font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;
+    text-transform:uppercase;margin:0 0 7px 2px;
+  }
+  #tab-pnl .pp-grid{display:grid;gap:7px;margin-bottom:16px;}
+  #tab-pnl .pp-months{grid-template-columns:repeat(3,1fr);}
+  #tab-pnl .pp-quarters{grid-template-columns:repeat(4,1fr);}
+  #tab-pnl .pp-periods{grid-template-columns:repeat(3,1fr);}
+
+  #tab-pnl .pp-cell{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    border:1.5px solid #e7ebf0;background:#fff;border-radius:11px;
+    padding:11px 4px;font-size:11.8px;font-weight:600;color:#2b2f3a;letter-spacing:.1px;
+    cursor:pointer;font-family:inherit;text-align:center;line-height:1.15;transition:.12s;
+  }
+  #tab-pnl .pp-cell:hover{border-color:var(--blue);color:var(--blue);}
+  #tab-pnl .pp-cell.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 5px 12px rgba(0,111,125,.28);}
+  #tab-pnl .pp-cell .pp-sub{font-size:8.5px;font-weight:600;color:var(--muted);letter-spacing:.1px;}
+  #tab-pnl .pp-cell:hover .pp-sub{color:var(--blue);}
+  #tab-pnl .pp-cell.active .pp-sub{color:rgba(255,255,255,.85);}
+
+  #tab-pnl .pp-custom{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:7px;
+    border:1.5px dashed #ccd4dc;background:var(--soft-bg);border-radius:12px;
+    padding:12px;font-size:12.5px;font-weight:700;color:var(--blue);letter-spacing:.1px;
+    cursor:pointer;font-family:inherit;
+  }
+  #tab-pnl .pp-custom svg{width:15px;height:15px;}
+  #tab-pnl .pp-custom.active{background:var(--blue-bg);border-style:solid;border-color:var(--blue);}
+
+  /* calendar (Свой период) */
+  #tab-pnl .cal-range{
+    display:flex;gap:8px;margin-bottom:12px;flex:0 0 auto;
+  }
+  #tab-pnl .cal-range .cr-field{
+    flex:1;background:var(--soft-bg);border-radius:10px;padding:8px 10px;
+  }
+  #tab-pnl .cal-range .cr-field .cr-cap{font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;margin-bottom:2px;}
+  #tab-pnl .cal-range .cr-field .cr-date{font-size:13px;font-weight:700;color:#0d0f16;}
+  #tab-pnl .cal-range .cr-field.empty .cr-date{color:#b7bcc9;}
+  #tab-pnl .cal-range .cr-field.focus{box-shadow:inset 0 0 0 1.5px var(--blue);}
+
+  #tab-pnl .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex:0 0 auto;}
+  #tab-pnl .cal-nav .cn-title{font-size:13.5px;font-weight:700;color:#0d0f16;letter-spacing:-.1px;}
+  #tab-pnl .cal-nav .cn-btn{
+    width:28px;height:28px;border-radius:8px;background:var(--soft-bg);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);
+  }
+  #tab-pnl .cal-nav .cn-btn svg{width:14px;height:14px;}
+
+  #tab-pnl .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:0 0 auto;}
+  #tab-pnl .cal-grid .cal-dow{
+    text-align:center;font-size:9.5px;font-weight:700;color:var(--muted);
+    padding:4px 0 6px;text-transform:uppercase;letter-spacing:.2px;
+  }
+  #tab-pnl .cal-cell{
+    aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:600;color:#3a3f4d;cursor:pointer;position:relative;
+    border-radius:9px;
+  }
+  #tab-pnl .cal-cell.empty{cursor:default;}
+  #tab-pnl .cal-cell.muted{color:#c7cbd6;}
+  #tab-pnl .cal-cell:not(.empty):hover{background:var(--soft-bg);}
+  #tab-pnl .cal-cell.in-range{background:var(--blue-bg);border-radius:0;color:var(--blue);}
+  #tab-pnl .cal-cell.range-start{background:var(--blue-bg);border-radius:9px 0 0 9px;}
+  #tab-pnl .cal-cell.range-end{background:var(--blue-bg);border-radius:0 9px 9px 0;}
+  #tab-pnl .cal-cell.range-start.range-end{border-radius:9px;}
+  #tab-pnl .cal-cell.selected{color:#fff;}
+  #tab-pnl .cal-cell.selected::before{
+    content:"";position:absolute;inset:0;background:var(--blue);border-radius:9px;z-index:0;
+  }
+  #tab-pnl .cal-cell.selected span{position:relative;z-index:1;}
+  #tab-pnl .cal-apply{
+    margin-top:14px;flex:0 0 auto;border:none;width:100%;
+    background:var(--blue);color:#fff;border-radius:12px;padding:12px;
+    font-size:13.5px;font-weight:700;letter-spacing:.1px;cursor:pointer;font-family:inherit;
+    box-shadow:0 8px 16px rgba(0,111,125,.28);
+  }
+  #tab-pnl .cal-apply:disabled{opacity:.45;box-shadow:none;cursor:default;}
+
+  /* =========================================================
+     #tab-balance — scoped styles for the Balance Sheet report
+     ========================================================= */
+  #tab-balance .header{
+    flex:0 0 auto;
+    padding:6px 22px 14px;
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+  }
+  #tab-balance .header .back{
+    width:34px;height:34px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text);
+    cursor:pointer;
+    margin-top:2px;
+    border-radius:10px;
+  }
+  #tab-balance .header .back:hover{background:var(--soft-bg);}
+  #tab-balance .header .back svg{width:19px;height:19px;}
+  #tab-balance .header .titles{flex:1;min-width:0;}
+  #tab-balance .header .titles h1{
+    font-size:19px;font-weight:700;margin:0 0 2px;letter-spacing:-0.3px;color:#0d0f16;
+  }
+  #tab-balance .header .titles p{
+    font-size:12.5px;color:var(--muted);margin:0;font-weight:600;letter-spacing:.1px;
+  }
+  #tab-balance .header .titles a.linklike{
+    font-size:13.5px;color:var(--blue);font-weight:600;text-decoration:none;letter-spacing:-.1px;
+    display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
+  }
+  #tab-balance .header .icon-btn{
+    width:36px;height:36px;flex:0 0 auto;border-radius:11px;
+    background:var(--soft-bg);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text);cursor:pointer;
+    margin-top:0;
+  }
+  #tab-balance .header .icon-btn svg{width:16px;height:16px;}
+
+  #tab-balance .content{
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    padding:2px 22px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  #tab-balance .segmented{
+    display:flex;background:var(--soft-bg);border-radius:12px;padding:4px;gap:4px;
+  }
+  #tab-balance .segmented button{
+    flex:1;border:none;background:transparent;border-radius:9px;
+    padding:9px 6px;font-size:13px;font-weight:600;color:#5b6072;letter-spacing:.1px;
+    cursor:pointer;font-family:inherit;transition:.15s;
+  }
+  #tab-balance .segmented button.active{background:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(0,111,125,.25);}
+
+  #tab-balance .dropdown{
+    align-self:flex-start;
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--soft-bg);border-radius:10px;
+    padding:8px 12px;font-size:13px;font-weight:600;color:#2b2f3a;letter-spacing:.1px;
+  }
+  #tab-balance .dropdown svg{width:11px;height:11px;color:var(--muted);}
+
+  #tab-balance .cards-row{display:flex;gap:12px;}
+  #tab-balance .stat-card{
+    flex:1;border-radius:16px;padding:14px 14px 15px;
+    display:flex;flex-direction:column;gap:8px;position:relative;
+    cursor:pointer;
+    transition:transform .1s ease;
+  }
+  #tab-balance .stat-card:active{transform:scale(.98);}
+  #tab-balance .stat-card.assets{background:var(--green-bg);}
+  #tab-balance .stat-card.liab{background:var(--red-bg);}
+  #tab-balance .stat-card .label{font-size:12px;font-weight:700;letter-spacing:.1px;color:#4b5563;}
+  #tab-balance .stat-card.assets .label{color:#1f8f52;}
+  #tab-balance .stat-card.liab .label{color:#c23347;}
+  #tab-balance .stat-card .value{font-size:19px;font-weight:800;letter-spacing:-.4px;}
+  #tab-balance .stat-card .foot{display:flex;align-items:center;justify-content:space-between;}
+  #tab-balance .stat-card .pct{font-size:12.3px;font-weight:700;letter-spacing:-.1px;}
+  #tab-balance .stat-card.assets .pct{color:var(--green);}
+  #tab-balance .stat-card.liab .pct{color:var(--red);}
+  #tab-balance .stat-card .chev{color:var(--muted);}
+  #tab-balance .stat-card .chev svg{width:14px;height:14px;}
+
+  #tab-balance .balance-card{
+    background:var(--blue-bg);
+    border-radius:16px;padding:14px 16px;
+    display:flex;align-items:center;justify-content:space-between;
+    cursor:pointer;
+    transition:transform .1s ease;
+  }
+  #tab-balance .balance-card:active{transform:scale(.98);}
+  #tab-balance .balance-card .left .label{font-size:12px;font-weight:700;letter-spacing:.1px;color:var(--blue);margin-bottom:6px;}
+  #tab-balance .balance-card .left .value{font-size:20px;font-weight:800;letter-spacing:-.4px;}
+  #tab-balance .balance-card .left .pct{font-size:12.3px;font-weight:700;letter-spacing:-.1px;color:var(--green);margin-top:4px;}
+  #tab-balance .balance-card .icon{
+    width:40px;height:40px;border-radius:12px;background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 10px rgba(0,111,125,.15);
+  }
+  #tab-balance .balance-card .icon svg{width:19px;height:19px;color:var(--blue);}
+
+  #tab-balance .section-title{font-size:15px;font-weight:700;letter-spacing:-.1px;color:#0d0f16;margin:2px 0 -4px;}
+
+  #tab-balance .legend-list{display:flex;flex-direction:column;}
+  #tab-balance .legend-row{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 0;border-bottom:1px solid var(--divider);
+    font-size:13.3px;
+  }
+  #tab-balance .legend-row:last-child{border-bottom:none;}
+  #tab-balance .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  #tab-balance .legend-row .name{flex:1;color:#3a3f4d;font-weight:500;line-height:1.3;}
+  #tab-balance .legend-row .num{font-weight:700;color:var(--text);letter-spacing:-.1px;}
+  #tab-balance .legend-row .share{color:var(--muted);font-weight:600;width:34px;text-align:right;}
+
+  #tab-balance .chart-wrap{background:transparent;}
+  #tab-balance .chart-wrap svg{width:100%;height:auto;display:block;}
+  #tab-balance .chart-xlabels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px;padding:0 2px;}
+
+  #tab-balance .coef-list{display:flex;flex-direction:column;}
+  #tab-balance .coef-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:9px 0;border-bottom:1px solid var(--divider);font-size:13.2px;
+  }
+  #tab-balance .coef-row:last-child{border-bottom:none;}
+  #tab-balance .coef-row .name{color:#3a3f4d;font-weight:500;line-height:1.3;}
+  #tab-balance .coef-row .right{display:flex;align-items:center;gap:10px;}
+  #tab-balance .coef-row .val{font-weight:700;letter-spacing:-.1px;}
+  #tab-balance .badge{
+    font-size:10.8px;font-weight:700;letter-spacing:.15px;color:var(--green);background:var(--green-bg);
+    padding:3px 9px;border-radius:20px;
+  }
+
+  #tab-balance .legend-swatches{display:flex;flex-direction:column;gap:8px;margin-top:2px;}
+  #tab-balance .legend-swatches .sw{display:flex;align-items:center;gap:9px;font-size:11.8px;color:#5b6072;line-height:1.35;}
+  #tab-balance .legend-swatches .dot{width:10px;height:10px;}
+
+  #tab-balance .scroll-area{overflow-y:auto;flex:1;min-height:0;padding-right:2px;margin-right:-2px;}
+  #tab-balance .scroll-area::-webkit-scrollbar{width:4px;}
+  #tab-balance .scroll-area::-webkit-scrollbar-thumb{background:#dfe2ea;border-radius:4px;}
+
+  #tab-balance .detail-group{background:var(--soft-bg);border-radius:16px;overflow:hidden;}
+  #tab-balance .detail-group .g-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:13px 14px;font-size:13.6px;font-weight:700;letter-spacing:-.1px;
+    border-bottom:1px solid #eceef3;
+  }
+  #tab-balance .g-head .g-name{flex:1;min-width:0;}
+  #tab-balance .g-head .ghead-value{
+    display:flex;align-items:baseline;gap:10px;flex:0 0 auto;white-space:nowrap;
+  }
+  #tab-balance .g-head .ghead-value .num{min-width:58px;text-align:right;}
+  #tab-balance .detail-group .g-head .pct{color:var(--green);font-weight:700;font-size:12.6px;letter-spacing:-.1px;min-width:46px;text-align:right;}
+  #tab-balance .detail-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 14px;font-size:13.2px;
+    border-bottom:1px solid #eceef3;
+    cursor:pointer;
+    transition:background .12s;
+  }
+  #tab-balance .detail-row:last-child{border-bottom:none;}
+  #tab-balance .detail-row:hover{background:#eef1f7;}
+  #tab-balance .detail-row .name{flex:1;min-width:0;color:#3a3f4d;font-weight:500;line-height:1.32;}
+  #tab-balance .detail-row .right{
+    display:flex;align-items:baseline;gap:8px;flex:0 0 auto;white-space:nowrap;
+  }
+  #tab-balance .detail-row .num{font-weight:700;color:var(--text);letter-spacing:-.1px;min-width:54px;text-align:right;}
+  #tab-balance .detail-row .pct{font-weight:700;font-size:12.3px;letter-spacing:-.1px;min-width:50px;text-align:right;}
+  #tab-balance .pct.up{color:var(--green);}
+  #tab-balance .pct.down{color:var(--red);}
+  #tab-balance .detail-row .caret{color:#b7bcc9;font-size:11px;}
+
+  #tab-balance .tab-panel{display:none;}
+  #tab-balance .tab-panel.active{display:block;}
+
+  #tab-balance .balance-strip{
+    background:var(--blue-bg);border-radius:14px;
+    padding:12px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:13.6px;font-weight:700;letter-spacing:-.1px;
+  }
+  #tab-balance .balance-strip .amount{flex:0 0 auto;white-space:nowrap;display:flex;align-items:baseline;}
+  #tab-balance .balance-strip .pct{color:var(--green);font-size:12.6px;margin-left:8px;}
+  #tab-balance .balance-strip .icon svg{width:18px;height:18px;color:var(--blue);}
+
+  #tab-balance .hint-banner{
+    background:var(--blue-bg);border-radius:14px;padding:12px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:12.3px;color:var(--blue);font-weight:600;line-height:1.42;
+  }
+  #tab-balance .hint-banner svg{width:26px;height:26px;color:var(--blue);flex:0 0 auto;}
+
+  #tab-balance .sheet-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(15,17,25,.4);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .22s ease;
+    z-index:2;
+  }
+  #tab-balance .sheet-overlay.visible{opacity:1;}
+  #tab-balance.active .sheet-overlay.visible{pointer-events:auto;}
+  #tab-balance .bottom-sheet{
+    width:100%;
+    background:#fff;border-radius:22px 22px 0 0;
+    box-shadow:0 -12px 32px rgba(20,25,40,.18);
+    padding:14px 20px 20px;
+    transform:translateY(100%);
+    transition:transform .28s cubic-bezier(.32,.72,0,1);
+  }
+  #tab-balance .sheet-overlay.visible .bottom-sheet{transform:translateY(0);}
+  #tab-balance .sheet-grabber{width:36px;height:4px;background:#e2e5ec;border-radius:3px;margin:0 auto 14px;}
+  #tab-balance .sheet-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;}
+  #tab-balance .sheet-top h2{font-size:16.5px;margin:0 0 3px;font-weight:800;letter-spacing:-.2px;color:#0d0f16;}
+  #tab-balance .sheet-top p{margin:0;font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.1px;}
+  #tab-balance .sheet-close{
+    width:28px;height:28px;flex:0 0 auto;border-radius:9px;background:var(--soft-bg);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);
+  }
+  #tab-balance .sheet-close svg{width:12px;height:12px;}
+  #tab-balance table.sheet-table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:11.2px;}
+  #tab-balance table.sheet-table col.col-name{width:auto;}
+  #tab-balance table.sheet-table col.col-num{width:54px;}
+  #tab-balance table.sheet-table col.col-pct{width:46px;}
+  #tab-balance table.sheet-table thead th{
+    text-align:right;font-weight:700;color:var(--muted);font-size:9.2px;letter-spacing:.1px;
+    padding:0 0 6px;line-height:1.25;
+  }
+  #tab-balance table.sheet-table thead th:first-child{text-align:left;}
+  #tab-balance table.sheet-table tbody td{
+    padding:8px 0;border-bottom:1px solid var(--divider);color:#3a3f4d;font-weight:500;line-height:1.28;
+  }
+  #tab-balance table.sheet-table tbody td:first-child{white-space:normal;}
+  #tab-balance table.sheet-table tbody td:not(:first-child){
+    text-align:right;font-weight:700;color:var(--text);letter-spacing:-.1px;padding-left:4px;white-space:nowrap;
+  }
+  #tab-balance table.sheet-table tbody tr:last-child td{border-bottom:none;}
+  #tab-balance table.sheet-table tbody tr.total td{color:var(--blue);font-weight:800;background:var(--blue-bg);}
+  #tab-balance table.sheet-table tbody tr.total td:first-child{border-radius:9px 0 0 9px;padding-left:8px;}
+  #tab-balance table.sheet-table tbody tr.total td:last-child{border-radius:0 9px 9px 0;padding-right:8px;}
+  #tab-balance .pos{color:var(--green)!important;}
+  #tab-balance .neg{color:var(--red)!important;}
+
+  /* ---------- shared bottom nav (each report keeps its own copy) ---------- */
+  .navbar{
+    flex:0 0 auto;
+    display:flex;align-items:center;justify-content:space-around;
+    padding:9px 10px 13px;
+    border-top:1px solid var(--divider);
+    background:#fff;
+    position:relative;
+    z-index:1;
+  }
+  .navitem{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    color:#b7bcc9;font-size:10.3px;font-weight:600;letter-spacing:.1px;cursor:pointer;
+  }
+  .navitem svg{width:21px;height:21px;}
+  .navitem.active{color:var(--blue);}
+  .navitem.plus{
+    width:46px;height:46px;border-radius:50%;background:var(--blue);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 16px rgba(0,111,125,.35);
+    margin-top:-24px;
+  }
+  .navitem.plus svg{width:20px;height:20px;color:#fff;}
+
+  @media (max-width:400px){ .phone{width:100%;max-width:340px;} }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="statusbar">
+    <span>9:41</span>
+    <div class="statusicons">
+      <div class="sig-bars"><span></span><span></span><span></span><span></span></div>
+      <div class="wifi-ic"><svg viewBox="0 0 16 12"><path d="M8 10.2a1.3 1.3 0 100 2.6 1.3 1.3 0 000-2.6zM8 7.4c1.5 0 2.9.5 4 1.4l1.4-1.6A9 9 0 008 5.4a9 9 0 00-5.4 1.8L4 8.8c1.1-.9 2.5-1.4 4-1.4zM8 3.6c2.5 0 4.8.9 6.6 2.4L16 4.4A12.6 12.6 0 008 1.4a12.6 12.6 0 00-8 3l1.4 1.6A10.7 10.7 0 018 3.6z"/></svg></div>
+      <div class="batt"><i></i></div>
+    </div>
+  </div>
+
+  <div class="dash-header"><h1>Дешборд</h1></div>
+  <div class="pill-row">
+    <button class="pill" data-pill="cashflow">Cash Flow</button>
+    <button class="pill active" data-pill="pnl">P&amp;L</button>
+    <button class="pill" data-pill="balance">Balance Sheet</button>
+  </div>
+
+  <div class="tab-content-wrap">
+
+    <!-- ===================== TAB: CASH FLOW (empty) ===================== -->
+    <div class="tab-content" id="tab-cashflow">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <p>Cash Flow — раздел в разработке</p>
+      </div>
+    </div>
+
+    <!-- ===================== TAB: P&L ===================== -->
+    <div class="tab-content active" id="tab-pnl">
+
+      <div class="screens">
+
+        <!-- SCREEN: TABLE (home) -->
+        <section class="screen active" id="screen-table">
+          <div class="header">
+            <div class="titles">
+              <h1>Отчет о финансовых результатах</h1>
+              <p><b class="date-range">01.07 — 30.09.26</b> · Форма № 2</p>
+            </div>
+          </div>
+
+          <div class="content">
+            <div class="toolbar">
+              <div class="period-btn" data-open-period>
+                <span class="p-cap">Период:</span>
+                <span class="p-val">3 квартал 2026</span>
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="pnl">
+                <colgroup>
+                  <col class="col-name"><col class="col-num"><col class="col-num">
+                </colgroup>
+                <thead>
+                  <tr><th>Наименование</th><th>Прошлый год</th><th>Отчетный год</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="section income" data-goto="cards" data-chip="income"><td>Доходы</td><td>18 670</td><td>20 120</td></tr>
+                  <tr><td>Чистая выручка</td><td>12 450</td><td>13 700</td></tr>
+                  <tr><td>Себестоимость</td><td>-7 250</td><td>-8 100</td></tr>
+                  <tr><td>Валовая прибыль</td><td>5 200</td><td>5 600</td></tr>
+
+                  <tr class="section expense" data-goto="cards" data-chip="expense"><td>Расходы</td><td>-16 450</td><td>-17 230</td></tr>
+                  <tr><td>Расходы периода, всего</td><td>-3 480</td><td>-3 980</td></tr>
+                  <tr><td>Административные расходы</td><td>-980</td><td>-1 120</td></tr>
+                  <tr><td>Прочие операционные расходы</td><td>-540</td><td>-620</td></tr>
+                  <tr><td>Прочие расходы</td><td>-350</td><td>-410</td></tr>
+
+                  <tr class="section profit" data-goto="cards" data-chip="all"><td>Прибыль</td><td>2 220</td><td>2 890</td></tr>
+                  <tr><td>Прибыль от основной деят.</td><td>6 990</td><td>7 800</td></tr>
+                  <tr><td>Доходы от фин. деятельности</td><td>1 230</td><td>1 450</td></tr>
+                  <tr><td>Налог на прибыль</td><td>-2 000</td><td>-2 360</td></tr>
+
+                  <tr class="spacer"><td colspan="3"></td></tr>
+                  <tr class="net-profit" data-goto="cards" data-chip="all"><td>Чистая прибыль (убыток)</td><td>3 450</td><td>3 890</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN: CARDS + LIST + CHART -->
+        <section class="screen" id="screen-cards">
+          <div class="header">
+            <div class="back" data-goto="table"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+            <div class="titles">
+              <h1>Отчет о финансовых результатах</h1>
+              <p><b class="date-range">01.07 — 30.09.26</b> · Форма № 2</p>
+            </div>
+          </div>
+
+          <div class="content scroll">
+            <div class="toolbar">
+              <div class="period-btn" data-open-period>
+                <span class="p-cap">Период:</span>
+                <span class="p-val">3 квартал 2026</span>
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+              </div>
+            </div>
+
+            <div class="cards3">
+              <div class="mini-card assets" data-chip="income">
+                <span class="label">Доходы</span>
+                <span class="value">18 670</span>
+                <div class="foot"><span class="pct">+8.5%</span><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+              </div>
+              <div class="mini-card expense" data-chip="expense">
+                <span class="label">Расходы</span>
+                <span class="value">-16 450</span>
+                <div class="foot"><span class="pct">+6.2%</span><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+              </div>
+              <div class="mini-card profit" data-chip="net">
+                <span class="label">Чистая прибыль</span>
+                <span class="value">2 220</span>
+                <div class="foot"><span class="pct">+12.8%</span><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+              </div>
+            </div>
+
+            <div class="section-title">Детализация</div>
+
+            <div class="chip-row" data-group="chips">
+              <button class="chip" data-chip="income">Доходы</button>
+              <button class="chip" data-chip="expense">Расходы</button>
+              <button class="chip" data-chip="net">Чистая прибыль</button>
+            </div>
+
+            <div class="row-list">
+              <div class="item-row" data-category="income" data-sheet="vyruchka">
+                <span class="name">Выручка от реализации</span>
+                <div class="right"><div class="nums"><span class="num">12 450</span><span class="pct up">+10.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row" data-category="expense">
+                <span class="name">Себестоимость реализованной продукции</span>
+                <div class="right"><div class="nums"><span class="num neg">-7 250</span><span class="pct up">+11.7%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row subtotal" data-category="other">
+                <span class="name">Валовая прибыль</span>
+                <div class="right"><div class="nums"><span class="num">5 200</span><span class="pct up">+7.7%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row subtotal" data-category="expense" data-sheet="rashody-perioda">
+                <span class="name">Расходы периода, всего</span>
+                <div class="right"><div class="nums"><span class="num neg">-3 480</span><span class="pct up">+2.1%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="expense">
+                <span class="name">Расходы по реализации</span>
+                <div class="right"><div class="nums"><span class="num neg">-1 260</span><span class="pct up">+4.8%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="expense">
+                <span class="name">Административные расходы</span>
+                <div class="right"><div class="nums"><span class="num neg">-980</span><span class="pct up">+1.2%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="expense" data-sheet="prochie-operac">
+                <span class="name">Прочие операционные расходы</span>
+                <div class="right"><div class="nums"><span class="num neg">-540</span><span class="pct up">+14.8%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="expense">
+                <span class="name">Расходы отчетного периода, вычитаемые из налогооблагаемой прибыли в будущем</span>
+                <div class="right"><div class="nums"><span class="num neg">-700</span><span class="pct up">+9.2%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row subtotal" data-category="income">
+                <span class="name">Прочие доходы от основной деятельности</span>
+                <div class="right"><div class="nums"><span class="num">850</span><span class="pct up">+6.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="income">
+                <span class="name">Прибыль от выбытия основных средств</span>
+                <div class="right"><div class="nums"><span class="num">400</span><span class="pct up">+7.5%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="income">
+                <span class="name">Прибыль от выбытия иных активов</span>
+                <div class="right"><div class="nums"><span class="num">250</span><span class="pct up">+5.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="income">
+                <span class="name">Взысканные штрафы, пени, неустойки</span>
+                <div class="right"><div class="nums"><span class="num">200</span><span class="pct up">+4.2%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row subtotal" data-category="other">
+                <span class="name">Прибыль (убыток) от основной деятельности</span>
+                <div class="right"><div class="nums"><span class="num">6 990</span><span class="pct up">+11.6%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row subtotal" data-category="income">
+                <span class="name">Доходы от финансовой деятельности, всего</span>
+                <div class="right"><div class="nums"><span class="num">1 230</span><span class="pct up">+17.9%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="income">
+                <span class="name">Доходы в виде дивидендов</span>
+                <div class="right"><div class="nums"><span class="num">320</span><span class="pct up">+8.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="income">
+                <span class="name">Доходы в виде процентов</span>
+                <div class="right"><div class="nums"><span class="num">410</span><span class="pct up">+5.5%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="income">
+                <span class="name">Доходы от финансовой аренды</span>
+                <div class="right"><div class="nums"><span class="num">180</span><span class="pct up">+12.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="income">
+                <span class="name">Доходы от валютных курсовых разниц</span>
+                <div class="right"><div class="nums"><span class="num">210</span><span class="pct down">-4.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="income">
+                <span class="name">Прочие доходы от финансовой деятельности</span>
+                <div class="right"><div class="nums"><span class="num">110</span><span class="pct up">+9.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row subtotal" data-category="expense">
+                <span class="name">Расходы по финансовой деятельности, всего</span>
+                <div class="right"><div class="nums"><span class="num neg">-520</span><span class="pct up">+6.7%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="expense">
+                <span class="name">Расходы в виде процентов</span>
+                <div class="right"><div class="nums"><span class="num neg">-280</span><span class="pct up">+5.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="expense">
+                <span class="name">Расходы в виде процентов по финансовой аренде</span>
+                <div class="right"><div class="nums"><span class="num neg">-60</span><span class="pct up">+3.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="expense">
+                <span class="name">Убытки от валютных курсовых разниц</span>
+                <div class="right"><div class="nums"><span class="num neg">-120</span><span class="pct down">-8.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="expense">
+                <span class="name">Прочие расходы по финансовой деятельности</span>
+                <div class="right"><div class="nums"><span class="num neg">-60</span><span class="pct up">+2.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row subtotal" data-category="other">
+                <span class="name">Прибыль (убыток) от общехозяйственной деятельности</span>
+                <div class="right"><div class="nums"><span class="num">7 700</span><span class="pct up">+9.5%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row" data-category="other">
+                <span class="name">Чрезвычайные прибыли и убытки</span>
+                <div class="right"><div class="nums"><span class="num neg">-80</span><span class="pct down">-15.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row subtotal" data-category="net">
+                <span class="name">Прибыль (убыток) до уплаты налога на прибыль</span>
+                <div class="right"><div class="nums"><span class="num">7 620</span><span class="pct up">+9.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="net">
+                <span class="name">Налог на прибыль (налог с оборота)</span>
+                <div class="right"><div class="nums"><span class="num neg">-2 000</span><span class="pct up">+18.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row child" data-category="net">
+                <span class="name">Прочие налоги и другие обязательные платежи от прибыли</span>
+                <div class="right"><div class="nums"><span class="num neg">-170</span><span class="pct up">+6.0%</span></div><span class="caret">›</span></div>
+              </div>
+              <div class="item-row subtotal" data-category="net">
+                <span class="name">Чистая прибыль (убыток) отчетного периода</span>
+                <div class="right"><div class="nums"><span class="num">3 450</span><span class="pct up">+12.8%</span></div><span class="caret">›</span></div>
+              </div>
+            </div>
+
+            <div class="empty-hint">Нет статей в этой категории</div>
+
+            <div class="section-title">Динамика чистой прибыли</div>
+            <div class="chart2">
+              <svg viewBox="0 0 300 120" preserveAspectRatio="none">
+                <line x1="18" y1="8" x2="300" y2="8" stroke="#eef0f4" stroke-width="1"/>
+                <line x1="18" y1="41" x2="300" y2="41" stroke="#eef0f4" stroke-width="1"/>
+                <line x1="18" y1="74" x2="300" y2="74" stroke="#eef0f4" stroke-width="1"/>
+                <line x1="18" y1="107" x2="300" y2="107" stroke="#eef0f4" stroke-width="1"/>
+                <text x="0" y="11" font-size="9" fill="#9aa0ac">6x</text>
+                <text x="0" y="44" font-size="9" fill="#9aa0ac">4x</text>
+                <text x="0" y="77" font-size="9" fill="#9aa0ac">2x</text>
+                <text x="4" y="110" font-size="9" fill="#9aa0ac">0</text>
+                <path d="M30,104 C60,88 65,44 110,42 C150,40 175,54 205,52 C240,50 260,22 285,13"
+                      fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="30" cy="104" r="3.3" fill="var(--blue)"/>
+                <circle cx="110" cy="42" r="3.3" fill="var(--blue)"/>
+                <circle cx="205" cy="52" r="3.3" fill="var(--blue)"/>
+                <circle cx="285" cy="13" r="3.8" fill="var(--blue)" stroke="#fff" stroke-width="1.6"/>
+              </svg>
+              <div class="xlabels"><span>2021</span><span>2022</span><span>2023</span><span>2024</span></div>
+            </div>
+            <div style="height:6px;flex:0 0 auto;"></div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- P&L period selector (Период) -->
+      <div class="period-overlay" id="pnlPeriodOverlay">
+        <div class="period-sheet">
+          <div class="period-head">
+            <div class="p-back" id="pnlPeriodBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+            <h3 id="pnlPeriodTitle">Выбор периода</h3>
+            <div class="p-close" id="pnlPeriodClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg></div>
+          </div>
+
+          <!-- VIEW: grid picker (year → months / quarters / quick periods) -->
+          <div class="period-view active" id="pnlPeriodListView">
+            <div class="pp-year">
+              <button class="pp-nav" id="pnlYearPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <div class="pp-year-label"><b id="pnlYearLabel">2026</b> год</div>
+              <button class="pp-nav" id="pnlYearNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+            </div>
+
+            <div class="pp-scroll">
+              <div class="pp-section-label">Месяцы</div>
+              <div class="pp-grid pp-months">
+                <button class="pp-cell" data-ptype="month" data-pval="0">Январь</button>
+                <button class="pp-cell" data-ptype="month" data-pval="1">Февраль</button>
+                <button class="pp-cell" data-ptype="month" data-pval="2">Март</button>
+                <button class="pp-cell" data-ptype="month" data-pval="3">Апрель</button>
+                <button class="pp-cell" data-ptype="month" data-pval="4">Май</button>
+                <button class="pp-cell" data-ptype="month" data-pval="5">Июнь</button>
+                <button class="pp-cell" data-ptype="month" data-pval="6">Июль</button>
+                <button class="pp-cell" data-ptype="month" data-pval="7">Август</button>
+                <button class="pp-cell" data-ptype="month" data-pval="8">Сентябрь</button>
+                <button class="pp-cell" data-ptype="month" data-pval="9">Октябрь</button>
+                <button class="pp-cell" data-ptype="month" data-pval="10">Ноябрь</button>
+                <button class="pp-cell" data-ptype="month" data-pval="11">Декабрь</button>
+              </div>
+
+              <div class="pp-section-label">Кварталы</div>
+              <div class="pp-grid pp-quarters">
+                <button class="pp-cell" data-ptype="quarter" data-pval="1">1 кв<span class="pp-sub">янв–мар</span></button>
+                <button class="pp-cell" data-ptype="quarter" data-pval="2">2 кв<span class="pp-sub">апр–июн</span></button>
+                <button class="pp-cell" data-ptype="quarter" data-pval="3">3 кв<span class="pp-sub">июл–сен</span></button>
+                <button class="pp-cell" data-ptype="quarter" data-pval="4">4 кв<span class="pp-sub">окт–дек</span></button>
+              </div>
+
+              <div class="pp-section-label">Быстрый выбор</div>
+              <div class="pp-grid pp-periods">
+                <button class="pp-cell" data-ptype="half" data-pval="1">Полугодие</button>
+                <button class="pp-cell" data-ptype="nine" data-pval="1">9 месяцев</button>
+                <button class="pp-cell" data-ptype="year" data-pval="1">Год</button>
+              </div>
+
+              <button class="pp-custom" id="pnlCustomBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+                Свой период
+              </button>
+            </div>
+          </div>
+
+          <!-- VIEW: calendar range -->
+          <div class="period-view" id="pnlPeriodCalView">
+            <div class="cal-range">
+              <div class="cr-field focus empty" id="pnlCalFrom"><div class="cr-cap">Начало</div><div class="cr-date">Выберите</div></div>
+              <div class="cr-field empty" id="pnlCalTo"><div class="cr-cap">Конец</div><div class="cr-date">Выберите</div></div>
+            </div>
+            <div class="cal-nav">
+              <div class="cn-btn" id="pnlCalPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+              <div class="cn-title" id="pnlCalTitle">Месяц</div>
+              <div class="cn-btn" id="pnlCalNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+            </div>
+            <div class="cal-grid" id="pnlCalGrid"></div>
+            <button class="cal-apply" id="pnlCalApply" disabled>Применить</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- P&L bottom sheet: item detail -->
+      <div class="sheet-overlay" id="pnlSheetOverlay">
+        <div class="bottom-sheet">
+          <div class="sheet-grabber"></div>
+          <div class="sheet-close" id="pnlSheetClose">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg>
+          </div>
+
+          <div class="stat-block">
+            <div class="label" id="pnlSheetLabel">Расходы периода, всего</div>
+            <div class="value" id="pnlSheetValue">−3 480<span class="unit">тыс. сум</span></div>
+            <div class="pct" id="pnlSheetPct">+2.1% к прошлому году</div>
+          </div>
+
+          <table class="detail">
+            <colgroup>
+              <col class="col-name"><col class="col-num"><col class="col-num"><col class="col-pct">
+            </colgroup>
+            <thead>
+              <tr><th>Наименование статьи</th><th>Прошлый год</th><th>Отчетный год</th><th>Δ, %</th></tr>
+            </thead>
+            <tbody id="pnlSheetBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="navbar">
+        <div class="navitem" data-goto="table"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Главная</div>
+        <div class="navitem active" data-goto="table"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Отчеты</div>
+        <div class="navitem plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 01-3.4 0"/></svg>Уведомления</div>
+        <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Профиль</div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB: BALANCE SHEET ===================== -->
+    <div class="tab-content" id="tab-balance">
+
+      <div class="screens">
+
+        <!-- SCREEN: HOME -->
+        <section class="screen active" id="screen-home">
+          <div class="header">
+            <div class="titles">
+              <h1>Бухгалтерский баланс</h1>
+              <p>Форма №1</p>
+            </div>
+          </div>
+
+          <div class="content">
+            <div class="scroll-area">
+              <div class="segmented" data-group="home-date">
+                <button class="active" data-year="cur">На 08.07.2026</button>
+                <button data-year="prev">На 31.12.2025</button>
+              </div>
+
+              <div class="cards-row" style="margin-top:14px;margin-bottom:14px;">
+                <div class="stat-card assets" data-goto="detail" data-tab="assets">
+                  <span class="label">Активы</span>
+                  <span class="value">124 560</span>
+                  <div class="foot"><span class="pct">+9.2%</span><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+                </div>
+                <div class="stat-card liab" data-goto="detail" data-tab="liab">
+                  <span class="label">Пассивы</span>
+                  <span class="value">124 560</span>
+                  <div class="foot"><span class="pct">+9.2%</span><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+                </div>
+              </div>
+
+              <div class="balance-card" style="margin-bottom:18px;" data-goto="detail" data-tab="assets">
+                <div class="left">
+                  <div class="label">Баланс</div>
+                  <div class="value">124 560</div>
+                  <div class="pct">+9.2%</div>
+                </div>
+                <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></div>
+              </div>
+
+              <div class="section-title" style="margin-bottom:8px;">Структура баланса</div>
+              <div class="legend-list" style="margin-bottom:18px;">
+                <div class="legend-row"><span class="dot" style="background:var(--green-dot)"></span><span class="name">Внеоборотные активы</span><span class="num">55 230</span><span class="share">44%</span></div>
+                <div class="legend-row"><span class="dot" style="background:#16c46c"></span><span class="name">Оборотные активы</span><span class="num">69 330</span><span class="share">56%</span></div>
+                <div class="legend-row"><span class="dot" style="background:var(--blue)"></span><span class="name">Собственный капитал</span><span class="num">62 450</span><span class="share">50%</span></div>
+                <div class="legend-row"><span class="dot" style="background:var(--salmon-dot)"></span><span class="name">Долгосрочные обязательства</span><span class="num">25 100</span><span class="share">20%</span></div>
+                <div class="legend-row"><span class="dot" style="background:var(--red-dot)"></span><span class="name">Краткосрочные обязательства</span><span class="num">37 010</span><span class="share">30%</span></div>
+              </div>
+
+              <div class="section-title" style="margin-bottom:2px;">Динамика баланса</div>
+              <div class="chart-wrap" style="margin-bottom:14px;">
+                <svg viewBox="0 0 300 150" preserveAspectRatio="none">
+                  <line x1="0" y1="10" x2="300" y2="10" stroke="#eef0f4" stroke-width="1"/>
+                  <line x1="0" y1="46" x2="300" y2="46" stroke="#eef0f4" stroke-width="1"/>
+                  <line x1="0" y1="82" x2="300" y2="82" stroke="#eef0f4" stroke-width="1"/>
+                  <line x1="0" y1="118" x2="300" y2="118" stroke="#eef0f4" stroke-width="1"/>
+                  <text x="0" y="8" font-size="9" fill="#9aa0ac">150K</text>
+                  <text x="0" y="44" font-size="9" fill="#9aa0ac">100K</text>
+                  <text x="0" y="80" font-size="9" fill="#9aa0ac">50K</text>
+                  <text x="0" y="116" font-size="9" fill="#9aa0ac">0</text>
+                  <path d="M28,98 C55,98 60,50 110,48 C150,46 170,60 190,58 C220,55 240,28 272,24"
+                        fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round"/>
+                  <circle cx="28" cy="98" r="3.5" fill="var(--blue)"/>
+                  <circle cx="110" cy="48" r="3.5" fill="var(--blue)"/>
+                  <circle cx="190" cy="58" r="3.5" fill="var(--blue)"/>
+                  <circle cx="272" cy="24" r="4" fill="var(--blue)" stroke="#fff" stroke-width="2"/>
+                </svg>
+                <div class="chart-xlabels">
+                  <span>2022</span><span>2023</span><span>2024</span><span>2025</span>
+                </div>
+              </div>
+
+              <div class="section-title" style="margin-bottom:8px;">Коэффициенты</div>
+              <div class="coef-list" style="margin-bottom:16px;">
+                <div class="coef-row"><span class="name">Коэффициент текущей ликвидности</span><span class="right"><span class="val">1.82</span><span class="badge">норма</span></span></div>
+                <div class="coef-row"><span class="name">Коэффициент автономии</span><span class="right"><span class="val">0.50</span><span class="badge">норма</span></span></div>
+                <div class="coef-row"><span class="name">Коэффициент обеспеченности</span><span class="right"><span class="val">0.67</span><span class="badge">норма</span></span></div>
+              </div>
+
+              <div class="legend-swatches">
+                <div class="sw"><span class="dot" style="background:var(--green-dot)"></span>Зеленый — рост / положительная динамика</div>
+                <div class="sw"><span class="dot" style="background:var(--red-dot)"></span>Красный — снижение / отрицательная динамика</div>
+                <div class="sw"><span class="dot" style="background:var(--blue)"></span>Синий — итоговые показатели</div>
+                <div class="sw"><span class="dot" style="background:#c9cdd6"></span>Серый — нейтральная информация</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN: DETAIL -->
+        <section class="screen" id="screen-detail">
+          <div class="header">
+            <div class="back" data-goto="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+            <div class="titles">
+              <h1>Детализация баланса</h1>
+              <a class="linklike"><span class="bal-asof">На 08.07.2026</span><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg></a>
+            </div>
+          </div>
+
+          <div class="content">
+            <div class="segmented" data-group="detail-tabs">
+              <button class="active" data-tab="assets">Активы</button>
+              <button data-tab="liab">Пассивы</button>
+            </div>
+
+            <div class="scroll-area" style="margin-top:14px;">
+
+              <!-- ASSETS TAB -->
+              <div id="tab-assets" class="tab-panel active">
+                <div class="detail-group" style="margin-bottom:12px;">
+                  <div class="g-head"><span class="g-name">Внеоборотные активы</span><span class="ghead-value"><span class="num">55 230</span><span class="pct">+8.6%</span></span></div>
+                  <div class="detail-row" data-sheet="os"><span class="name">Основные средства</span><span class="right"><span class="num">38 900</span><span class="pct up">+7.7%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="nma"><span class="name">Нематериальные активы</span><span class="right"><span class="num">2 230</span><span class="pct up">+6.2%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="dfv"><span class="name">Долгосрочные финансовые вложения</span><span class="right"><span class="num">8 100</span><span class="pct up">+8.7%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="ovna"><span class="name">Прочие внеоборотные активы</span><span class="right"><span class="num">6 000</span><span class="pct up">+15.8%</span><span class="caret">›</span></span></div>
+                </div>
+
+                <div class="detail-group" style="margin-bottom:14px;">
+                  <div class="g-head"><span class="g-name">Оборотные активы</span><span class="ghead-value"><span class="num">69 330</span><span class="pct">+9.7%</span></span></div>
+                  <div class="detail-row" data-sheet="zapasy"><span class="name">Запасы</span><span class="right"><span class="num">22 450</span><span class="pct up">+13.1%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="dz"><span class="name">Дебиторская задолженность</span><span class="right"><span class="num">28 700</span><span class="pct up">+14.6%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="ds"><span class="name">Денежные средства и их эквиваленты</span><span class="right"><span class="num">12 180</span><span class="pct up">+8.2%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="ooa"><span class="name">Прочие оборотные активы</span><span class="right"><span class="num">6 000</span><span class="pct down">-14.9%</span><span class="caret">›</span></span></div>
+                </div>
+              </div>
+
+              <!-- LIABILITIES TAB -->
+              <div id="tab-liab" class="tab-panel">
+                <div class="detail-group" style="margin-bottom:12px;">
+                  <div class="g-head"><span class="g-name">Собственный капитал</span><span class="ghead-value"><span class="num">62 450</span><span class="pct">+7.8%</span></span></div>
+                  <div class="detail-row" data-sheet="uk"><span class="name">Уставный капитал</span><span class="right"><span class="num">40 000</span><span class="pct up">+0.0%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="rk"><span class="name">Резервный капитал</span><span class="right"><span class="num">2 000</span><span class="pct up">+4.5%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="np"><span class="name">Нераспределенная прибыль</span><span class="right"><span class="num">20 450</span><span class="pct up">+22.4%</span><span class="caret">›</span></span></div>
+                </div>
+
+                <div class="detail-group" style="margin-bottom:12px;">
+                  <div class="g-head"><span class="g-name">Краткосрочные обязательства</span><span class="ghead-value"><span class="num">37 010</span><span class="pct">+6.9%</span></span></div>
+                  <div class="detail-row" data-sheet="kz"><span class="name">Кредиторская задолженность</span><span class="right"><span class="num">22 010</span><span class="pct up">+8.1%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="kk"><span class="name">Краткосрочные кредиты</span><span class="right"><span class="num">10 000</span><span class="pct up">+3.0%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="pko"><span class="name">Прочие краткосрочные обязательства</span><span class="right"><span class="num">5 000</span><span class="pct down">-2.5%</span><span class="caret">›</span></span></div>
+                </div>
+
+                <div class="detail-group" style="margin-bottom:14px;">
+                  <div class="g-head"><span class="g-name">Долгосрочные обязательства</span><span class="ghead-value"><span class="num">25 100</span><span class="pct">+12.3%</span></span></div>
+                  <div class="detail-row" data-sheet="dkb"><span class="name">Долгосрочные кредиты банков</span><span class="right"><span class="num">18 000</span><span class="pct up">+10.5%</span><span class="caret">›</span></span></div>
+                  <div class="detail-row" data-sheet="pdo"><span class="name">Прочие долгосрочные обязательства</span><span class="right"><span class="num">7 100</span><span class="pct up">+17.4%</span><span class="caret">›</span></span></div>
+                </div>
+              </div>
+
+              <div class="balance-strip" style="margin-bottom:12px;">
+                <span>Баланс</span>
+                <span class="amount"><span>124 560</span><span class="pct">+9.2%</span></span>
+                <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></span>
+              </div>
+
+              <div class="hint-banner">
+                <span>Нажмите на любой раздел для просмотра детализации</span>
+                <span>👆</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Balance Sheet bottom sheet overlay -->
+      <div class="sheet-overlay" id="balSheetOverlay">
+        <div class="bottom-sheet">
+          <div class="sheet-grabber"></div>
+          <div class="sheet-top">
+            <div>
+              <h2 id="balSheetTitle">Детализация: Запасы</h2>
+              <p class="bal-asof">На 08.07.2026</p>
+            </div>
+            <div class="sheet-close" id="balSheetClose">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg>
+            </div>
+          </div>
+          <table class="sheet-table">
+            <colgroup>
+              <col class="col-name"><col class="col-num"><col class="col-num"><col class="col-pct">
+            </colgroup>
+            <thead>
+              <tr><th>Наименование</th><th class="bal-year-cur">08.07.26</th><th class="bal-year-prev">31.12.25</th><th>Δ, %</th></tr>
+            </thead>
+            <tbody id="balSheetBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="navbar">
+        <div class="navitem active" data-goto="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Главная</div>
+        <div class="navitem" data-goto="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Отчеты</div>
+        <div class="navitem plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 01-3.4 0"/></svg>Уведомления</div>
+        <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Профиль</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ===== outer Дешборд pill switcher (Cash Flow / P&L / Balance Sheet) =====
+  document.querySelectorAll('.pill-row .pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.pill-row .pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(tc => {
+        tc.classList.toggle('active', tc.id === `tab-${pill.dataset.pill}`);
+      });
+    });
+  });
+</script>
+
+<script>
+  // ===== P&L report, fully scoped to #tab-pnl so it can never touch #tab-balance =====
+  (function(){
+    const root = document.getElementById('tab-pnl');
+    const screens = root.querySelectorAll('.screen');
+    const sheetOverlay = root.querySelector('#pnlSheetOverlay');
+    const sheetLabel = root.querySelector('#pnlSheetLabel');
+    const sheetValue = root.querySelector('#pnlSheetValue');
+    const sheetPct = root.querySelector('#pnlSheetPct');
+    const sheetBody = root.querySelector('#pnlSheetBody');
+
+    // breakdown data for line items that have a drill-down (add more keys as needed)
+    const sheetData = {
+      'rashody-perioda': { label: 'Расходы периода, всего', total: 'Итого', rows: [
+        ['Расходы по реализации', -1260, -1320],
+        ['Административные расходы', -980, -1010],
+        ['Прочие операционные расходы', -540, -620],
+        ['Расходы отчетного периода, вычитаемые из налогооблагаемой прибыли в будущем', -350, -370],
+        ['Прочие расходы от основной деятельности', -250, -160],
+        ['Убытки от валютных курсовых разниц', -100, -90],
+      ]},
+      'vyruchka': { label: 'Выручка от реализации', total: 'Итого', rows: [
+        ['Выручка от продажи товаров', 7200, 7900],
+        ['Выручка от оказания услуг', 3200, 3600],
+        ['Выручка от выполнения работ', 1500, 1650],
+        ['Прочая выручка от реализации', 550, 550],
+      ]},
+      'prochie-operac': { label: 'Прочие операционные расходы', total: 'Итого', rows: [
+        ['Банковская комиссия', -320, -380],
+        ['Гос. номер (автотранспорт)', -120, -130],
+        ['Технический осмотр', -100, -110],
+      ]},
+    };
+
+    function fmt(n){ return n.toLocaleString('ru-RU'); }
+    function pctOf(prev, cur){
+      const pct = ((cur - prev) / prev) * 100;
+      const sign = pct >= 0 ? '+' : '';
+      return { text: `${sign}${pct.toFixed(1)}%`, cls: pct >= 0 ? 'pos' : 'neg' };
+    }
+
+    function closeSheet(){ sheetOverlay.classList.remove('visible'); }
+
+    function openSheet(key){
+      const data = sheetData[key];
+      if (!data) return;
+
+      let totalPrev = 0, totalCur = 0;
+      const rowsHtml = data.rows.map(([name, prev, cur]) => {
+        totalPrev += prev;
+        totalCur += cur;
+        const pct = pctOf(prev, cur);
+        return `<tr><td>${name}</td><td>${fmt(prev)}</td><td>${fmt(cur)}</td><td class="${pct.cls}">${pct.text}</td></tr>`;
+      }).join('');
+
+      const totalPct = pctOf(totalPrev, totalCur);
+      const totalHtml = `<tr class="total"><td>${data.total}</td><td>${fmt(totalPrev)}</td><td>${fmt(totalCur)}</td><td class="${totalPct.cls}">${totalPct.text}</td></tr>`;
+
+      sheetLabel.textContent = data.label;
+      sheetValue.innerHTML = `${fmt(totalPrev)}<span class="unit">тыс. сум</span>`;
+      sheetPct.textContent = `${totalPct.text} к прошлому году`;
+      sheetBody.innerHTML = rowsHtml + totalHtml;
+
+      sheetOverlay.classList.add('visible');
+    }
+
+    const rows = root.querySelectorAll('.row-list .item-row');
+    const emptyHint = root.querySelector('.empty-hint');
+
+    function setChip(chip){
+      root.querySelectorAll('.chip-row .chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.chip === chip);
+      });
+      let visibleCount = 0;
+      rows.forEach(row => {
+        const show = chip === 'all' || row.dataset.category === chip;
+        row.classList.toggle('hidden', !show);
+        if (show) visibleCount++;
+      });
+      emptyHint.classList.toggle('visible', visibleCount === 0);
+    }
+
+    root.querySelectorAll('.chip-row .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        // tapping the already-active chip clears the filter (show everything)
+        setChip(chip.classList.contains('active') ? 'all' : chip.dataset.chip);
+      });
+    });
+
+    root.querySelectorAll('.mini-card[data-chip]').forEach(card => {
+      card.addEventListener('click', () => setChip(card.dataset.chip));
+    });
+
+    function showScreen(id, opts = {}){
+      if (id !== 'screen-cards') closeSheet();
+      screens.forEach(s => s.classList.toggle('active', s.id === id));
+      if (id === 'screen-cards' && opts.chip) setChip(opts.chip);
+    }
+
+    root.querySelectorAll('[data-goto]').forEach(el => {
+      el.addEventListener('click', () => {
+        const target = el.dataset.goto === 'table' ? 'screen-table' : 'screen-cards';
+        showScreen(target, { chip: el.dataset.chip });
+      });
+    });
+
+    root.querySelectorAll('[data-sheet]').forEach(row => {
+      row.addEventListener('click', () => openSheet(row.dataset.sheet));
+    });
+    root.querySelector('#pnlSheetClose').addEventListener('click', closeSheet);
+    sheetOverlay.addEventListener('click', (e) => {
+      if (e.target === sheetOverlay) closeSheet();
+    });
+
+    /* ================= Период (date period filter) ================= */
+    const periodOverlay = root.querySelector('#pnlPeriodOverlay');
+    const periodTitle   = root.querySelector('#pnlPeriodTitle');
+    const periodBack    = root.querySelector('#pnlPeriodBack');
+    const periodClose   = root.querySelector('#pnlPeriodClose');
+    const listView      = root.querySelector('#pnlPeriodListView');
+    const calView       = root.querySelector('#pnlPeriodCalView');
+    const periodVals    = root.querySelectorAll('.period-btn .p-val');
+
+    const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
+    const dateRangeEls = root.querySelectorAll('.header .titles .date-range');
+
+    function setPeriodLabel(text){
+      periodVals.forEach(el => { el.textContent = text; });
+    }
+    function setDateRange(text){
+      dateRangeEls.forEach(el => { el.textContent = text; });
+    }
+
+    // header format: "01.04 — 30.06.26"  (start day.month, end day.month.YY)
+    function fmtRange(start, end){
+      const s = `${pad(start.getDate())}.${pad(start.getMonth()+1)}`;
+      const e = `${pad(end.getDate())}.${pad(end.getMonth()+1)}.${String(end.getFullYear()).slice(-2)}`;
+      return `${s} — ${e}`;
+    }
+
+    // exact date range for a picked period within a year
+    // quarters: 1=янв-мар, 2=апр-июн, 3=июл-сен, 4=окт-дек
+    function periodRangeFor(type, value, year){
+      switch (type){
+        case 'month':   return { start:new Date(year, value, 1),       end:new Date(year, value+1, 0) };
+        case 'quarter': return { start:new Date(year, (value-1)*3, 1), end:new Date(year, value*3, 0) };
+        case 'half':    return { start:new Date(year, 0, 1),           end:new Date(year, 6, 0) };
+        case 'nine':    return { start:new Date(year, 0, 1),           end:new Date(year, 9, 0) };
+        case 'year':    return { start:new Date(year, 0, 1),           end:new Date(year, 12, 0) };
+        default: return null;
+      }
+    }
+    function periodLabelFor(type, value, year){
+      switch (type){
+        case 'month':   return `${MONTHS[value]} ${year}`;
+        case 'quarter': return `${value} квартал ${year}`;
+        case 'half':    return `Полугодие ${year}`;
+        case 'nine':    return `9 месяцев ${year}`;
+        case 'year':    return `${year} год`;
+        default: return '';
+      }
+    }
+
+    function showPeriodView(which){
+      const cal = which === 'cal';
+      listView.classList.toggle('active', !cal);
+      calView.classList.toggle('active', cal);
+      periodTitle.textContent = cal ? 'Свой период' : 'Выбор периода';
+      periodBack.style.display = cal ? 'flex' : 'none';
+    }
+
+    function openPeriod(){
+      showPeriodView('list');
+      periodOverlay.classList.add('visible');
+    }
+    function closePeriod(){ periodOverlay.classList.remove('visible'); }
+
+    root.querySelectorAll('[data-open-period]').forEach(el => {
+      el.addEventListener('click', openPeriod);
+    });
+    periodClose.addEventListener('click', closePeriod);
+    periodBack.addEventListener('click', () => showPeriodView('list'));
+    periodOverlay.addEventListener('click', (e) => {
+      if (e.target === periodOverlay) closePeriod();
+    });
+
+    /* ---- grid picker: year → month / quarter / quick period ---- */
+    const yearLabel = root.querySelector('#pnlYearLabel');
+    const customBtn = root.querySelector('#pnlCustomBtn');
+    let pickerYear = new Date().getFullYear();
+    let selected = null;   // { type, value, year }  or  { type:'custom' }
+
+    function markActive(){
+      root.querySelectorAll('.pp-cell').forEach(c => c.classList.remove('active'));
+      customBtn.classList.remove('active');
+      if (!selected) return;
+      if (selected.type === 'custom'){ customBtn.classList.add('active'); return; }
+      if (selected.year !== pickerYear) return;
+      const cell = root.querySelector(`.pp-cell[data-ptype="${selected.type}"][data-pval="${selected.value}"]`);
+      if (cell) cell.classList.add('active');
+    }
+    function renderYear(){ yearLabel.textContent = pickerYear; markActive(); }
+
+    function applyPeriod(type, value, year){
+      const r = periodRangeFor(type, value, year);
+      if (!r) return;
+      selected = { type, value, year };
+      setPeriodLabel(periodLabelFor(type, value, year));
+      setDateRange(fmtRange(r.start, r.end));
+      markActive();
+      closePeriod();
+    }
+
+    root.querySelectorAll('.pp-cell').forEach(cell => {
+      cell.addEventListener('click', () => applyPeriod(cell.dataset.ptype, parseInt(cell.dataset.pval, 10), pickerYear));
+    });
+    root.querySelector('#pnlYearPrev').addEventListener('click', () => { pickerYear--; renderYear(); });
+    root.querySelector('#pnlYearNext').addEventListener('click', () => { pickerYear++; renderYear(); });
+    customBtn.addEventListener('click', () => { showPeriodView('cal'); renderCal(); });
+
+    /* ---- calendar range picker ---- */
+    const calTitle = root.querySelector('#pnlCalTitle');
+    const calGrid  = root.querySelector('#pnlCalGrid');
+    const calFrom  = root.querySelector('#pnlCalFrom');
+    const calTo    = root.querySelector('#pnlCalTo');
+    const calApply = root.querySelector('#pnlCalApply');
+    const calPrev  = root.querySelector('#pnlCalPrev');
+    const calNext  = root.querySelector('#pnlCalNext');
+
+    const today = new Date();
+    let viewY = today.getFullYear();
+    let viewM = today.getMonth();
+    let rangeStart = null;   // {y,m,d} timestamps stored as Date
+    let rangeEnd = null;
+
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function fmtDate(d){ return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}`; }
+    function sameDay(a, b){ return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+    function stripTime(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+    function updateRangeFields(){
+      if (rangeStart){ calFrom.classList.remove('empty'); calFrom.querySelector('.cr-date').textContent = fmtDate(rangeStart); }
+      else { calFrom.classList.add('empty'); calFrom.querySelector('.cr-date').textContent = 'Выберите'; }
+      if (rangeEnd){ calTo.classList.remove('empty'); calTo.querySelector('.cr-date').textContent = fmtDate(rangeEnd); }
+      else { calTo.classList.add('empty'); calTo.querySelector('.cr-date').textContent = 'Выберите'; }
+      // focus hint
+      const pickingEnd = rangeStart && !rangeEnd;
+      calFrom.classList.toggle('focus', !pickingEnd);
+      calTo.classList.toggle('focus', !!pickingEnd);
+      calApply.disabled = !(rangeStart && rangeEnd);
+    }
+
+    function renderCal(){
+      calTitle.textContent = `${MONTHS[viewM]} ${viewY}`;
+      let html = DOW.map(d => `<div class="cal-dow">${d}</div>`).join('');
+      const first = new Date(viewY, viewM, 1);
+      // JS getDay: 0=Sun..6=Sat -> convert to Mon-first index 0..6
+      let lead = (first.getDay() + 6) % 7;
+      const daysInMonth = new Date(viewY, viewM + 1, 0).getDate();
+      for (let i = 0; i < lead; i++) html += `<div class="cal-cell empty"></div>`;
+      for (let d = 1; d <= daysInMonth; d++){
+        const cur = new Date(viewY, viewM, d);
+        let cls = 'cal-cell';
+        if (rangeStart && rangeEnd){
+          const t = cur.getTime(), s = rangeStart.getTime(), e = rangeEnd.getTime();
+          if (t > s && t < e) cls += ' in-range';
+          if (sameDay(cur, rangeStart)) cls += ' range-start selected';
+          if (sameDay(cur, rangeEnd)) cls += ' range-end selected';
+        } else if (rangeStart && sameDay(cur, rangeStart)){
+          cls += ' selected';
+        }
+        html += `<div class="${cls}" data-day="${d}"><span>${d}</span></div>`;
+      }
+      calGrid.innerHTML = html;
+
+      calGrid.querySelectorAll('.cal-cell[data-day]').forEach(cell => {
+        cell.addEventListener('click', () => {
+          const picked = new Date(viewY, viewM, parseInt(cell.dataset.day, 10));
+          if (!rangeStart || (rangeStart && rangeEnd)){
+            rangeStart = picked; rangeEnd = null;          // start fresh
+          } else {
+            if (picked.getTime() < rangeStart.getTime()){   // clicked before start -> swap
+              rangeEnd = rangeStart; rangeStart = picked;
+            } else {
+              rangeEnd = picked;
+            }
+          }
+          updateRangeFields();
+          renderCal();
+        });
+      });
+    }
+
+    calPrev.addEventListener('click', () => { viewM--; if (viewM < 0){ viewM = 11; viewY--; } renderCal(); });
+    calNext.addEventListener('click', () => { viewM++; if (viewM > 11){ viewM = 0; viewY++; } renderCal(); });
+
+    calApply.addEventListener('click', () => {
+      if (!(rangeStart && rangeEnd)) return;
+      selected = { type: 'custom' };
+      setPeriodLabel(fmtRange(rangeStart, rangeEnd));
+      setDateRange(fmtRange(rangeStart, rangeEnd));
+      markActive();
+      closePeriod();
+    });
+
+    // default period = current quarter of the current year
+    (function initPeriod(){
+      const now = new Date();
+      pickerYear = now.getFullYear();
+      renderYear();
+      applyPeriod('quarter', Math.floor(now.getMonth() / 3) + 1, pickerYear);
+    })();
+  })();
+</script>
+
+<script>
+  // ===== Balance Sheet report, fully scoped to #tab-balance so it can never touch #tab-pnl =====
+  (function(){
+    const root = document.getElementById('tab-balance');
+    const screens = root.querySelectorAll('.screen');
+    const sheetOverlay = root.querySelector('#balSheetOverlay');
+    const sheetTitle = root.querySelector('#balSheetTitle');
+    const sheetBody = root.querySelector('#balSheetBody');
+
+    // "as of" dates: current year to-date (as of today) vs last year-end
+    (function initBalanceDates(){
+      const now = new Date();
+      const curY = now.getFullYear();   // текущий год
+      const prevY = curY - 1;           // прошлый год
+      const pad = n => String(n).padStart(2, '0');
+      const yy = y => String(y).slice(-2);
+      const today = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${curY}`;      // 08.07.2026
+      const todayShort = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${yy(curY)}`; // 08.07.26
+      root.querySelectorAll('[data-year="cur"]').forEach(el => el.textContent = `На ${today}`);
+      root.querySelectorAll('[data-year="prev"]').forEach(el => el.textContent = `На 31.12.${prevY}`);
+      root.querySelectorAll('.bal-asof').forEach(el => el.textContent = `На ${today}`);
+      root.querySelectorAll('.bal-year-cur').forEach(el => el.textContent = todayShort);
+      root.querySelectorAll('.bal-year-prev').forEach(el => el.textContent = `31.12.${yy(prevY)}`);
+    })();
+
+    const sheetData = {
+      nma:  { title: 'Нематериальные активы', total: 'Итого', rows: [
+        ['Патенты и лицензии', 900, 850],
+        ['Товарные знаки', 800, 750],
+        ['Прочие НМА', 530, 500],
+      ]},
+      os:   { title: 'Основные средства', total: 'Итого', rows: [
+        ['Здания и сооружения', 18000, 16800],
+        ['Машины и оборудование', 14500, 13400],
+        ['Транспортные средства', 4200, 3900],
+        ['Прочие основные средства', 2200, 2000],
+      ]},
+      dfv:  { title: 'Долгосрочные финансовые вложения', total: 'Итого', rows: [
+        ['Инвестиции в дочерние общества', 4500, 4100],
+        ['Долгосрочные займы выданные', 2600, 2400],
+        ['Прочие финансовые вложения', 1000, 950],
+      ]},
+      ovna: { title: 'Прочие внеоборотные активы', total: 'Итого', rows: [
+        ['Незавершенное строительство', 3200, 2750],
+        ['Отложенные налоговые активы', 1800, 1580],
+        ['Прочее', 1000, 850],
+      ]},
+      zapasy: { title: 'Запасы', total: 'Итого запасы', rows: [
+        ['Сырье и материалы', 8450, 7350],
+        ['Незавершенное производство', 4980, 4250],
+        ['Готовая продукция', 5620, 4860],
+        ['Товары для перепродажи', 2880, 2450],
+        ['Расходы будущих периодов', 580, 430],
+        ['Прочие запасы', 1940, 1510],
+      ]},
+      dz:   { title: 'Дебиторская задолженность', total: 'Итого', rows: [
+        ['Задолженность покупателей и заказчиков', 19500, 16800],
+        ['Авансы выданные', 6200, 5450],
+        ['Прочая дебиторская задолженность', 3000, 2800],
+      ]},
+      ds:   { title: 'Денежные средства и их эквиваленты', total: 'Итого', rows: [
+        ['Касса', 350, 310],
+        ['Расчетные счета', 9830, 9150],
+        ['Депозиты до востребования', 2000, 1800],
+      ]},
+      ooa:  { title: 'Прочие оборотные активы', total: 'Итого', rows: [
+        ['Расходы будущих периодов', 1200, 1650],
+        ['НДС по приобретенным ценностям', 3400, 3900],
+        ['Прочее', 1400, 1500],
+      ]},
+      uk:   { title: 'Уставный капитал', total: 'Итого', rows: [
+        ['Оплаченный капитал', 35000, 35000],
+        ['Эмиссионный доход', 5000, 5000],
+      ]},
+      rk:   { title: 'Резервный капитал', total: 'Итого', rows: [
+        ['Резервный фонд', 1200, 1150],
+        ['Фонд накопления', 800, 760],
+      ]},
+      np:   { title: 'Нераспределенная прибыль', total: 'Итого', rows: [
+        ['Прибыль отчетного года', 8900, 6900],
+        ['Нераспределенная прибыль прошлых лет', 11550, 9800],
+      ]},
+      dkb:  { title: 'Долгосрочные кредиты банков', total: 'Итого', rows: [
+        ['Кредит Банк А (5 лет)', 11000, 9800],
+        ['Кредит Банк Б (3 года)', 7000, 6500],
+      ]},
+      pdo:  { title: 'Прочие долгосрочные обязательства', total: 'Итого', rows: [
+        ['Долгосрочные оценочные обязательства', 4200, 3550],
+        ['Отложенные налоговые обязательства', 2900, 2500],
+      ]},
+      kz:   { title: 'Кредиторская задолженность', total: 'Итого', rows: [
+        ['Задолженность поставщикам', 13500, 12400],
+        ['Задолженность персоналу', 3200, 3000],
+        ['Задолженность бюджету', 2600, 2500],
+        ['Прочая кредиторская задолженность', 2710, 2460],
+      ]},
+      kk:   { title: 'Краткосрочные кредиты', total: 'Итого', rows: [
+        ['Кредит на пополнение оборотных средств', 7000, 6800],
+        ['Овердрафт', 3000, 2910],
+      ]},
+      pko:  { title: 'Прочие краткосрочные обязательства', total: 'Итого', rows: [
+        ['Задолженность по налогам', 3200, 3300],
+        ['Прочие краткосрочные обязательства', 1800, 1830],
+      ]},
+    };
+
+    function fmt(n){ return n.toLocaleString('ru-RU'); }
+    function pctOf(cur, prev){
+      const pct = ((cur - prev) / prev) * 100;
+      const sign = pct >= 0 ? '+' : '';
+      return { text: `${sign}${pct.toFixed(1)}%`, cls: pct >= 0 ? 'pos' : 'neg' };
+    }
+
+    function closeSheet(){ sheetOverlay.classList.remove('visible'); }
+
+    function openSheet(key){
+      const data = sheetData[key];
+      if (!data) return;
+
+      sheetTitle.textContent = `Детализация: ${data.title}`;
+
+      let totalCur = 0, totalPrev = 0;
+      const rowsHtml = data.rows.map(([name, cur, prev]) => {
+        totalCur += cur;
+        totalPrev += prev;
+        const pct = pctOf(cur, prev);
+        return `<tr><td>${name}</td><td>${fmt(cur)}</td><td>${fmt(prev)}</td><td class="${pct.cls}">${pct.text}</td></tr>`;
+      }).join('');
+
+      const totalPct = pctOf(totalCur, totalPrev);
+      const totalHtml = `<tr class="total"><td>${data.total}</td><td>${fmt(totalCur)}</td><td>${fmt(totalPrev)}</td><td class="${totalPct.cls}">${totalPct.text}</td></tr>`;
+
+      sheetBody.innerHTML = rowsHtml + totalHtml;
+      sheetOverlay.classList.add('visible');
+    }
+
+    function setDetailTab(tab){
+      root.querySelectorAll('.segmented[data-group="detail-tabs"] button').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tab);
+      });
+      root.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === `tab-${tab}`);
+      });
+    }
+
+    function showScreen(id, opts = {}){
+      if (id !== 'screen-detail') closeSheet();
+      screens.forEach(s => s.classList.toggle('active', s.id === id));
+      if (id === 'screen-detail' && opts.tab) setDetailTab(opts.tab);
+    }
+
+    root.querySelectorAll('.segmented[data-group="home-date"] button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        root.querySelectorAll('.segmented[data-group="home-date"] button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    root.querySelectorAll('.segmented[data-group="detail-tabs"] button').forEach(btn => {
+      btn.addEventListener('click', () => setDetailTab(btn.dataset.tab));
+    });
+
+    root.querySelectorAll('[data-goto]').forEach(el => {
+      el.addEventListener('click', () => {
+        const target = el.dataset.goto === 'home' ? 'screen-home' : 'screen-detail';
+        showScreen(target, { tab: el.dataset.tab });
+      });
+    });
+
+    root.querySelectorAll('[data-sheet]').forEach(row => {
+      row.addEventListener('click', () => openSheet(row.dataset.sheet));
+    });
+    root.querySelector('#balSheetClose').addEventListener('click', closeSheet);
+    sheetOverlay.addEventListener('click', (e) => {
+      if (e.target === sheetOverlay) closeSheet();
+    });
+  })();
+</script>
+
+</body>
+</html>
