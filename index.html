@@ -500,48 +500,47 @@
   #tab-pnl .pp-custom svg{width:15px;height:15px;}
   #tab-pnl .pp-custom.active{background:var(--blue-bg);border-style:solid;border-color:var(--blue);}
 
-  /* "По месяцам" — inline, horizontally scrollable table under Детализация */
-  #tab-pnl .months-section{margin-top:2px;}
-  #tab-pnl .months-section.hidden{display:none;}
-  #tab-pnl .months-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;}
-  #tab-pnl .months-head .months-q{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:-.1px;}
+  /* Детализация as a horizontally-scrollable table: Статья (frozen) + Итого + months */
+  #tab-pnl .row-list{display:none;}   /* kept only as the data source for the table */
 
-  #tab-pnl .months-scroll{
+  #tab-pnl .det-scroll{
     overflow-x:auto;-webkit-overflow-scrolling:touch;
     border:1px solid var(--divider);border-radius:12px;
     scrollbar-width:thin;scrollbar-color:#cfd6de transparent;
   }
-  #tab-pnl .months-scroll::-webkit-scrollbar{height:5px;}
-  #tab-pnl .months-scroll::-webkit-scrollbar-thumb{background:#cfd6de;border-radius:4px;}
+  #tab-pnl .det-scroll::-webkit-scrollbar{height:5px;}
+  #tab-pnl .det-scroll::-webkit-scrollbar-thumb{background:#cfd6de;border-radius:4px;}
 
-  #tab-pnl table.months-table{
-    border-collapse:separate;border-spacing:0;font-size:10.5px;min-width:430px;
+  #tab-pnl table.det-table{
+    border-collapse:separate;border-spacing:0;font-size:10.8px;width:max-content;min-width:100%;
   }
-  #tab-pnl table.months-table th, #tab-pnl table.months-table td{
-    padding:9px 10px;white-space:nowrap;
+  #tab-pnl table.det-table th, #tab-pnl table.det-table td{padding:9px 10px;white-space:nowrap;}
+  /* frozen first column (Статья) — stays visible while scrolling right */
+  #tab-pnl table.det-table th.dt-name, #tab-pnl table.det-table td.dt-name{
+    position:sticky;left:0;z-index:1;width:148px;min-width:148px;max-width:148px;
+    white-space:normal;text-align:left;background:#fff;box-shadow:1px 0 0 var(--divider);
   }
-  /* frozen first column (Статья) so names stay visible while scrolling */
-  #tab-pnl table.months-table th.mc-name, #tab-pnl table.months-table td.mc-name{
-    position:sticky;left:0;z-index:1;width:150px;min-width:150px;white-space:normal;
-    text-align:left;background:#fff;box-shadow:1px 0 0 var(--divider);
-  }
-  #tab-pnl table.months-table thead th{
-    text-align:right;font-weight:700;font-size:8.8px;color:var(--muted);letter-spacing:.3px;
+  #tab-pnl table.det-table thead th{
+    text-align:right;font-weight:700;font-size:8.7px;color:var(--muted);letter-spacing:.3px;
     text-transform:uppercase;line-height:1.2;background:var(--soft-bg);border-bottom:1px solid var(--divider);
   }
-  #tab-pnl table.months-table thead th.mc-name{background:var(--soft-bg);}
-  #tab-pnl table.months-table thead th.mc-tot{color:var(--blue);}
-  #tab-pnl table.months-table tbody td{
-    text-align:right;font-weight:700;color:var(--text);border-bottom:1px solid var(--divider);
+  #tab-pnl table.det-table thead th.dt-name{background:var(--soft-bg);}
+  #tab-pnl table.det-table tbody td{
+    text-align:right;font-weight:700;color:var(--text);letter-spacing:-.1px;border-bottom:1px solid var(--divider);
   }
-  #tab-pnl table.months-table tbody td.mc-name{font-weight:600;color:#2b2f3a;line-height:1.25;}
-  #tab-pnl table.months-table tbody tr:last-child td{border-bottom:none;}
-  #tab-pnl table.months-table td.pos{color:var(--green);}
-  #tab-pnl table.months-table td.neg{color:var(--red);}
-  #tab-pnl table.months-table td.tot{color:var(--blue);font-weight:800;background:#f7fbfb;}
-  #tab-pnl table.months-table th.mc-tot{position:sticky;right:0;}
+  #tab-pnl table.det-table tbody td.dt-name{font-weight:500;color:#3a3f4d;line-height:1.28;}
+  #tab-pnl table.det-table tbody tr:last-child td{border-bottom:none;}
+  #tab-pnl table.det-table td.neg{color:var(--red);}
+  #tab-pnl table.det-table td.dt-tot{background:#f6fafa;font-weight:800;}
+  /* subtotal / child rows */
+  #tab-pnl table.det-table tr.subtotal td{background:var(--soft-bg);}
+  #tab-pnl table.det-table tr.subtotal td.dt-tot{background:#eef4f4;}
+  #tab-pnl table.det-table tr.subtotal td.dt-name{font-weight:700;color:#1a1d29;background:var(--soft-bg);}
+  #tab-pnl table.det-table tr.child td.dt-name{padding-left:22px;color:#565c6b;}
+  #tab-pnl table.det-table tr[data-sheet]{cursor:pointer;}
+  #tab-pnl table.det-table tr[data-sheet]:hover td{filter:brightness(.98);}
 
-  #tab-pnl .months-hint{
+  #tab-pnl .det-hint{
     font-size:9.5px;color:var(--muted);text-align:right;margin-top:5px;font-weight:500;letter-spacing:.1px;
   }
 
@@ -1004,6 +1003,23 @@
               <button class="chip" data-chip="net">Чистая прибыль</button>
             </div>
 
+            <div class="det-scroll">
+              <table class="det-table">
+                <thead>
+                  <tr>
+                    <th class="dt-name">Статья</th>
+                    <th class="dt-tot">Итого</th>
+                    <th id="pnlDtM1">ИЮЛ 26</th>
+                    <th id="pnlDtM2">АВГ 26</th>
+                    <th id="pnlDtM3">СЕН 26</th>
+                  </tr>
+                </thead>
+                <tbody id="pnlDetBody"></tbody>
+              </table>
+            </div>
+            <div class="det-hint">Прокрутите таблицу вправо, чтобы увидеть месяцы →</div>
+
+            <!-- source data for the table above (hidden) -->
             <div class="row-list">
               <div class="item-row" data-category="income" data-sheet="vyruchka">
                 <span class="name">Выручка от реализации</span>
@@ -1128,22 +1144,6 @@
             </div>
 
             <div class="empty-hint">Нет статей в этой категории</div>
-
-            <div class="months-section" id="pnlMonthsSection">
-              <div class="months-head">
-                <span class="section-title">По месяцам</span>
-                <span class="months-q" id="pnlMonthsQ">3 квартал 2026</span>
-              </div>
-              <div class="months-scroll">
-                <table class="months-table">
-                  <thead>
-                    <tr><th class="mc-name">Статья</th><th id="pnlMcol1">ИЮЛ</th><th id="pnlMcol2">АВГ</th><th id="pnlMcol3">СЕН</th><th class="mc-tot">Итого</th></tr>
-                  </thead>
-                  <tbody id="pnlMonthsBody"></tbody>
-                </table>
-              </div>
-              <div class="months-hint">Прокрутите таблицу вправо →</div>
-            </div>
 
             <div class="section-title">Динамика чистой прибыли</div>
             <div class="chart2">
@@ -1540,20 +1540,57 @@
       sheetOverlay.classList.add('visible');
     }
 
-    const rows = root.querySelectorAll('.row-list .item-row');
+    /* ---- Детализация as a horizontally-scrollable table (Статья + Итого + months) ---- */
+    const MONTHS_SHORT = ['ЯНВ','ФЕВ','МАР','АПР','МАЙ','ИЮН','ИЮЛ','АВГ','СЕН','ОКТ','НОЯ','ДЕК'];
     const emptyHint = root.querySelector('.empty-hint');
+    const detBody   = root.querySelector('#pnlDetBody');
+    // read the hidden source list into data (single source of truth stays in the HTML)
+    const DETAIL_ITEMS = Array.from(root.querySelectorAll('.row-list .item-row')).map(el => ({
+      name:     el.querySelector('.name').textContent,
+      cat:      el.dataset.category,
+      total:    parseInt(el.querySelector('.num').textContent.replace(/[^\d-]/g, ''), 10),
+      subtotal: el.classList.contains('subtotal'),
+      child:    el.classList.contains('child'),
+      sheet:    el.dataset.sheet || null,
+    }));
+    let currentChip = 'all';
+
+    // split an item's total into 3 months of the quarter (sums back to the total)
+    function splitMonths(total){
+      const m1 = Math.round(total * 0.32);
+      const m2 = Math.round(total * 0.33);
+      return [m1, m2, total - m1 - m2];
+    }
+    function detQuarter(){
+      if (selected && selected.type === 'quarter') return { q: selected.value, year: selected.year };
+      const n = new Date();
+      return { q: Math.floor(n.getMonth() / 3) + 1, year: (selected && selected.year) || n.getFullYear() };
+    }
+    function renderDetail(){
+      const { q, year } = detQuarter();
+      const s = (q - 1) * 3, yy = String(year).slice(-2);
+      root.querySelector('#pnlDtM1').textContent = `${MONTHS_SHORT[s]} ${yy}`;
+      root.querySelector('#pnlDtM2').textContent = `${MONTHS_SHORT[s + 1]} ${yy}`;
+      root.querySelector('#pnlDtM3').textContent = `${MONTHS_SHORT[s + 2]} ${yy}`;
+      const items = DETAIL_ITEMS.filter(it => currentChip === 'all' || it.cat === currentChip);
+      const ng = v => v < 0 ? ' neg' : '';
+      detBody.innerHTML = items.map(it => {
+        const [m1, m2, m3] = splitMonths(it.total);
+        const cls = [it.subtotal ? 'subtotal' : '', it.child ? 'child' : ''].filter(Boolean).join(' ');
+        return `<tr class="${cls}"${it.sheet ? ` data-sheet="${it.sheet}"` : ''}>`
+          + `<td class="dt-name">${it.name}</td>`
+          + `<td class="dt-tot${ng(it.total)}">${fmt(it.total)}</td>`
+          + `<td class="${ng(m1).trim()}">${fmt(m1)}</td>`
+          + `<td class="${ng(m2).trim()}">${fmt(m2)}</td>`
+          + `<td class="${ng(m3).trim()}">${fmt(m3)}</td></tr>`;
+      }).join('');
+      emptyHint.classList.toggle('visible', items.length === 0);
+    }
 
     function setChip(chip){
-      root.querySelectorAll('.chip-row .chip').forEach(c => {
-        c.classList.toggle('active', c.dataset.chip === chip);
-      });
-      let visibleCount = 0;
-      rows.forEach(row => {
-        const show = chip === 'all' || row.dataset.category === chip;
-        row.classList.toggle('hidden', !show);
-        if (show) visibleCount++;
-      });
-      emptyHint.classList.toggle('visible', visibleCount === 0);
+      currentChip = chip;
+      root.querySelectorAll('.chip-row .chip').forEach(c => c.classList.toggle('active', c.dataset.chip === chip));
+      renderDetail();
     }
 
     root.querySelectorAll('.chip-row .chip').forEach(chip => {
@@ -1562,9 +1599,13 @@
         setChip(chip.classList.contains('active') ? 'all' : chip.dataset.chip);
       });
     });
-
     root.querySelectorAll('.mini-card[data-chip]').forEach(card => {
       card.addEventListener('click', () => setChip(card.dataset.chip));
+    });
+    // tapping a row that has a breakdown opens its drill-down sheet
+    detBody.addEventListener('click', (e) => {
+      const tr = e.target.closest('tr[data-sheet]');
+      if (tr) openSheet(tr.dataset.sheet);
     });
 
     function showScreen(id, opts = {}){
@@ -1686,7 +1727,7 @@
       setPeriodLabel(periodLabelFor(type, value, year));
       setDateRange(fmtRange(r.start, r.end));
       markActive();
-      renderMonths();
+      renderDetail();
       closePeriod();
     }
 
@@ -1696,37 +1737,6 @@
     root.querySelector('#pnlYearPrev').addEventListener('click', () => { pickerYear--; renderYear(); });
     root.querySelector('#pnlYearNext').addEventListener('click', () => { pickerYear++; renderYear(); });
     customBtn.addEventListener('click', () => { showPeriodView('cal'); renderCal(); });
-
-    /* ---- "По месяцам": monthly breakdown of the selected quarter ---- */
-    const MONTHS_SHORT = ['ЯНВ','ФЕВ','МАР','АПР','МАЙ','ИЮН','ИЮЛ','АВГ','СЕН','ОКТ','НОЯ','ДЕК'];
-    // sample monthly figures (3 months of a quarter); totals shown in the last column
-    const MONTHLY_ROWS = [
-      { name:'Доходы',                    cls:'pos', vals:[6200, 6500, 7420] },
-      { name:'Расходы',                   cls:'neg', vals:[-5600, -5730, -5900] },
-      { name:'Чистая прибыль',            cls:'',    vals:[1100, 1250, 1540] },
-      { name:'Дивиденды',                 cls:'',    vals:[100, 110, 110] },
-      { name:'Нераспределенная прибыль',  cls:'',    vals:[900, 1050, 1500] },
-    ];
-    const monthsSection = root.querySelector('#pnlMonthsSection');
-    const monthsBody    = root.querySelector('#pnlMonthsBody');
-
-    // render the inline "По месяцам" table for the selected quarter (hidden otherwise)
-    function renderMonths(){
-      const isQuarter = selected && selected.type === 'quarter';
-      monthsSection.classList.toggle('hidden', !isQuarter);
-      if (!isQuarter) return;
-      const q = selected.value, year = selected.year, s = (q - 1) * 3;
-      root.querySelector('#pnlMonthsQ').textContent = `${q} квартал ${year}`;
-      root.querySelector('#pnlMcol1').textContent = `${MONTHS_SHORT[s]} ${year}`;
-      root.querySelector('#pnlMcol2').textContent = `${MONTHS_SHORT[s + 1]} ${year}`;
-      root.querySelector('#pnlMcol3').textContent = `${MONTHS_SHORT[s + 2]} ${year}`;
-
-      monthsBody.innerHTML = MONTHLY_ROWS.map(row => {
-        const total = row.vals.reduce((a, b) => a + b, 0);
-        const cells = row.vals.map(v => `<td class="${row.cls}">${fmt(v)}</td>`).join('');
-        return `<tr><td class="mc-name">${row.name}</td>${cells}<td class="tot">${fmt(total)}</td></tr>`;
-      }).join('');
-    }
 
     /* ---- calendar range picker ---- */
     const calTitle = root.querySelector('#pnlCalTitle');
@@ -1810,7 +1820,7 @@
       setPeriodLabel(fmtRange(rangeStart, rangeEnd));
       setDateRange(fmtRange(rangeStart, rangeEnd));
       markActive();
-      renderMonths();
+      renderDetail();
       closePeriod();
     });
 
