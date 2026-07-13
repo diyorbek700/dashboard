@@ -131,113 +131,231 @@
   }
 
   /* =========================================================
-     #tab-cashflow — Cash Flow screen (light theme)
+     #tab-cashflow — Cash Flow (light theme, primary = --blue)
      ========================================================= */
-  #tab-cashflow .cf-content{
+  #tab-cashflow{
+    --cf-hero-a:#0a5560;          /* тёмно-бирюзовая hero-карта (в тон primary) */
+    --cf-hero-b:#02333a;
+    --cf-hero-fg:#e7f3f4;
+    --cf-warn:#f79009;
+    --cf-out:#f2707a;             /* расход: бары и точка-индикатор */
+    --cf-surface-2:var(--soft-bg);
+  }
+  #tab-cashflow .cf-scroll{
     flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
     padding:2px 18px 14px;scrollbar-width:none;
   }
-  #tab-cashflow .cf-content::-webkit-scrollbar{display:none;}
+  #tab-cashflow .cf-scroll::-webkit-scrollbar{display:none;}
 
-  /* org header */
-  #tab-cashflow .cf-org{display:flex;align-items:center;gap:9px;margin-bottom:12px;}
-  #tab-cashflow .cf-avatar{
-    width:34px;height:34px;border-radius:11px;background:var(--blue-bg);color:var(--blue);
-    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex:0 0 auto;
+  /* 1. шапка */
+  #tab-cashflow .cf-top{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+  #tab-cashflow .cf-logo{
+    width:34px;height:34px;border-radius:11px;flex:0 0 auto;
+    background:var(--blue-bg);color:var(--blue);
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;
   }
-  #tab-cashflow .cf-org-txt{flex:1;min-width:0;}
-  #tab-cashflow .cf-org-name{font-size:14px;font-weight:800;color:#0d0f16;letter-spacing:-.2px;}
-  #tab-cashflow .cf-org-sub{font-size:10.3px;color:var(--muted);font-weight:600;}
+  #tab-cashflow .cf-who{flex:1;min-width:0;}
+  #tab-cashflow .cf-who .nm{font-size:14px;font-weight:800;color:#0d0f16;letter-spacing:-.2px;}
+  #tab-cashflow .cf-who .sub{font-size:10.3px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   #tab-cashflow .cf-ico{
-    width:30px;height:30px;border-radius:50%;background:var(--soft-bg);color:#3a3f4d;
-    display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;
+    width:32px;height:32px;border-radius:50%;flex:0 0 auto;border:none;cursor:pointer;
+    background:var(--soft-bg);color:#3a3f4d;
+    display:flex;align-items:center;justify-content:center;
   }
-  #tab-cashflow .cf-ico svg{width:15px;height:15px;}
+  #tab-cashflow .cf-ico:hover{background:var(--blue-bg);color:var(--blue);}
+  #tab-cashflow .cf-ico.on{background:var(--blue);color:#fff;}
+  #tab-cashflow .cf-ico svg{width:16px;height:16px;}
 
-  /* hero balance card */
+  /* выбранный период */
+  #tab-cashflow .cf-period{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--blue-bg);color:var(--blue);border-radius:20px;
+    padding:5px 11px;font-size:10.8px;font-weight:700;letter-spacing:.1px;margin-bottom:12px;
+  }
+  #tab-cashflow .cf-period svg{width:11px;height:11px;}
+
+  /* 2. hero */
   #tab-cashflow .cf-hero{
-    background:linear-gradient(152deg,#0a8592 0%,#00606c 100%);
-    border-radius:18px;padding:14px 16px 12px;color:#fff;margin-bottom:12px;
-    box-shadow:0 12px 24px -12px rgba(0,111,125,.55);
+    background:linear-gradient(152deg,var(--cf-hero-a) 0%,var(--cf-hero-b) 100%);
+    color:var(--cf-hero-fg);border-radius:20px;
+    box-shadow:0 12px 26px -12px rgba(2,51,58,.55);
+    padding:16px 17px 14px;margin-bottom:12px;
+    min-height:206px;display:flex;flex-direction:column;
   }
-  #tab-cashflow .cf-hero-cap{font-size:10.4px;font-weight:600;color:rgba(255,255,255,.72);letter-spacing:.2px;}
-  #tab-cashflow .cf-hero-val{font-size:26px;font-weight:800;letter-spacing:-.9px;margin:5px 0 9px;}
-  #tab-cashflow .cf-hero-note{
-    display:flex;align-items:center;gap:6px;font-size:10.6px;font-weight:600;color:rgba(255,255,255,.9);line-height:1.3;
+  #tab-cashflow .cf-hero .cap{font-size:10.8px;font-weight:600;opacity:.72;letter-spacing:.1px;}
+  #tab-cashflow .cf-hero .amount{
+    font-size:31px;font-weight:800;letter-spacing:-1px;line-height:1.1;
+    margin-top:9px;cursor:pointer;user-select:none;
   }
-  #tab-cashflow .cf-hero-note svg{width:12px;height:12px;flex:0 0 auto;opacity:.85;}
-  #tab-cashflow .cf-hero-div{height:1px;background:rgba(255,255,255,.18);margin:11px 0 9px;}
-  #tab-cashflow .cf-hero-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-  #tab-cashflow .cf-hero-foot .cap{font-size:10.6px;font-weight:600;color:rgba(255,255,255,.72);}
-  #tab-cashflow .cf-hero-fc{font-size:12px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;}
-  #tab-cashflow .cf-hero-fc .arw{color:#ffb4a2;margin-left:2px;}
+  #tab-cashflow .cf-hero .amount:active{opacity:.75;}
+  #tab-cashflow .cf-hero .runway{
+    display:flex;align-items:center;gap:7px;margin-top:auto;padding-top:14px;
+    font-size:11px;font-weight:600;line-height:1.35;
+  }
+  #tab-cashflow .cf-hero .runway svg{width:14px;height:14px;flex:0 0 auto;}
+  #tab-cashflow .cf-hero .runway.ok{color:var(--cf-hero-fg);}
+  #tab-cashflow .cf-hero .runway.warn{color:var(--cf-warn);}
+  #tab-cashflow .cf-hero .runway.crit{color:#ff8f85;}
+  #tab-cashflow .cf-hero .rule{height:1px;background:currentColor;opacity:.16;margin:13px 0 10px;}
+  #tab-cashflow .cf-hero .fc{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  #tab-cashflow .cf-hero .fc-cap{font-size:10.8px;font-weight:600;opacity:.72;}
+  #tab-cashflow .cf-hero .fc-val{font-size:12.5px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;}
+  #tab-cashflow .cf-hero .fc-val .trend.down{color:var(--cf-out);margin-left:3px;}
+  #tab-cashflow .cf-hero .fc-val .trend.up{color:#5fdba0;margin-left:3px;}
 
-  /* three stat pills */
-  #tab-cashflow .cf-stats{display:flex;gap:7px;margin-bottom:16px;}
-  #tab-cashflow .cf-stat{
-    flex:1;min-width:0;background:#fff;border:1px solid var(--frame-border);border-radius:13px;padding:9px 9px 10px;
+  /* 3. KPI */
+  #tab-cashflow .cf-kpis{display:flex;gap:7px;margin-bottom:18px;}
+  #tab-cashflow .cf-kpi{
+    flex:1;min-width:0;background:#fff;border:1px solid var(--frame-border);border-radius:13px;
+    padding:9px 9px 10px;cursor:pointer;transition:.12s;
   }
-  #tab-cashflow .cf-stat-cap{display:flex;align-items:center;gap:5px;font-size:9.6px;font-weight:700;color:var(--muted);margin-bottom:5px;white-space:nowrap;}
-  #tab-cashflow .cf-dot{width:6px;height:6px;border-radius:50%;flex:0 0 auto;}
-  #tab-cashflow .cf-dot.green{background:#22c55e;}
-  #tab-cashflow .cf-dot.red{background:#f2555e;}
-  #tab-cashflow .cf-dot.gray{background:#b7bcc9;}
-  #tab-cashflow .cf-stat-val{font-size:12.8px;font-weight:800;color:#0d0f16;letter-spacing:-.3px;white-space:nowrap;}
+  #tab-cashflow .cf-kpi.on{border-color:var(--blue);background:var(--blue-bg);}
+  #tab-cashflow .cf-kpi .k-cap{
+    display:flex;align-items:center;gap:5px;font-size:9.6px;font-weight:700;
+    color:var(--muted);margin-bottom:5px;white-space:nowrap;
+  }
+  #tab-cashflow .cf-kpi .dot{width:6px;height:6px;border-radius:50%;flex:0 0 auto;}
+  #tab-cashflow .cf-kpi .dot.in{background:var(--green);}
+  #tab-cashflow .cf-kpi .dot.out{background:var(--cf-out);}
+  #tab-cashflow .cf-kpi .dot.net{background:#b7bcc9;}
+  /* cash flow — нейтральный текст, НЕ красный */
+  #tab-cashflow .cf-kpi .k-val{font-size:12.8px;font-weight:800;color:#0d0f16;letter-spacing:-.3px;white-space:nowrap;}
 
-  /* section heads */
-  #tab-cashflow .cf-sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:9px;}
-  #tab-cashflow .cf-sec-title{font-size:13.5px;font-weight:700;color:#0d0f16;letter-spacing:-.1px;}
-  #tab-cashflow .cf-sec-hint{font-size:10.3px;color:var(--muted);font-weight:600;}
+  /* секции */
+  #tab-cashflow .cf-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:9px;}
+  #tab-cashflow .cf-title{font-size:13.5px;font-weight:700;color:#0d0f16;letter-spacing:-.1px;}
+  #tab-cashflow .cf-hint{font-size:10.3px;color:var(--muted);font-weight:600;}
   #tab-cashflow .cf-link{font-size:11.5px;color:var(--blue);font-weight:700;cursor:pointer;}
 
-  /* chart */
-  #tab-cashflow .cf-chart{margin-bottom:18px;}
+  /* 4. график */
+  #tab-cashflow .cf-chartwrap{margin-bottom:20px;}
+  #tab-cashflow .cf-readout{
+    background:var(--soft-bg);border-radius:11px;padding:8px 11px;margin-bottom:9px;
+    font-size:10.8px;font-weight:600;color:var(--muted);line-height:1.35;min-height:33px;
+    display:flex;align-items:center;
+  }
+  #tab-cashflow .cf-readout b{color:#0d0f16;font-weight:800;}
   #tab-cashflow .cf-chart svg{width:100%;height:auto;display:block;}
-  #tab-cashflow .cf-xlabels{display:flex;font-size:9.4px;color:var(--muted);font-weight:600;margin-top:3px;}
-  #tab-cashflow .cf-xlabels span{flex:1;text-align:center;}
+  #tab-cashflow .cf-chart .hit{cursor:pointer;}
+  #tab-cashflow .cf-xlabels{display:flex;margin-top:4px;}
+  #tab-cashflow .cf-xlabels span{
+    flex:1;text-align:center;font-size:9.6px;font-weight:600;color:var(--muted);
+    cursor:pointer;padding:4px 0;border-radius:7px;
+  }
+  #tab-cashflow .cf-xlabels span.on{color:var(--blue);font-weight:800;background:var(--blue-bg);}
   #tab-cashflow .cf-legend{display:flex;align-items:center;gap:13px;margin-top:10px;}
-  #tab-cashflow .cf-legend .lg{display:flex;align-items:center;gap:5px;font-size:9.8px;color:#5b6072;font-weight:600;}
+  #tab-cashflow .cf-legend i{display:flex;align-items:center;gap:5px;font-size:9.8px;font-style:normal;color:#5b6072;font-weight:600;}
   #tab-cashflow .cf-legend .sw{width:9px;height:9px;border-radius:3px;flex:0 0 auto;}
-  #tab-cashflow .cf-legend .ln{width:15px;height:2.5px;border-radius:2px;background:#3b82f6;flex:0 0 auto;}
+  #tab-cashflow .cf-legend .sw.in{background:var(--green);}
+  #tab-cashflow .cf-legend .sw.out{background:var(--cf-out);}
+  #tab-cashflow .cf-legend .ln{width:15px;height:2.5px;border-radius:2px;background:var(--blue);flex:0 0 auto;}
 
-  /* top categories */
+  /* 5. категории */
   #tab-cashflow .cf-cats{display:flex;flex-direction:column;gap:12px;margin-bottom:12px;}
-  #tab-cashflow .cf-cat{display:flex;align-items:center;gap:10px;}
-  #tab-cashflow .cf-cat-ico{
-    width:31px;height:31px;border-radius:9px;background:var(--soft-bg);color:var(--blue);
-    display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  #tab-cashflow .cf-cat{display:flex;align-items:center;gap:10px;cursor:pointer;}
+  #tab-cashflow .cf-cat:hover .c-name{color:var(--blue);}
+  #tab-cashflow .cf-cat .c-ico{
+    width:31px;height:31px;border-radius:9px;flex:0 0 auto;
+    background:var(--soft-bg);color:var(--blue);
+    display:flex;align-items:center;justify-content:center;
   }
-  #tab-cashflow .cf-cat-ico svg{width:15px;height:15px;}
-  #tab-cashflow .cf-cat-mid{flex:1;min-width:0;}
-  #tab-cashflow .cf-cat-name{font-size:11.8px;font-weight:600;color:var(--blue);margin-bottom:5px;letter-spacing:.1px;}
-  #tab-cashflow .cf-bar{height:4px;border-radius:3px;background:#eceef3;}
-  #tab-cashflow .cf-bar i{display:block;height:100%;border-radius:3px;background:var(--blue);}
-  #tab-cashflow .cf-cat-val{font-size:11.5px;font-weight:700;color:#0d0f16;flex:0 0 auto;white-space:nowrap;letter-spacing:-.2px;}
+  #tab-cashflow .cf-cat .c-ico svg{width:15px;height:15px;}
+  #tab-cashflow .cf-cat .c-mid{flex:1;min-width:0;}
+  #tab-cashflow .cf-cat .c-name{
+    font-size:11.8px;font-weight:600;color:#2b2f3a;margin-bottom:6px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #tab-cashflow .cf-cat .c-track{height:4px;border-radius:3px;background:#eceef3;}
+  #tab-cashflow .cf-cat .c-track i{display:block;height:100%;border-radius:3px;background:var(--blue);}
+  #tab-cashflow .cf-cat .c-val{font-size:11.5px;font-weight:700;color:#0d0f16;white-space:nowrap;flex:0 0 auto;letter-spacing:-.2px;}
 
-  #tab-cashflow .cf-all-btn{
+  #tab-cashflow .cf-more{
     width:100%;border:1px solid var(--frame-border);background:#fff;border-radius:12px;
-    padding:11px;font-size:12px;font-weight:700;color:#2b2f3a;cursor:pointer;font-family:inherit;
-    margin-bottom:18px;letter-spacing:.1px;
+    padding:11px;font:inherit;font-size:12px;font-weight:700;color:#2b2f3a;
+    cursor:pointer;margin-bottom:20px;letter-spacing:.1px;
   }
-  #tab-cashflow .cf-all-btn:hover{background:var(--soft-bg);}
+  #tab-cashflow .cf-more:hover{background:var(--soft-bg);}
 
-  /* latest operations */
+  /* 6. операции */
   #tab-cashflow .cf-ops{display:flex;flex-direction:column;}
-  #tab-cashflow .cf-op{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--divider);}
+  #tab-cashflow .cf-op{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--divider);cursor:pointer;}
   #tab-cashflow .cf-op:last-child{border-bottom:none;}
-  #tab-cashflow .cf-op-av{
+  #tab-cashflow .cf-op .av{
     width:34px;height:34px;border-radius:50%;flex:0 0 auto;
     display:flex;align-items:center;justify-content:center;font-size:10.8px;font-weight:800;letter-spacing:.2px;
   }
-  #tab-cashflow .cf-op-av.a1{background:var(--blue-bg);color:var(--blue);}
-  #tab-cashflow .cf-op-av.a2{background:#efeafd;color:#6d4fd0;}
-  #tab-cashflow .cf-op-av.a3{background:var(--green-bg);color:#17a34a;}
-  #tab-cashflow .cf-op-txt{flex:1;min-width:0;}
-  #tab-cashflow .cf-op-name{font-size:12px;font-weight:700;color:#0d0f16;letter-spacing:-.1px;}
-  #tab-cashflow .cf-op-meta{font-size:10px;color:var(--muted);font-weight:600;margin-top:2px;}
-  #tab-cashflow .cf-op-val{font-size:12px;font-weight:800;flex:0 0 auto;white-space:nowrap;letter-spacing:-.2px;}
-  #tab-cashflow .cf-op-val.pos{color:var(--green);}
-  #tab-cashflow .cf-op-val.neg{color:var(--red);}
+  #tab-cashflow .av-1{background:var(--blue-bg);color:var(--blue);}
+  #tab-cashflow .av-2{background:#eaf2ff;color:#2e6be6;}
+  #tab-cashflow .av-3{background:#f3edfe;color:#7a5af8;}
+  #tab-cashflow .av-4{background:#fff3e6;color:#f79009;}
+  #tab-cashflow .av-5{background:#fdecec;color:#f04438;}
+  #tab-cashflow .av-6{background:var(--green-bg);color:var(--green);}
+  #tab-cashflow .cf-op .o-txt{flex:1;min-width:0;}
+  #tab-cashflow .cf-op .o-nm{font-size:12px;font-weight:700;color:#0d0f16;letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #tab-cashflow .cf-op .o-sub{font-size:10px;color:var(--muted);font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #tab-cashflow .cf-op .o-val{font-size:12px;font-weight:800;flex:0 0 auto;white-space:nowrap;letter-spacing:-.2px;}
+  #tab-cashflow .cf-op .o-val.in{color:var(--green);}
+  /* расход в ленте — нейтральный, НЕ красный */
+  #tab-cashflow .cf-op .o-val.out{color:#0d0f16;}
+
+  /* календарь периода (bottom sheet) */
+  #tab-cashflow .cf-cal-overlay{
+    position:absolute;inset:0;background:rgba(15,17,25,.4);
+    display:flex;align-items:flex-end;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:3;
+  }
+  #tab-cashflow .cf-cal-overlay.visible{opacity:1;}
+  #tab-cashflow.active .cf-cal-overlay.visible{pointer-events:auto;}
+  #tab-cashflow .cf-cal{
+    width:100%;background:#fff;border-radius:22px 22px 0 0;
+    box-shadow:0 -12px 32px rgba(20,25,40,.18);padding:16px 18px 18px;
+    transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);
+  }
+  #tab-cashflow .cf-cal-overlay.visible .cf-cal{transform:translateY(0);}
+  #tab-cashflow .cf-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  #tab-cashflow .cf-cal-head h3{font-size:15px;font-weight:800;color:var(--blue);margin:0;letter-spacing:-.2px;}
+  #tab-cashflow .cf-cal-close{
+    width:26px;height:26px;border-radius:8px;background:var(--soft-bg);border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:var(--text);
+  }
+  #tab-cashflow .cf-cal-close svg{width:12px;height:12px;}
+  #tab-cashflow .cf-cal-range{display:flex;gap:8px;margin-bottom:12px;}
+  #tab-cashflow .cf-cal-range .fld{flex:1;background:var(--soft-bg);border-radius:10px;padding:8px 10px;}
+  #tab-cashflow .cf-cal-range .fld .cap{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;}
+  #tab-cashflow .cf-cal-range .fld .val{font-size:13px;font-weight:700;color:#0d0f16;}
+  #tab-cashflow .cf-cal-range .fld.empty .val{color:#b7bcc9;}
+  #tab-cashflow .cf-cal-range .fld.focus{box-shadow:inset 0 0 0 1.5px var(--blue);}
+  #tab-cashflow .cf-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  #tab-cashflow .cf-cal-nav .t{font-size:13.5px;font-weight:700;color:#0d0f16;}
+  #tab-cashflow .cf-cal-nav button{
+    width:28px;height:28px;border-radius:8px;background:var(--soft-bg);border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:var(--text);
+  }
+  #tab-cashflow .cf-cal-nav button svg{width:14px;height:14px;}
+  #tab-cashflow .cf-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+  #tab-cashflow .cf-cal-grid .dow{
+    text-align:center;font-size:9.5px;font-weight:700;color:var(--muted);
+    padding:4px 0 6px;text-transform:uppercase;letter-spacing:.2px;
+  }
+  #tab-cashflow .cf-cal-grid .day{
+    aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:600;color:#3a3f4d;cursor:pointer;position:relative;border-radius:9px;
+  }
+  #tab-cashflow .cf-cal-grid .day.empty{cursor:default;}
+  #tab-cashflow .cf-cal-grid .day:not(.empty):hover{background:var(--soft-bg);}
+  #tab-cashflow .cf-cal-grid .day.in-range{background:var(--blue-bg);border-radius:0;color:var(--blue);}
+  #tab-cashflow .cf-cal-grid .day.r-start{background:var(--blue-bg);border-radius:9px 0 0 9px;}
+  #tab-cashflow .cf-cal-grid .day.r-end{background:var(--blue-bg);border-radius:0 9px 9px 0;}
+  #tab-cashflow .cf-cal-grid .day.r-start.r-end{border-radius:9px;}
+  #tab-cashflow .cf-cal-grid .day.sel{color:#fff;}
+  #tab-cashflow .cf-cal-grid .day.sel::before{content:'';position:absolute;inset:0;background:var(--blue);border-radius:9px;z-index:0;}
+  #tab-cashflow .cf-cal-grid .day.sel span{position:relative;z-index:1;}
+  #tab-cashflow .cf-cal-apply{
+    margin-top:14px;width:100%;border:none;background:var(--blue);color:#fff;border-radius:12px;
+    padding:12px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;
+    box-shadow:0 8px 16px rgba(0,111,125,.28);
+  }
+  #tab-cashflow .cf-cal-apply:disabled{opacity:.45;box-shadow:none;cursor:default;}
 
   /* =========================================================
      #tab-pnl — scoped styles for the P&L report
@@ -1013,164 +1131,119 @@
 
     <!-- ===================== TAB: CASH FLOW ===================== -->
     <div class="tab-content" id="tab-cashflow">
-      <div class="cf-content">
+      <div class="cf-scroll">
 
-        <!-- organisation -->
-        <div class="cf-org">
-          <div class="cf-avatar">H</div>
-          <div class="cf-org-txt">
-            <div class="cf-org-name">Hisobim</div>
-            <div class="cf-org-sub">Mechanical United Service</div>
+        <!-- 1. шапка -->
+        <div class="cf-top">
+          <div class="cf-logo">H</div>
+          <div class="cf-who">
+            <div class="nm">Hisobim</div>
+            <div class="sub" id="cfCompany">Mechanical United Service</div>
           </div>
-          <div class="cf-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 01-3.4 0"/></svg></div>
-          <div class="cf-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div>
+          <button class="cf-ico" aria-label="Уведомления">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 01-3.4 0"/></svg>
+          </button>
+          <button class="cf-ico" id="cfCalBtn" aria-label="Выбрать период">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+          </button>
         </div>
 
-        <!-- balance hero -->
-        <div class="cf-hero">
-          <div class="cf-hero-cap">Остаток денежных средств · UZS</div>
-          <div class="cf-hero-val">4 648 500 000</div>
-          <div class="cf-hero-note">
+        <!-- выбранный период -->
+        <div class="cf-period" id="cfPeriod">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18"/></svg>
+          <span id="cfPeriodText">01.01.2023 — 31.01.2023</span>
+        </div>
+
+        <!-- 2. hero -->
+        <section class="cf-hero">
+          <div class="cap">Остаток денежных средств · <span id="cfCurr">UZS</span></div>
+          <div class="amount" id="cfAmount" title="Нажмите, чтобы переключить формат">0</div>
+          <div class="runway ok" id="cfRunway">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M6 2c0 5 6 6 6 10s-6 5-6 10M18 2c0 5-6 6-6 10s6 5 6 10"/></svg>
-            При текущих расходах денег хватит на ~18 дней
+            <span id="cfRunwayText"></span>
           </div>
-          <div class="cf-hero-div"></div>
-          <div class="cf-hero-foot">
-            <span class="cap">Прогноз на 31 января</span>
-            <span class="cf-hero-fc">≈ 3,26 млрд<span class="arw">↘</span></span>
+          <div class="rule"></div>
+          <div class="fc">
+            <span class="fc-cap">Прогноз на <span id="cfFcLabel"></span></span>
+            <span class="fc-val" id="cfFcVal"></span>
           </div>
-        </div>
+        </section>
 
-        <!-- in / out / net -->
-        <div class="cf-stats">
-          <div class="cf-stat">
-            <div class="cf-stat-cap"><span class="cf-dot green"></span>Поступления</div>
-            <div class="cf-stat-val">6,36 млрд</div>
+        <!-- 3. KPI -->
+        <section class="cf-kpis" id="cfKpis">
+          <div class="cf-kpi" data-kpi="income">
+            <div class="k-cap"><span class="dot in"></span>Поступления</div>
+            <div class="k-val" id="cfKpiIn"></div>
           </div>
-          <div class="cf-stat">
-            <div class="cf-stat-cap"><span class="cf-dot red"></span>Списания</div>
-            <div class="cf-stat-val">7,75 млрд</div>
+          <div class="cf-kpi" data-kpi="expense">
+            <div class="k-cap"><span class="dot out"></span>Списания</div>
+            <div class="k-val" id="cfKpiOut"></div>
           </div>
-          <div class="cf-stat">
-            <div class="cf-stat-cap"><span class="cf-dot gray"></span>Cash flow</div>
-            <div class="cf-stat-val">−1,39 млрд</div>
+          <div class="cf-kpi" data-kpi="net">
+            <div class="k-cap"><span class="dot net"></span>Cash flow</div>
+            <div class="k-val" id="cfKpiNet"></div>
           </div>
-        </div>
+        </section>
 
-        <!-- dynamics chart -->
-        <div class="cf-sec-head">
-          <span class="cf-sec-title">Динамика за январь</span>
-          <span class="cf-sec-hint">Нажмите на день</span>
-        </div>
-        <div class="cf-chart">
-          <svg viewBox="0 0 300 122" preserveAspectRatio="none">
-            <line x1="0" y1="70" x2="300" y2="70" stroke="#e6e9ef" stroke-width="1"/>
-            <!-- приход (up) / расход (down) -->
-            <rect x="32" y="22" width="26" height="48" rx="5" fill="#4ec9a0"/>
-            <rect x="32" y="70" width="26" height="30" rx="5" fill="#f4919a"/>
-            <rect x="97" y="46" width="26" height="24" rx="5" fill="#4ec9a0"/>
-            <rect x="97" y="70" width="26" height="20" rx="5" fill="#f4919a"/>
-            <rect x="162" y="43" width="26" height="27" rx="5" fill="#4ec9a0"/>
-            <rect x="162" y="70" width="26" height="16" rx="5" fill="#f4919a"/>
-            <rect x="227" y="61" width="26" height="9" rx="4" fill="#4ec9a0"/>
-            <rect x="227" y="70" width="26" height="11" rx="4" fill="#f4919a"/>
-            <!-- остаток (line) -->
-            <polyline points="45,33 110,50 175,74 240,50" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="45" cy="33" r="3.2" fill="#3b82f6"/>
-            <circle cx="110" cy="50" r="3.2" fill="#3b82f6"/>
-            <circle cx="175" cy="74" r="3.2" fill="#3b82f6"/>
-            <circle cx="240" cy="50" r="3.2" fill="#3b82f6"/>
-          </svg>
-          <div class="cf-xlabels"><span>1–7</span><span>8–14</span><span>15–21</span><span>22–28</span></div>
+        <!-- 4. график -->
+        <section class="cf-chartwrap">
+          <div class="cf-head">
+            <span class="cf-title">Динамика за январь</span>
+            <span class="cf-hint">Нажмите на день</span>
+          </div>
+          <div class="cf-readout" id="cfReadout"></div>
+          <div class="cf-chart" id="cfChart"></div>
+          <div class="cf-xlabels" id="cfXlabels"></div>
           <div class="cf-legend">
-            <span class="lg"><span class="sw" style="background:#4ec9a0"></span>Приход</span>
-            <span class="lg"><span class="sw" style="background:#f4919a"></span>Расход</span>
-            <span class="lg"><span class="ln"></span>Остаток</span>
+            <i><span class="sw in"></span>Приход</i>
+            <i><span class="sw out"></span>Расход</i>
+            <i><span class="ln"></span>Остаток</i>
           </div>
-        </div>
+        </section>
 
-        <!-- top expense categories -->
-        <div class="cf-sec-title" style="margin-bottom:11px;">Топ-5 категорий расходов</div>
-        <div class="cf-cats">
-          <div class="cf-cat">
-            <div class="cf-cat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h14l-3-3M21 16H7l3 3"/></svg></div>
-            <div class="cf-cat-mid">
-              <div class="cf-cat-name">Конвертация валюты</div>
-              <div class="cf-bar"><i style="width:100%"></i></div>
-            </div>
-            <div class="cf-cat-val">4,10 млрд</div>
-          </div>
-          <div class="cf-cat">
-            <div class="cf-cat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10M19 21V10M12 3L3 9h18z"/></svg></div>
-            <div class="cf-cat-mid">
-              <div class="cf-cat-name">Таможенные платежи</div>
-              <div class="cf-bar"><i style="width:66%"></i></div>
-            </div>
-            <div class="cf-cat-val">2,69 млрд</div>
-          </div>
-          <div class="cf-cat">
-            <div class="cf-cat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 015 5v3"/></svg></div>
-            <div class="cf-cat-mid">
-              <div class="cf-cat-name">Возвраты покупателям</div>
-              <div class="cf-bar"><i style="width:20%"></i></div>
-            </div>
-            <div class="cf-cat-val">0,82 млрд</div>
-          </div>
-          <div class="cf-cat">
-            <div class="cf-cat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div>
-            <div class="cf-cat-mid">
-              <div class="cf-cat-name">Зарплата</div>
-              <div class="cf-bar"><i style="width:6%"></i></div>
-            </div>
-            <div class="cf-cat-val">49,2 млн</div>
-          </div>
-          <div class="cf-cat">
-            <div class="cf-cat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
-            <div class="cf-cat-mid">
-              <div class="cf-cat-name">Банковские комиссии</div>
-              <div class="cf-bar"><i style="width:4%"></i></div>
-            </div>
-            <div class="cf-cat-val">30,8 млн</div>
-          </div>
-        </div>
-        <button class="cf-all-btn">Показать все 14 категорий</button>
+        <!-- 5. категории -->
+        <section>
+          <div class="cf-head"><span class="cf-title">Топ-5 категорий расходов</span></div>
+          <div class="cf-cats" id="cfCats"></div>
+          <button class="cf-more" id="cfMore"></button>
+        </section>
 
-        <!-- latest operations -->
-        <div class="cf-sec-head">
-          <span class="cf-sec-title">Последние операции</span>
-          <a class="cf-link">Все</a>
-        </div>
-        <div class="cf-ops">
-          <div class="cf-op">
-            <div class="cf-op-av a1">CH</div>
-            <div class="cf-op-txt">
-              <div class="cf-op-name">China Hubei Huasheng</div>
-              <div class="cf-op-meta">Продажа · 2 экскаватора · 18 янв</div>
-            </div>
-            <div class="cf-op-val pos">+2,83 млрд</div>
+        <!-- 6. операции -->
+        <section>
+          <div class="cf-head">
+            <span class="cf-title">Последние операции</span>
+            <span class="cf-link">Все</span>
           </div>
-          <div class="cf-op">
-            <div class="cf-op-av a2">МВ</div>
-            <div class="cf-op-txt">
-              <div class="cf-op-name">Молия Вазирлиги</div>
-              <div class="cf-op-meta">Таможенный платёж · 16 янв</div>
-            </div>
-            <div class="cf-op-val neg">−1,50 млрд</div>
+          <div class="cf-ops" id="cfOps"></div>
+        </section>
+      </div>
+
+      <!-- календарь выбора периода -->
+      <div class="cf-cal-overlay" id="cfCalOverlay">
+        <div class="cf-cal">
+          <div class="cf-cal-head">
+            <h3>Период</h3>
+            <button class="cf-cal-close" id="cfCalClose">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg>
+            </button>
           </div>
-          <div class="cf-op">
-            <div class="cf-op-av a3">ТВ</div>
-            <div class="cf-op-txt">
-              <div class="cf-op-name">The Best Servise</div>
-              <div class="cf-op-meta">Продажа · автокран SANY · 18 янв</div>
-            </div>
-            <div class="cf-op-val pos">+1,10 млрд</div>
+          <div class="cf-cal-range">
+            <div class="fld focus empty" id="cfCalFrom"><div class="cap">Начало</div><div class="val">Выберите</div></div>
+            <div class="fld empty" id="cfCalTo"><div class="cap">Конец</div><div class="val">Выберите</div></div>
           </div>
+          <div class="cf-cal-nav">
+            <button id="cfCalPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <span class="t" id="cfCalTitle">Месяц</span>
+            <button id="cfCalNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
+          <div class="cf-cal-grid" id="cfCalGrid"></div>
+          <button class="cf-cal-apply" id="cfCalApply" disabled>Применить</button>
         </div>
       </div>
 
       <div class="navbar">
         <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Главная</div>
-        <div class="navitem active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Отчеты</div>
+        <div class="navitem active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14l4-6 4 4 4-8 6 10"/></svg>Кеш-флоу</div>
         <div class="navitem plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
         <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 01-3.4 0"/></svg>Уведомления</div>
         <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Профиль</div>
@@ -1728,6 +1801,307 @@
 
   </div>
 </div>
+
+<script>
+  // ===== Cash Flow, fully scoped to #tab-cashflow =====
+  (function(){
+    const root = document.getElementById('tab-cashflow');
+    const $ = id => root.querySelector('#' + id);
+
+    /* ---- mock-данные (реестр операций, январь 2023) ---- */
+    const DATA = {
+      company: 'Mechanical United Service',
+      currency: 'UZS',
+      balance: { current: 4648500000, forecast: 3260000000, forecastLabel: '31 января' },
+      kpi: { income: 6355987718, expense: 7748072825 },
+      periodDays: 30,
+      period: { from: new Date(2023, 0, 1), to: new Date(2023, 0, 31) },
+      chart: [
+        { bucket: '1-7',   income: 1.10e9, expense: 1.35e9, balanceEnd: 4.40e9 },
+        { bucket: '8-14',  income: 0.95e9, expense: 1.20e9, balanceEnd: 4.15e9 },
+        { bucket: '15-21', income: 1.16e9, expense: 2.46e9, balanceEnd: 3.42e9 },
+        { bucket: '22-28', income: 0.55e9, expense: 0.62e9, balanceEnd: 4.65e9 }
+      ],
+      categories: [
+        { name:'Конвертация валюты',   amount:4100696284, icon:'swap' },
+        { name:'Таможенные процедуры', amount:2687000000, icon:'ship' },
+        { name:'Возврат покупателю',   amount:820000000,  icon:'undo' },
+        { name:'Зарплата',             amount:49244500,   icon:'user' },
+        { name:'Банковская комиссия',  amount:31430876,   icon:'card' },
+        { name:'Аренда',               amount:18500000,   icon:'card' },
+        { name:'Транспортные услуги',  amount:12300000,   icon:'ship' },
+        { name:'Топливо',              amount:9800000,    icon:'swap' },
+        { name:'Связь и интернет',     amount:6200000,    icon:'card' },
+        { name:'Канцтовары',           amount:4100000,    icon:'card' },
+        { name:'Обучение персонала',   amount:3500000,    icon:'user' },
+        { name:'Страхование',          amount:2400000,    icon:'card' },
+        { name:'Ремонт оборудования',  amount:1700000,    icon:'swap' },
+        { name:'Прочие расходы',       amount:1201165,    icon:'undo' }
+      ],
+      recentOperations: [
+        { counterparty:"FAR KO'RKAM VODIY",         category:'Поступление от продаж', desc:'Каток SANY STR100C', date:'17 янв', amount:820000000, direction:'income' },
+        { counterparty:'MEGA-PLANETA-SERVIS',       category:'Поступление от продаж', desc:'Запчасти (фильтры)', date:'17 янв', amount:26781081,  direction:'income' },
+        { counterparty:'Комиссия постфинансир.',    category:'Банковская комиссия',   desc:'Срок пост-финанс.',  date:'05 янв', amount:17739871,  direction:'expense' },
+        { counterparty:'MECHANICAL UNITED SERVICE', category:'Командировочные',       desc:'Аванс по ведомости', date:'17 янв', amount:4200000,   direction:'expense' },
+        { counterparty:'STROY GREEN HORSE',         category:'Поступление от продаж', desc:'Изделия из пластм.', date:'17 янв', amount:2956800,   direction:'income' }
+      ]
+    };
+
+    /* ---- форматирование чисел ---- */
+    const NBSP = ' ', MINUS = '−';
+    const fmtFull = n => (n < 0 ? MINUS : '') +
+      String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
+    function fmtCompact(n){
+      const s = n < 0 ? MINUS : '', a = Math.abs(n);
+      if (a >= 1e9) return s + (a/1e9).toFixed(2).replace('.', ',') + NBSP + 'млрд';
+      if (a >= 1e6) return s + (a/1e6).toFixed(1).replace('.', ',').replace(/,0$/, '') + NBSP + 'млн';
+      if (a >= 1e3) return s + (a/1e3).toFixed(1).replace('.', ',').replace(/,0$/, '') + NBSP + 'тыс';
+      return s + Math.round(a);
+    }
+    const bln = n => (Math.abs(n)/1e9).toFixed(2).replace('.', ',');
+    const pad2 = n => String(n).padStart(2, '0');
+    const dmy = d => `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
+
+    /* ---- вычисляемые показатели (по формулам) ---- */
+    const income = DATA.kpi.income;
+    const expense = DATA.kpi.expense;
+    const net = income - expense;                        // Cash flow = Поступления − Списания
+    const avgDailyExpense = expense / DATA.periodDays;   // Σ расходов / 30
+    const runwayDays = avgDailyExpense > 0 ? Math.round(DATA.balance.current / avgDailyExpense) : null;
+
+    /* ---- 2. hero ---- */
+    let compact = false;
+    function renderHero(){
+      $('cfCurr').textContent = DATA.currency;
+      $('cfAmount').textContent = compact ? fmtCompact(DATA.balance.current) : fmtFull(DATA.balance.current);
+
+      const el = $('cfRunway'), txt = $('cfRunwayText');
+      if (runwayDays === null){ el.style.display = 'none'; }
+      else {
+        el.style.display = 'flex';
+        el.classList.remove('ok','warn','crit');
+        if (runwayDays < 7){
+          el.classList.add('crit');
+          txt.textContent = `Критический резерв: денег хватит на ~${runwayDays}${NBSP}дн.`;
+        } else if (runwayDays < 15){
+          el.classList.add('warn');
+          txt.textContent = `При текущих расходах денег хватит на ~${runwayDays}${NBSP}дней`;
+        } else if (runwayDays > 90){
+          el.classList.add('ok');
+          txt.textContent = 'При текущих расходах денег хватит более чем на 90 дней';
+        } else {
+          el.classList.add('ok');
+          txt.textContent = `При текущих расходах денег хватит на ~${runwayDays}${NBSP}дней`;
+        }
+      }
+
+      $('cfFcLabel').textContent = DATA.balance.forecastLabel;
+      const down = DATA.balance.forecast < DATA.balance.current;
+      $('cfFcVal').innerHTML = '≈' + NBSP + fmtCompact(DATA.balance.forecast)
+        + `<span class="trend ${down ? 'down' : 'up'}">${down ? '↘' : '↗'}</span>`;
+    }
+    $('cfAmount').addEventListener('click', () => { compact = !compact; renderHero(); });
+
+    /* ---- 3. KPI ---- */
+    function renderKpi(){
+      $('cfKpiIn').textContent  = fmtCompact(income);
+      $('cfKpiOut').textContent = fmtCompact(expense);
+      $('cfKpiNet').textContent = fmtCompact(net);   // отрицательный — нейтральным цветом
+    }
+    $('cfKpis').addEventListener('click', e => {
+      const k = e.target.closest('.cf-kpi');
+      if (!k) return;
+      const was = k.classList.contains('on');
+      root.querySelectorAll('.cf-kpi').forEach(x => x.classList.remove('on'));
+      if (!was) k.classList.add('on');
+    });
+
+    /* ---- 4. график (SVG) + строка-readout ---- */
+    const W = 300, H = 130, ZERO = 64, MAXBAR = 50, BARW = 30;
+    let selected = null;
+
+    function renderChart(){
+      const d = DATA.chart;
+      const maxAbs = Math.max(...d.map(b => Math.max(b.income, b.expense))) || 1;
+      const bals = d.map(b => b.balanceEnd);
+      const bMin = Math.min(...bals) * 0.92, bMax = Math.max(...bals) * 1.04;
+      const slot = W / d.length, cx = i => slot * i + slot / 2;
+      const by = v => 104 - ((v - bMin) / ((bMax - bMin) || 1)) * 82;
+
+      let s = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+      s += `<line x1="0" y1="${ZERO}" x2="${W}" y2="${ZERO}" stroke="var(--divider)" stroke-width="1"/>`;
+      d.forEach((b, i) => {
+        const hIn = (b.income/maxAbs)*MAXBAR, hOut = (b.expense/maxAbs)*MAXBAR;
+        const x = cx(i) - BARW/2;
+        const dim = (selected !== null && selected !== i) ? ' opacity=".35"' : '';
+        s += `<rect x="${x}" y="${ZERO-hIn}" width="${BARW}" height="${hIn}" rx="5" fill="var(--green)"${dim}/>`;
+        s += `<rect x="${x}" y="${ZERO}" width="${BARW}" height="${hOut}" rx="5" fill="var(--cf-out)"${dim}/>`;
+      });
+      s += `<polyline points="${d.map((b,i) => `${cx(i)},${by(b.balanceEnd)}`).join(' ')}" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`;
+      d.forEach((b, i) => {
+        s += `<circle cx="${cx(i)}" cy="${by(b.balanceEnd)}" r="${selected === i ? 4.6 : 3.2}" fill="#fff" stroke="var(--blue)" stroke-width="2.2"/>`;
+      });
+      d.forEach((b, i) => {
+        s += `<rect class="hit" data-i="${i}" x="${slot*i}" y="0" width="${slot}" height="${H}" fill="transparent"/>`;
+      });
+      s += `</svg>`;
+      $('cfChart').innerHTML = s;
+
+      $('cfXlabels').innerHTML = d.map((b, i) =>
+        `<span data-i="${i}" class="${selected === i ? 'on' : ''}">${b.bucket.replace('-', '–')}</span>`).join('');
+
+      renderReadout();
+    }
+    function renderReadout(){
+      const d = DATA.chart;
+      if (selected === null){
+        const balEnd = d[d.length-1].balanceEnd;
+        $('cfReadout').innerHTML =
+          `Январь: <b>+${bln(income)} / ${MINUS}${bln(expense)}${NBSP}млрд</b> · остаток <b>${bln(balEnd)}${NBSP}млрд</b>`;
+      } else {
+        const b = d[selected];
+        $('cfReadout').innerHTML =
+          `${b.bucket.replace('-', '–')}${NBSP}янв: <b>+${bln(b.income)} / ${MINUS}${bln(b.expense)}${NBSP}млрд</b>`
+          + ` · остаток <b>${bln(b.balanceEnd)}${NBSP}млрд</b>`;
+      }
+    }
+    function selectBucket(i){ selected = (selected === i) ? null : i; renderChart(); }
+    $('cfChart').addEventListener('click', e => {
+      const h = e.target.closest('.hit'); if (h) selectBucket(+h.dataset.i);
+    });
+    $('cfXlabels').addEventListener('click', e => {
+      const sp = e.target.closest('span[data-i]'); if (sp) selectBucket(+sp.dataset.i);
+    });
+
+    /* ---- 5. категории ---- */
+    const ICONS = {
+      swap:'<path d="M3 8h14l-3-3M21 16H7l3 3"/>',
+      ship:'<path d="M3 21h18M5 21V10M19 21V10M12 3L3 9h18z"/>',
+      undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 015 5v3"/>',
+      user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/>',
+      card:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>'
+    };
+    let expanded = false;
+    function renderCats(){
+      const all = [...DATA.categories].sort((a, b) => b.amount - a.amount);
+      const list = expanded ? all : all.slice(0, 5);
+      $('cfCats').innerHTML = list.map(c => {
+        const w = Math.max((c.amount / expense) * 100, 1);   // доля в расходах, мин. 1%
+        return `<div class="cf-cat">
+          <div class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[c.icon] || ICONS.card}</svg></div>
+          <div class="c-mid">
+            <div class="c-name">${c.name}</div>
+            <div class="c-track"><i style="width:${w.toFixed(1)}%"></i></div>
+          </div>
+          <div class="c-val">${fmtCompact(c.amount)}</div>
+        </div>`;
+      }).join('');
+      $('cfMore').textContent = expanded ? 'Свернуть' : `Показать все (${all.length} категорий)`;
+    }
+    $('cfMore').addEventListener('click', () => { expanded = !expanded; renderCats(); });
+
+    /* ---- 6. операции ---- */
+    const cleanName = s => s.replace(/\b\d{9}\b/g, '').replace(/\s{2,}/g, ' ').trim();
+    function initials(s){
+      const w = cleanName(s).split(/\s+/).filter(Boolean);
+      return (w.length >= 2 ? w[0][0] + w[1][0] : cleanName(s).slice(0, 2)).toUpperCase();
+    }
+    function avClass(s){
+      let h = 0;
+      for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+      return 'av-' + (h % 6 + 1);
+    }
+    function renderOps(){
+      $('cfOps').innerHTML = DATA.recentOperations.map(o => {
+        const nm = cleanName(o.counterparty), inc = o.direction === 'income';
+        return `<div class="cf-op">
+          <div class="av ${avClass(nm)}">${initials(nm)}</div>
+          <div class="o-txt">
+            <div class="o-nm">${nm}</div>
+            <div class="o-sub">${o.category} · ${o.desc} · ${o.date}</div>
+          </div>
+          <div class="o-val ${inc ? 'in' : 'out'}">${inc ? '+' : MINUS}${fmtCompact(o.amount)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    /* ---- календарь выбора периода ---- */
+    const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+    const overlay = $('cfCalOverlay');
+    const grid = $('cfCalGrid'), fFrom = $('cfCalFrom'), fTo = $('cfCalTo'), apply = $('cfCalApply');
+    let viewY = DATA.period.from.getFullYear(), viewM = DATA.period.from.getMonth();
+    let rStart = null, rEnd = null;
+
+    const sameDay = (a, b) => a && b && a.getFullYear() === b.getFullYear()
+      && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+
+    function renderPeriodChip(){
+      $('cfPeriodText').textContent = `${dmy(DATA.period.from)} — ${dmy(DATA.period.to)}`;
+    }
+    function updateFields(){
+      fFrom.classList.toggle('empty', !rStart);
+      fFrom.querySelector('.val').textContent = rStart ? dmy(rStart) : 'Выберите';
+      fTo.classList.toggle('empty', !rEnd);
+      fTo.querySelector('.val').textContent = rEnd ? dmy(rEnd) : 'Выберите';
+      const pickingEnd = rStart && !rEnd;
+      fFrom.classList.toggle('focus', !pickingEnd);
+      fTo.classList.toggle('focus', !!pickingEnd);
+      apply.disabled = !(rStart && rEnd);
+    }
+    function renderCal(){
+      $('cfCalTitle').textContent = `${MONTHS[viewM]} ${viewY}`;
+      let html = DOW.map(d => `<div class="dow">${d}</div>`).join('');
+      const lead = (new Date(viewY, viewM, 1).getDay() + 6) % 7;   // Пн-первый
+      const days = new Date(viewY, viewM + 1, 0).getDate();
+      for (let i = 0; i < lead; i++) html += `<div class="day empty"></div>`;
+      for (let d = 1; d <= days; d++){
+        const cur = new Date(viewY, viewM, d);
+        let cls = 'day';
+        if (rStart && rEnd){
+          const t = cur.getTime();
+          if (t > rStart.getTime() && t < rEnd.getTime()) cls += ' in-range';
+          if (sameDay(cur, rStart)) cls += ' r-start sel';
+          if (sameDay(cur, rEnd))   cls += ' r-end sel';
+        } else if (rStart && sameDay(cur, rStart)) cls += ' sel';
+        html += `<div class="${cls}" data-d="${d}"><span>${d}</span></div>`;
+      }
+      grid.innerHTML = html;
+      updateFields();
+    }
+    grid.addEventListener('click', e => {
+      const cell = e.target.closest('.day[data-d]');
+      if (!cell) return;
+      const picked = new Date(viewY, viewM, +cell.dataset.d);
+      if (!rStart || (rStart && rEnd)){ rStart = picked; rEnd = null; }
+      else if (picked < rStart){ rEnd = rStart; rStart = picked; }
+      else { rEnd = picked; }
+      renderCal();
+    });
+    $('cfCalPrev').addEventListener('click', () => { if (--viewM < 0){ viewM = 11; viewY--; } renderCal(); });
+    $('cfCalNext').addEventListener('click', () => { if (++viewM > 11){ viewM = 0; viewY++; } renderCal(); });
+    $('cfCalBtn').addEventListener('click', () => {
+      rStart = DATA.period.from; rEnd = DATA.period.to;
+      viewY = rStart.getFullYear(); viewM = rStart.getMonth();
+      renderCal();
+      overlay.classList.add('visible');
+      $('cfCalBtn').classList.add('on');
+    });
+    function closeCal(){ overlay.classList.remove('visible'); $('cfCalBtn').classList.remove('on'); }
+    $('cfCalClose').addEventListener('click', closeCal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeCal(); });
+    apply.addEventListener('click', () => {
+      if (!(rStart && rEnd)) return;
+      DATA.period.from = rStart; DATA.period.to = rEnd;
+      renderPeriodChip();
+      closeCal();
+    });
+
+    /* ---- старт ---- */
+    $('cfCompany').textContent = DATA.company;
+    renderPeriodChip(); renderHero(); renderKpi(); renderChart(); renderCats(); renderOps();
+  })();
+</script>
 
 <script>
   // ===== outer Дешборд pill switcher (Cash Flow / P&L / Balance Sheet) =====
