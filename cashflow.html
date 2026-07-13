@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hisobim — Cash Flow</title>
+<style>
+  :root{
+    /* Поверхности */
+    --bg:            #F4F6F8;
+    --surface:       #FFFFFF;
+    --surface-2:     #F0F2F5;
+    --hero-bg:       #0E1F1A;
+    --hero-fg:       #E8F5EF;
+
+    /* Текст */
+    --text-primary:  #101828;
+    --text-secondary:#667085;
+    --text-muted:    #98A2B3;
+
+    /* Бренд / акцент */
+    --accent:        #12B76A;
+    --accent-soft:   #E7F7EF;
+
+    /* Семантика */
+    --income:        #12B76A;
+    --expense:       #F97066;
+    --warning:       #F79009;
+    --danger:        #F04438;
+    --neutral-amount:#101828;
+
+    /* Границы / тени */
+    --border:        #EAECF0;
+    --shadow-card:   0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+    --shadow-hero:   0 8px 24px rgba(14,31,26,.18);
+
+    /* Радиусы */
+    --r-card: 20px;
+    --r-pill: 999px;
+    --r-chip: 12px;
+
+    /* Отступы (8pt grid) */
+    --pad-screen: 16px;
+    --gap: 12px;
+
+    /* Палитра аватаров контрагентов (детерминированная) */
+    --av1-bg:#E7F7EF; --av1-fg:#12B76A;
+    --av2-bg:#EAF2FF; --av2-fg:#2E6BE6;
+    --av3-bg:#F3EDFE; --av3-fg:#7A5AF8;
+    --av4-bg:#FFF3E6; --av4-fg:#F79009;
+    --av5-bg:#FDECEC; --av5-fg:#F04438;
+    --av6-bg:#E6F6F7; --av6-fg:#0E9AA7;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+  body{
+    background:var(--bg);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Inter","Segoe UI",Roboto,sans-serif;
+    color:var(--text-primary);
+    font-variant-numeric:tabular-nums;
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    padding:24px 16px;
+  }
+
+  /* ---------- dev-панель (вне фрейма) ---------- */
+  .dev{
+    display:flex;align-items:center;gap:8px;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);
+    padding:6px;box-shadow:var(--shadow-card);
+  }
+  .dev span{font-size:11px;color:var(--text-muted);font-weight:600;padding:0 6px;}
+  .dev button{
+    border:none;background:transparent;border-radius:var(--r-pill);
+    padding:7px 13px;font:inherit;font-size:12px;font-weight:600;color:var(--text-secondary);
+    cursor:pointer;transition:.15s;
+  }
+  .dev button:hover{background:var(--surface-2);}
+  .dev button.on{background:var(--accent-soft);color:var(--accent);}
+
+  /* ---------- фрейм 390×844 ---------- */
+  .frame{
+    width:390px;height:844px;flex:0 0 auto;
+    background:var(--surface);
+    border-radius:38px;border:1px solid var(--border);
+    box-shadow:0 24px 60px -20px rgba(16,24,40,.25);
+    overflow:hidden;position:relative;
+    display:flex;flex-direction:column;
+  }
+
+  .statusbar{
+    height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:0 22px;font-size:13px;font-weight:600;color:var(--text-primary);
+  }
+  .sb-icons{display:flex;align-items:center;gap:5px;}
+  .sb-icons svg{width:15px;height:15px;fill:var(--text-primary);}
+
+  /* прокручиваемая область */
+  .screen{
+    flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+    padding:0 var(--pad-screen) 16px;
+    scrollbar-width:none;
+  }
+  .screen::-webkit-scrollbar{display:none;}
+
+  /* ---------- 1. Шапка ---------- */
+  .topbar{display:flex;align-items:center;gap:10px;padding:2px 0 14px;}
+  .logo{
+    width:38px;height:38px;border-radius:12px;flex:0 0 auto;
+    background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;
+  }
+  .topbar .who{flex:1;min-width:0;}
+  .topbar .who .nm{font-size:15px;font-weight:700;letter-spacing:-.2px;}
+  .topbar .who .sub{
+    font-size:12px;color:var(--text-secondary);font-weight:500;margin-top:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .icon-btn{
+    width:38px;height:38px;border-radius:var(--r-pill);flex:0 0 auto;border:none;
+    background:var(--surface-2);color:var(--text-secondary);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .icon-btn svg{width:18px;height:18px;}
+
+  /* ---------- 2. Hero ---------- */
+  .hero{
+    background:var(--hero-bg);color:var(--hero-fg);
+    border-radius:var(--r-card);box-shadow:var(--shadow-hero);
+    padding:22px 20px 18px;margin-bottom:var(--gap);
+    min-height:248px;                        /* ≈35% первого экрана (390×844) */
+    display:flex;flex-direction:column;
+  }
+  .hero .cap{font-size:13px;font-weight:500;opacity:.72;letter-spacing:.1px;}
+  .hero .amount{
+    font-size:42px;font-weight:700;letter-spacing:-1.4px;line-height:1.1;
+    margin:12px 0 0;cursor:pointer;user-select:none;
+    min-height:46px;display:flex;align-items:center;
+  }
+  .hero .amount:active{opacity:.75;}
+  .hero .runway{
+    display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:16px;
+    font-size:13px;font-weight:600;line-height:1.35;
+  }
+  .hero .runway svg{width:16px;height:16px;flex:0 0 auto;}
+  .hero .runway.ok{color:var(--hero-fg);}
+  .hero .runway.warn{color:var(--warning);}
+  .hero .runway.crit{color:var(--danger);}
+  .hero .rule{height:1px;background:currentColor;opacity:.16;margin:16px 0 12px;}
+  .hero .forecast{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .hero .forecast .fc-cap{font-size:13px;font-weight:500;opacity:.72;}
+  .hero .forecast .fc-val{font-size:15px;font-weight:700;letter-spacing:-.2px;white-space:nowrap;}
+  .hero .forecast .fc-val .trend{margin-left:3px;}
+  .hero .forecast .fc-val .trend.down{color:var(--expense);}
+  .hero .forecast .fc-val .trend.up{color:var(--accent);}
+
+  /* ---------- 3. KPI ---------- */
+  .kpis{display:flex;gap:8px;margin-bottom:22px;}
+  .kpi{
+    flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--r-chip);box-shadow:var(--shadow-card);
+    padding:11px 10px 12px;cursor:pointer;transition:.12s;min-height:66px;
+  }
+  .kpi:active,.kpi.on{border-color:var(--accent);background:var(--accent-soft);}
+  .kpi .k-cap{
+    display:flex;align-items:center;gap:5px;
+    font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;white-space:nowrap;
+  }
+  .kpi .dot{width:7px;height:7px;border-radius:var(--r-pill);flex:0 0 auto;}
+  .kpi .dot.in{background:var(--income);}
+  .kpi .dot.out{background:var(--expense);}
+  .kpi .dot.net{background:var(--text-muted);}
+  .kpi .k-val{font-size:15px;font-weight:700;letter-spacing:-.3px;white-space:nowrap;color:var(--neutral-amount);}
+
+  /* ---------- секции ---------- */
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .sec-title{font-size:17px;font-weight:600;letter-spacing:-.2px;}
+  .sec-hint{font-size:13px;color:var(--text-muted);font-weight:500;}
+  .sec-link{font-size:13px;color:var(--accent);font-weight:600;cursor:pointer;}
+
+  /* ---------- 4. График ---------- */
+  .chart-wrap{margin-bottom:24px;}
+  .readout{
+    background:var(--surface-2);border-radius:var(--r-chip);
+    padding:9px 12px;margin-bottom:10px;
+    font-size:12.5px;font-weight:600;color:var(--text-secondary);line-height:1.35;
+    min-height:38px;display:flex;align-items:center;
+  }
+  .readout b{color:var(--text-primary);font-weight:700;}
+  .chart svg{width:100%;height:auto;display:block;touch-action:manipulation;}
+  .chart .hit{cursor:pointer;}
+  .xlabels{display:flex;margin-top:6px;}
+  .xlabels span{
+    flex:1;text-align:center;font-size:12px;font-weight:500;color:var(--text-muted);
+    cursor:pointer;padding:4px 0;border-radius:8px;
+  }
+  .xlabels span.on{color:var(--accent);font-weight:700;background:var(--accent-soft);}
+  .legend{display:flex;align-items:center;gap:16px;margin-top:12px;}
+  .legend i{display:flex;align-items:center;gap:6px;font-size:12px;font-style:normal;color:var(--text-secondary);font-weight:500;}
+  .legend .sw{width:9px;height:9px;border-radius:3px;flex:0 0 auto;}
+  .legend .sw.in{background:var(--income);}
+  .legend .sw.out{background:var(--expense);}
+  .legend .ln{width:16px;height:2.5px;border-radius:2px;background:var(--text-primary);flex:0 0 auto;}
+
+  /* ---------- 5. Категории ---------- */
+  .cats{display:flex;flex-direction:column;gap:14px;margin-bottom:12px;}
+  .cat{display:flex;align-items:center;gap:12px;cursor:pointer;min-height:44px;}
+  .cat:active .c-name{color:var(--accent);}
+  .cat .c-ico{
+    width:38px;height:38px;border-radius:var(--r-chip);flex:0 0 auto;
+    background:var(--surface-2);color:var(--text-secondary);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .cat .c-ico svg{width:18px;height:18px;}
+  .cat .c-mid{flex:1;min-width:0;}
+  .cat .c-name{
+    font-size:14px;font-weight:500;margin-bottom:7px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .cat .c-track{height:5px;border-radius:var(--r-pill);background:var(--surface-2);}
+  .cat .c-track i{display:block;height:100%;border-radius:var(--r-pill);background:var(--accent);}
+  .cat .c-val{font-size:14px;font-weight:600;letter-spacing:-.2px;white-space:nowrap;flex:0 0 auto;}
+
+  .more-btn{
+    width:100%;border:1px solid var(--border);background:var(--surface);
+    border-radius:var(--r-chip);padding:13px;font:inherit;font-size:14px;font-weight:600;
+    color:var(--text-secondary);cursor:pointer;margin-bottom:24px;box-shadow:var(--shadow-card);
+  }
+  .more-btn:hover{background:var(--surface-2);}
+
+  /* ---------- 6. Операции ---------- */
+  .ops{display:flex;flex-direction:column;}
+  .op{
+    display:flex;align-items:center;gap:12px;padding:11px 0;
+    border-bottom:1px solid var(--border);min-height:44px;cursor:pointer;
+  }
+  .op:last-child{border-bottom:none;}
+  .op .av{
+    width:40px;height:40px;border-radius:var(--r-pill);flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
+  }
+  .av.av-1{background:var(--av1-bg);color:var(--av1-fg);}
+  .av.av-2{background:var(--av2-bg);color:var(--av2-fg);}
+  .av.av-3{background:var(--av3-bg);color:var(--av3-fg);}
+  .av.av-4{background:var(--av4-bg);color:var(--av4-fg);}
+  .av.av-5{background:var(--av5-bg);color:var(--av5-fg);}
+  .av.av-6{background:var(--av6-bg);color:var(--av6-fg);}
+  .op .o-txt{flex:1;min-width:0;}
+  .op .o-nm{
+    font-size:14px;font-weight:600;letter-spacing:-.1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .op .o-sub{
+    font-size:12px;color:var(--text-secondary);font-weight:500;margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .op .o-val{font-size:14px;font-weight:700;letter-spacing:-.2px;white-space:nowrap;flex:0 0 auto;}
+  .op .o-val.in{color:var(--income);}
+  .op .o-val.out{color:var(--neutral-amount);}
+
+  /* ---------- 7. Таб-бар ---------- */
+  .tabbar{
+    flex:0 0 auto;display:flex;align-items:stretch;
+    border-top:1px solid var(--border);background:var(--surface);
+    padding:8px 4px 20px;
+  }
+  .tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    min-height:44px;cursor:pointer;color:var(--text-muted);
+    font-size:10.5px;font-weight:500;background:none;border:none;font-family:inherit;
+  }
+  .tab svg{width:22px;height:22px;}
+  .tab.on{color:var(--accent);font-weight:600;}
+
+  /* ---------- empty / skeleton ---------- */
+  .empty{
+    background:var(--surface-2);border-radius:var(--r-chip);
+    padding:26px 16px;text-align:center;
+    font-size:13px;color:var(--text-secondary);font-weight:500;
+  }
+  .sk{
+    background:linear-gradient(90deg,var(--surface-2) 25%,#E6E9ED 37%,var(--surface-2) 63%);
+    background-size:400% 100%;animation:sh 1.2s ease-in-out infinite;border-radius:8px;
+  }
+  @keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+  .sk-hero{height:248px;border-radius:var(--r-card);margin-bottom:var(--gap);}
+  .sk-kpis{display:flex;gap:8px;margin-bottom:22px;}
+  .sk-kpi{flex:1;height:66px;border-radius:var(--r-chip);}
+  .sk-line{height:14px;margin-bottom:10px;}
+  .sk-chart{height:180px;border-radius:var(--r-chip);margin-bottom:24px;}
+  .sk-row{height:44px;border-radius:var(--r-chip);margin-bottom:12px;}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<!-- dev-панель (вне фрейма) -->
+<div class="dev">
+  <span>Состояние:</span>
+  <button data-state="loading">Загрузка</button>
+  <button data-state="empty">Нет данных</button>
+  <button data-state="normal" class="on">Норма</button>
+</div>
+
+<div class="frame">
+  <div class="statusbar">
+    <span>9:41</span>
+    <div class="sb-icons">
+      <svg viewBox="0 0 18 12"><path d="M1 8h2v4H1zM5 6h2v6H5zM9 3.5h2V12H9zM13 1h2v11h-2z"/></svg>
+      <svg viewBox="0 0 16 12"><path d="M8 10.2a1.3 1.3 0 100 2.6 1.3 1.3 0 000-2.6zM8 7.4c1.5 0 2.9.5 4 1.4l1.4-1.6A9 9 0 008 5.4a9 9 0 00-5.4 1.8L4 8.8c1.1-.9 2.5-1.4 4-1.4zM8 3.6c2.5 0 4.8.9 6.6 2.4L16 4.4A12.6 12.6 0 008 1.4a12.6 12.6 0 00-8 3l1.4 1.6A10.7 10.7 0 018 3.6z"/></svg>
+      <svg viewBox="0 0 26 12"><rect x="0" y="1" width="21" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="1.8" y="2.8" width="17" height="6.4" rx="1.2"/><path d="M23 4.5v3a2 2 0 000-3z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen" id="screen">
+
+    <!-- 1. Шапка -->
+    <div class="topbar">
+      <div class="logo" id="logo">H</div>
+      <div class="who">
+        <div class="nm">Hisobim</div>
+        <div class="sub" id="companyName">Mechanical United Service</div>
+      </div>
+      <button class="icon-btn" aria-label="Уведомления">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 01-3.4 0"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="Календарь">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+      </button>
+    </div>
+
+    <!-- скелетон -->
+    <div id="skeleton" hidden>
+      <div class="sk sk-hero"></div>
+      <div class="sk-kpis"><div class="sk sk-kpi"></div><div class="sk sk-kpi"></div><div class="sk sk-kpi"></div></div>
+      <div class="sk sk-line" style="width:45%"></div>
+      <div class="sk sk-chart"></div>
+      <div class="sk sk-line" style="width:55%"></div>
+      <div class="sk sk-row"></div><div class="sk sk-row"></div><div class="sk sk-row"></div>
+    </div>
+
+    <!-- контент -->
+    <div id="content">
+
+      <!-- 2. Hero -->
+      <section class="hero">
+        <div class="cap">Остаток денежных средств · <span id="curr">UZS</span></div>
+        <div class="amount" id="heroAmount" title="Нажмите, чтобы переключить формат">0</div>
+        <div class="runway ok" id="runway">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M6 2c0 5 6 6 6 10s-6 5-6 10M18 2c0 5-6 6-6 10s6 5 6 10"/></svg>
+          <span id="runwayText"></span>
+        </div>
+        <div class="rule"></div>
+        <div class="forecast">
+          <span class="fc-cap">Прогноз на <span id="fcLabel"></span></span>
+          <span class="fc-val" id="fcVal"></span>
+        </div>
+      </section>
+
+      <!-- 3. KPI -->
+      <section class="kpis" id="kpis">
+        <div class="kpi" data-kpi="income">
+          <div class="k-cap"><span class="dot in"></span>Поступления</div>
+          <div class="k-val" id="kpiIncome"></div>
+        </div>
+        <div class="kpi" data-kpi="expense">
+          <div class="k-cap"><span class="dot out"></span>Списания</div>
+          <div class="k-val" id="kpiExpense"></div>
+        </div>
+        <div class="kpi" data-kpi="net">
+          <div class="k-cap"><span class="dot net"></span>Cash flow</div>
+          <div class="k-val" id="kpiNet"></div>
+        </div>
+      </section>
+
+      <!-- 4. График -->
+      <section class="chart-wrap">
+        <div class="sec-head">
+          <span class="sec-title">Динамика за январь</span>
+          <span class="sec-hint">Нажмите на день</span>
+        </div>
+        <div id="chartEmpty" class="empty" hidden>В периоде нет операций</div>
+        <div id="chartBox">
+          <div class="readout" id="readout"></div>
+          <div class="chart" id="chart"></div>
+          <div class="xlabels" id="xlabels"></div>
+          <div class="legend">
+            <i><span class="sw in"></span>Приход</i>
+            <i><span class="sw out"></span>Расход</i>
+            <i><span class="ln"></span>Остаток</i>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Категории -->
+      <section>
+        <div class="sec-head"><span class="sec-title">Топ-5 категорий расходов</span></div>
+        <div id="catsEmpty" class="empty" hidden>В периоде нет операций</div>
+        <div id="catsBox">
+          <div class="cats" id="cats"></div>
+          <button class="more-btn" id="moreBtn"></button>
+        </div>
+      </section>
+
+      <!-- 6. Операции -->
+      <section>
+        <div class="sec-head">
+          <span class="sec-title">Последние операции</span>
+          <span class="sec-link">Все</span>
+        </div>
+        <div id="opsEmpty" class="empty" hidden>В периоде нет операций</div>
+        <div class="ops" id="ops"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 7. Таб-бар -->
+  <nav class="tabbar">
+    <button class="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Главная
+    </button>
+    <button class="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Операции
+    </button>
+    <button class="tab on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14l4-6 4 4 4-8 6 10"/></svg>Cash flow
+    </button>
+    <button class="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Отчёты
+    </button>
+    <button class="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Профиль
+    </button>
+  </nav>
+</div>
+
+<script>
+/* =========================================================
+   MOCK-ДАННЫЕ (реестр операций, январь 2023)
+   ========================================================= */
+const DATA = {
+  company: "Mechanical United Service",
+  currency: "UZS",
+  balance: { current: 4648500000, forecast: 3260000000, forecastLabel: "31 января" },
+  kpi: { income: 6355987718, expense: 7748072825, incomeCount: 14, expenseCount: 85 },
+  periodDays: 30,
+  chart: [
+    { bucket: "1-7",   income: 1.10e9, expense: 1.35e9, balanceEnd: 4.40e9 },
+    { bucket: "8-14",  income: 0.95e9, expense: 1.20e9, balanceEnd: 4.15e9 },
+    { bucket: "15-21", income: 1.16e9, expense: 2.46e9, balanceEnd: 3.42e9 },
+    { bucket: "22-28", income: 0.55e9, expense: 0.62e9, balanceEnd: 4.65e9 }
+  ],
+  /* полный список категорий: топ-5 из ТЗ + остальные (для «Показать все») */
+  categories: [
+    { id:"conversion", name:"Конвертация валюты",   amount:4100696284, icon:"swap" },
+    { id:"customs",    name:"Таможенные процедуры", amount:2687000000, icon:"ship" },
+    { id:"refund",     name:"Возврат покупателю",   amount:820000000,  icon:"undo" },
+    { id:"salary",     name:"Зарплата",             amount:49244500,   icon:"user" },
+    { id:"bank_fee",   name:"Банковская комиссия",  amount:31430876,   icon:"card" },
+    { id:"rent",       name:"Аренда",               amount:18500000,   icon:"card" },
+    { id:"transport",  name:"Транспортные услуги",  amount:12300000,   icon:"ship" },
+    { id:"fuel",       name:"Топливо",              amount:9800000,    icon:"swap" },
+    { id:"comm",       name:"Связь и интернет",     amount:6200000,    icon:"card" },
+    { id:"office",     name:"Канцтовары",           amount:4100000,    icon:"card" },
+    { id:"training",   name:"Обучение персонала",   amount:3500000,    icon:"user" },
+    { id:"insurance",  name:"Страхование",          amount:2400000,    icon:"card" },
+    { id:"repair",     name:"Ремонт оборудования",  amount:1700000,    icon:"swap" },
+    { id:"other",      name:"Прочие расходы",       amount:1201165,    icon:"undo" }
+  ],
+  recentOperations: [
+    { id:7, counterparty:"FAR KO'RKAM VODIY",         category:"Поступление от продаж", desc:"Каток SANY STR100C",  date:"17 янв", amount:820000000, direction:"income" },
+    { id:5, counterparty:"MEGA-PLANETA-SERVIS",       category:"Поступление от продаж", desc:"Запчасти (фильтры)",  date:"17 янв", amount:26781081,  direction:"income" },
+    { id:3, counterparty:"Комиссия постфинансир.",    category:"Банковская комиссия",   desc:"Срок пост-финанс.",   date:"05 янв", amount:17739871,  direction:"expense" },
+    { id:6, counterparty:"MECHANICAL UNITED SERVICE", category:"Командировочные",       desc:"Аванс по ведомости",  date:"17 янв", amount:4200000,   direction:"expense" },
+    { id:1, counterparty:"STROY GREEN HORSE",         category:"Поступление от продаж", desc:"Изделия из пластм.",  date:"17 янв", amount:2956800,   direction:"income" }
+  ]
+};
+
+/* =========================================================
+   ФОРМАТИРОВАНИЕ ЧИСЕЛ
+   ========================================================= */
+const NBSP  = ' ';   // неразрывный пробел
+const MINUS = '−';   // типографский минус
+
+/** Полный формат: 4 648 500 000 (неразрывный пробел, без тийинов) */
+function fmtFull(n){
+  const sign = n < 0 ? MINUS : '';
+  const abs  = Math.abs(Math.round(n));
+  return sign + String(abs).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
+}
+/** Компактный: ≥1 млрд → 4,65 млрд · ≥1 млн → 49,2 млн (запятая в дробной части) */
+function fmtCompact(n){
+  const sign = n < 0 ? MINUS : '';
+  const a = Math.abs(n);
+  if (a >= 1e9) return sign + (a / 1e9).toFixed(2).replace('.', ',') + NBSP + 'млрд';
+  if (a >= 1e6) return sign + (a / 1e6).toFixed(1).replace('.', ',').replace(/,0$/, '') + NBSP + 'млн';
+  if (a >= 1e3) return sign + (a / 1e3).toFixed(1).replace('.', ',').replace(/,0$/, '') + NBSP + 'тыс';
+  return sign + Math.round(a);
+}
+/** В миллиардах, всегда 2 знака (для readout-строки) */
+function bln(n){ return (Math.abs(n) / 1e9).toFixed(2).replace('.', ','); }
+
+/* =========================================================
+   ВЫЧИСЛЯЕМЫЕ ПОКАЗАТЕЛИ (по формулам ТЗ)
+   ========================================================= */
+const income = DATA.kpi.income;
+const expense = DATA.kpi.expense;
+const net = income - expense;                                  // Cash flow = Поступления − Списания
+const avgDailyExpense = expense / DATA.periodDays;             // Σ расходов за 30 дней / 30
+const runwayDays = avgDailyExpense > 0
+  ? Math.round(DATA.balance.current / avgDailyExpense)
+  : null;                                                      // null → строка runway скрыта
+
+/* =========================================================
+   РЕНДЕР
+   ========================================================= */
+const $ = id => document.getElementById(id);
+let compactBalance = false;   // состояние переключателя формата (в рамках сессии)
+
+function renderHero(){
+  $('curr').textContent = DATA.currency;
+  $('heroAmount').textContent = compactBalance
+    ? fmtCompact(DATA.balance.current)
+    : fmtFull(DATA.balance.current);
+
+  // runway
+  const el = $('runway'), txt = $('runwayText');
+  if (runwayDays === null){
+    el.hidden = true;                                     // при нулевых расходах строка скрыта
+  } else {
+    el.hidden = false;
+    el.classList.remove('ok','warn','crit');
+    if (runwayDays < 7){
+      el.classList.add('crit');
+      txt.textContent = `Критический резерв: денег хватит на ~${runwayDays}${NBSP}дн.`;
+    } else if (runwayDays < 15){
+      el.classList.add('warn');
+      txt.textContent = `При текущих расходах денег хватит на ~${runwayDays}${NBSP}дней`;
+    } else if (runwayDays > 90){
+      el.classList.add('ok');
+      txt.textContent = 'При текущих расходах денег хватит более чем на 90 дней';
+    } else {
+      el.classList.add('ok');
+      txt.textContent = `При текущих расходах денег хватит на ~${runwayDays}${NBSP}дней`;
+    }
+  }
+
+  // прогноз
+  $('fcLabel').textContent = DATA.balance.forecastLabel;
+  const down = DATA.balance.forecast < DATA.balance.current;
+  $('fcVal').innerHTML = '≈' + NBSP + fmtCompact(DATA.balance.forecast)
+    + `<span class="trend ${down ? 'down' : 'up'}">${down ? '↘' : '↗'}</span>`;
+}
+
+function renderKpi(){
+  $('kpiIncome').textContent  = fmtCompact(income);
+  $('kpiExpense').textContent = fmtCompact(expense);
+  $('kpiNet').textContent     = fmtCompact(net);   // отрицательный — нейтральным цветом, со знаком «−»
+}
+
+/* ---- график (чистый SVG) ---- */
+const W = 358, H = 150, ZERO = 74, MAXBAR = 58, BARW = 34;
+let selected = null;   // индекс выбранной недели или null
+
+function renderChart(){
+  const d = DATA.chart;
+  const maxAbs = Math.max(...d.map(b => Math.max(b.income, b.expense))) || 1;
+  const bals = d.map(b => b.balanceEnd);
+  const bMin = Math.min(...bals) * 0.92, bMax = Math.max(...bals) * 1.04;
+  const slot = W / d.length;
+  const cx = i => slot * i + slot / 2;
+  const by = v => 118 - ((v - bMin) / ((bMax - bMin) || 1)) * 92;   // 118 (низ) → 26 (верх)
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  svg += `<line x1="0" y1="${ZERO}" x2="${W}" y2="${ZERO}" stroke="var(--border)" stroke-width="1"/>`;
+
+  d.forEach((b, i) => {
+    const hIn  = (b.income  / maxAbs) * MAXBAR;
+    const hOut = (b.expense / maxAbs) * MAXBAR;
+    const x = cx(i) - BARW / 2;
+    const dim = (selected !== null && selected !== i) ? ' opacity=".38"' : '';
+    svg += `<rect x="${x}" y="${ZERO - hIn}" width="${BARW}" height="${hIn}" rx="5" fill="var(--income)"${dim}/>`;
+    svg += `<rect x="${x}" y="${ZERO}" width="${BARW}" height="${hOut}" rx="5" fill="var(--expense)"${dim}/>`;
+  });
+
+  // линия остатка
+  const pts = d.map((b, i) => `${cx(i)},${by(b.balanceEnd)}`).join(' ');
+  svg += `<polyline points="${pts}" fill="none" stroke="var(--text-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  d.forEach((b, i) => {
+    const r = selected === i ? 5 : 3.4;
+    svg += `<circle cx="${cx(i)}" cy="${by(b.balanceEnd)}" r="${r}" fill="var(--surface)" stroke="var(--text-primary)" stroke-width="2.2"/>`;
+  });
+
+  // прозрачные зоны тапа (touch-target на всю высоту)
+  d.forEach((b, i) => {
+    svg += `<rect class="hit" data-i="${i}" x="${slot * i}" y="0" width="${slot}" height="${H}" fill="transparent"/>`;
+  });
+
+  svg += `</svg>`;
+  $('chart').innerHTML = svg;
+
+  // метки недель
+  $('xlabels').innerHTML = d.map((b, i) =>
+    `<span data-i="${i}" class="${selected === i ? 'on' : ''}">${b.bucket.replace('-', '–')}</span>`
+  ).join('');
+
+  renderReadout();
+}
+
+/** Строка-readout НАД графиком (всплывающих тултипов нет) */
+function renderReadout(){
+  const d = DATA.chart;
+  if (selected === null){
+    const balEnd = d[d.length - 1].balanceEnd;
+    $('readout').innerHTML =
+      `Январь: <b>+${bln(income)} / ${MINUS}${bln(expense)}${NBSP}млрд</b> · остаток <b>${bln(balEnd)}${NBSP}млрд</b>`;
+  } else {
+    const b = d[selected];
+    $('readout').innerHTML =
+      `${b.bucket.replace('-', '–')}${NBSP}янв: <b>+${bln(b.income)} / ${MINUS}${bln(b.expense)}${NBSP}млрд</b>`
+      + ` · остаток <b>${bln(b.balanceEnd)}${NBSP}млрд</b>`;
+  }
+}
+
+function selectBucket(i){
+  selected = (selected === i) ? null : i;   // повторный тап снимает выделение
+  renderChart();
+}
+
+/* ---- категории ---- */
+const ICONS = {
+  swap: '<path d="M3 8h14l-3-3M21 16H7l3 3"/>',
+  ship: '<path d="M3 21h18M5 21V10M19 21V10M12 3L3 9h18z"/>',
+  undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 015 5v3"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/>',
+  card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>'
+};
+let catsExpanded = false;
+
+function renderCats(){
+  const all = [...DATA.categories].sort((a, b) => b.amount - a.amount);   // по убыванию суммы
+  const list = catsExpanded ? all : all.slice(0, 5);
+
+  $('cats').innerHTML = list.map(c => {
+    const share = c.amount / expense;                       // доля в общих расходах
+    const w = Math.max(share * 100, 1);                     // мин. видимая ширина 1%
+    return `<div class="cat">
+      <div class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[c.icon] || ICONS.card}</svg></div>
+      <div class="c-mid">
+        <div class="c-name">${c.name}</div>
+        <div class="c-track"><i style="width:${w.toFixed(1)}%"></i></div>
+      </div>
+      <div class="c-val">${fmtCompact(c.amount)}</div>
+    </div>`;
+  }).join('');
+
+  $('moreBtn').textContent = catsExpanded
+    ? 'Свернуть'
+    : `Показать все (${all.length} категорий)`;
+}
+
+/* ---- операции ---- */
+/** Убираем ИНН (9 цифр) и лишние пробелы */
+function cleanName(s){
+  return s.replace(/\b\d{9}\b/g, '').replace(/\s{2,}/g, ' ').trim();
+}
+/** 2 буквы */
+function initials(s){
+  const w = cleanName(s).split(/\s+/).filter(Boolean);
+  if (w.length >= 2) return (w[0][0] + w[1][0]).toUpperCase();
+  return cleanName(s).slice(0, 2).toUpperCase();
+}
+/** Детерминированный цвет аватара из названия */
+function avatarClass(s){
+  let h = 0;
+  for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return 'av-' + (h % 6 + 1);
+}
+
+function renderOps(){
+  $('ops').innerHTML = DATA.recentOperations.map(o => {
+    const nm = cleanName(o.counterparty);
+    const inc = o.direction === 'income';
+    const sign = inc ? '+' : MINUS;
+    return `<div class="op">
+      <div class="av ${avatarClass(nm)}">${initials(nm)}</div>
+      <div class="o-txt">
+        <div class="o-nm">${nm}</div>
+        <div class="o-sub">${o.category} · ${o.desc} · ${o.date}</div>
+      </div>
+      <div class="o-val ${inc ? 'in' : 'out'}">${sign}${fmtCompact(o.amount)}</div>
+    </div>`;
+  }).join('');
+}
+
+/* =========================================================
+   СОСТОЯНИЯ: loading → empty → normal
+   ========================================================= */
+let loadTimer = null;
+
+function setState(state){
+  document.querySelectorAll('.dev button').forEach(b => b.classList.toggle('on', b.dataset.state === state));
+  clearTimeout(loadTimer);
+
+  if (state === 'loading'){
+    $('skeleton').hidden = false;
+    $('content').hidden = true;
+    loadTimer = setTimeout(() => setState('normal'), 600);   // 600 мс → данные
+    return;
+  }
+
+  $('skeleton').hidden = true;
+  $('content').hidden = false;
+
+  const empty = state === 'empty';
+  // Hero показывает остаток в любом состоянии
+  renderHero();
+  renderKpi();
+
+  $('chartBox').hidden = empty;  $('chartEmpty').hidden = !empty;
+  $('catsBox').hidden  = empty;  $('catsEmpty').hidden  = !empty;
+  $('ops').hidden      = empty;  $('opsEmpty').hidden   = !empty;
+  $('kpis').style.opacity = empty ? '.45' : '1';
+
+  if (!empty){ renderChart(); renderCats(); renderOps(); }
+}
+
+/* =========================================================
+   СОБЫТИЯ
+   ========================================================= */
+// тап по крупной цифре → полный ↔ компактный
+$('heroAmount').addEventListener('click', () => {
+  compactBalance = !compactBalance;
+  renderHero();
+});
+
+// тап по столбцу графика / метке недели → readout
+$('chart').addEventListener('click', e => {
+  const hit = e.target.closest('.hit');
+  if (hit) selectBucket(+hit.dataset.i);
+});
+$('xlabels').addEventListener('click', e => {
+  const s = e.target.closest('span[data-i]');
+  if (s) selectBucket(+s.dataset.i);
+});
+
+// KPI: визуальный active-state
+$('kpis').addEventListener('click', e => {
+  const k = e.target.closest('.kpi');
+  if (!k) return;
+  const was = k.classList.contains('on');
+  document.querySelectorAll('.kpi').forEach(x => x.classList.remove('on'));
+  if (!was) k.classList.add('on');
+});
+
+// «Показать все» / «Свернуть»
+$('moreBtn').addEventListener('click', () => { catsExpanded = !catsExpanded; renderCats(); });
+
+// dev-панель
+document.querySelectorAll('.dev button').forEach(b => {
+  b.addEventListener('click', () => setState(b.dataset.state));
+});
+
+// старт
+$('companyName').textContent = DATA.company;
+setState('normal');
+</script>
+
+</body>
+</html>
