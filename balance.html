@@ -348,12 +348,30 @@
   #tab-cashflow .cf-cal-range .fld.empty .val{color:#b7bcc9;}
   #tab-cashflow .cf-cal-range .fld.focus{box-shadow:inset 0 0 0 1.5px var(--blue);}
   #tab-cashflow .cf-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-  #tab-cashflow .cf-cal-nav .t{font-size:13.5px;font-weight:700;color:#0d0f16;}
-  #tab-cashflow .cf-cal-nav button{
-    width:28px;height:28px;border-radius:8px;background:var(--soft-bg);border:none;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;color:var(--text);
+  /* заголовок — кнопка выбора года */
+  #tab-cashflow .cf-cal-nav .t{
+    display:flex;align-items:center;gap:6px;border:none;background:transparent;cursor:pointer;
+    font:inherit;font-size:13.5px;font-weight:700;color:#0d0f16;padding:5px 10px;border-radius:9px;
   }
-  #tab-cashflow .cf-cal-nav button svg{width:14px;height:14px;}
+  #tab-cashflow .cf-cal-nav .t:hover{background:var(--soft-bg);}
+  #tab-cashflow .cf-cal-nav .t svg{width:10px;height:10px;color:var(--muted);transition:transform .18s;}
+  #tab-cashflow .cf-cal-nav .t.open{background:var(--blue-bg);color:var(--blue);}
+  #tab-cashflow .cf-cal-nav .t.open svg{transform:rotate(180deg);color:var(--blue);}
+  #tab-cashflow .cf-cal-nav .nav-btn{
+    width:28px;height:28px;border-radius:8px;background:var(--soft-bg);border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:var(--text);flex:0 0 auto;
+  }
+  #tab-cashflow .cf-cal-nav .nav-btn svg{width:14px;height:14px;}
+
+  /* сетка выбора года */
+  #tab-cashflow .cf-year-grid{display:none;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px 0 2px;}
+  #tab-cashflow .cf-year-grid.show{display:grid;}
+  #tab-cashflow .cf-year-grid button{
+    border:1.5px solid var(--frame-border);background:#fff;border-radius:10px;cursor:pointer;
+    padding:11px 4px;font:inherit;font-size:12px;font-weight:700;color:#2b2f3a;transition:.12s;
+  }
+  #tab-cashflow .cf-year-grid button:hover{border-color:var(--blue);color:var(--blue);}
+  #tab-cashflow .cf-year-grid button.on{background:var(--blue);border-color:var(--blue);color:#fff;}
   #tab-cashflow .cf-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
   #tab-cashflow .cf-cal-grid .dow{
     text-align:center;font-size:9.5px;font-weight:700;color:var(--muted);
@@ -1262,10 +1280,14 @@
             <div class="fld empty" id="cfCalTo"><div class="cap">Конец</div><div class="val">Выберите</div></div>
           </div>
           <div class="cf-cal-nav">
-            <button id="cfCalPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-            <span class="t" id="cfCalTitle">Месяц</span>
-            <button id="cfCalNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+            <button class="nav-btn" id="cfCalPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <button class="t" id="cfCalTitle" title="Выбрать год">
+              <span id="cfCalTitleText">Месяц</span>
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+            </button>
+            <button class="nav-btn" id="cfCalNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
           </div>
+          <div class="cf-year-grid" id="cfYearGrid"></div>
           <div class="cf-cal-grid" id="cfCalGrid"></div>
           <button class="cf-cal-apply" id="cfCalApply" disabled>Применить</button>
         </div>
@@ -2172,7 +2194,7 @@
       apply.disabled = !(rStart && rEnd);
     }
     function renderCal(){
-      $('cfCalTitle').textContent = `${MONTHS[viewM]} ${viewY}`;
+      $('cfCalTitleText').textContent = `${MONTHS[viewM]} ${viewY}`;
       let html = DOW.map(d => `<div class="dow">${d}</div>`).join('');
       const lead = (new Date(viewY, viewM, 1).getDay() + 6) % 7;   // Пн-первый
       const days = new Date(viewY, viewM + 1, 0).getDate();
@@ -2200,11 +2222,48 @@
       else { rEnd = picked; }
       renderCal();
     });
-    $('cfCalPrev').addEventListener('click', () => { if (--viewM < 0){ viewM = 11; viewY--; } renderCal(); });
-    $('cfCalNext').addEventListener('click', () => { if (++viewM > 11){ viewM = 0; viewY++; } renderCal(); });
+    /* ---- выбор года ---- */
+    let yearOpen = false, yearBase = 0;
+    function renderYearGrid(){
+      let h = '';
+      for (let i = 0; i < 12; i++){
+        const y = yearBase + i;
+        h += `<button data-y="${y}" class="${y === viewY ? 'on' : ''}">${y}</button>`;
+      }
+      $('cfYearGrid').innerHTML = h;
+    }
+    function toggleYear(open){
+      yearOpen = open;
+      if (open){ yearBase = viewY - 6; renderYearGrid(); }
+      $('cfYearGrid').classList.toggle('show', open);
+      $('cfCalGrid').style.display = open ? 'none' : 'grid';
+      $('cfCalTitle').classList.toggle('open', open);
+    }
+    $('cfCalTitle').addEventListener('click', () => toggleYear(!yearOpen));
+    $('cfYearGrid').addEventListener('click', e => {
+      const b = e.target.closest('button[data-y]');
+      if (!b) return;
+      viewY = +b.dataset.y;
+      toggleYear(false);
+      renderCal();
+    });
+
+    // стрелки: месяц (обычно) или блок из 12 лет (когда открыт выбор года)
+    $('cfCalPrev').addEventListener('click', () => {
+      if (yearOpen){ yearBase -= 12; renderYearGrid(); return; }
+      if (--viewM < 0){ viewM = 11; viewY--; }
+      renderCal();
+    });
+    $('cfCalNext').addEventListener('click', () => {
+      if (yearOpen){ yearBase += 12; renderYearGrid(); return; }
+      if (++viewM > 11){ viewM = 0; viewY++; }
+      renderCal();
+    });
+
     $('cfCalBtn').addEventListener('click', () => {
       rStart = DATA.period.from; rEnd = DATA.period.to;
       viewY = rStart.getFullYear(); viewM = rStart.getMonth();
+      toggleYear(false);
       renderCal();
       overlay.classList.add('visible');
       $('cfCalBtn').classList.add('on');
