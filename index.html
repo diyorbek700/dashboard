@@ -241,6 +241,7 @@
     padding:6px 4px;font-size:10.8px;font-weight:700;color:#5b6072;letter-spacing:.1px;transition:.15s;
   }
   #tab-cashflow .cf-gran button.on{background:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(0,111,125,.25);}
+  #tab-cashflow .cf-gran button.hidden{display:none;}
 
   /* секции */
   #tab-cashflow .cf-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:9px;}
@@ -2061,10 +2062,27 @@
     }
     function selectBucket(i){ selected = (selected === i) ? null : i; renderChart(); }
 
+    /* Гранулярность зависит от выбранного периода:
+       период > 1 месяца → доступны Месяцы (+ Недели, Дни);
+       период = 1 месяц  → только Недели и Дни (Месяцы прятать — там был бы 1 столбец). */
+    const monthSpan = (a, b) =>
+      (b.getFullYear() * 12 + b.getMonth()) - (a.getFullYear() * 12 + a.getMonth()) + 1;
+
+    function updateGranOptions(){
+      const multi = monthSpan(DATA.period.from, DATA.period.to) > 1;
+      // «Месяцы» имеют смысл только когда период шире одного месяца
+      root.querySelector('#cfGran button[data-g="month"]').classList.toggle('hidden', !multi);
+      // режим по умолчанию для нового периода
+      gran = multi ? 'month' : 'week';
+      selected = null;
+      root.querySelectorAll('#cfGran button').forEach(x => x.classList.toggle('on', x.dataset.g === gran));
+      renderChart();
+    }
+
     // переключатель гранулярности
     $('cfGran').addEventListener('click', e => {
       const b = e.target.closest('button[data-g]');
-      if (!b || b.dataset.g === gran) return;
+      if (!b || b.classList.contains('hidden') || b.dataset.g === gran) return;
       gran = b.dataset.g;
       selected = null;
       root.querySelectorAll('#cfGran button').forEach(x => x.classList.toggle('on', x.dataset.g === gran));
@@ -2198,12 +2216,14 @@
       if (!(rStart && rEnd)) return;
       DATA.period.from = rStart; DATA.period.to = rEnd;
       renderPeriodChip();
+      updateGranOptions();     // период сменился → пересобрать доступные гранулярности
       closeCal();
     });
 
     /* ---- старт ---- */
     $('cfCompany').textContent = DATA.company;
-    renderPeriodChip(); renderHero(); renderKpi(); renderChart(); renderCats(); renderOps();
+    renderPeriodChip(); renderHero(); renderKpi(); renderCats(); renderOps();
+    updateGranOptions();       // сам вызовет renderChart()
   })();
 </script>
 
