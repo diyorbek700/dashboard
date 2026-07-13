@@ -182,15 +182,25 @@
     padding:16px 17px 14px;margin-bottom:12px;
     min-height:206px;display:flex;flex-direction:column;
   }
-  #tab-cashflow .cf-hero .cap{font-size:10.8px;font-weight:600;opacity:.72;letter-spacing:.1px;}
+  #tab-cashflow .cf-hero .cap{
+    display:flex;align-items:center;gap:6px;
+    font-size:10.8px;font-weight:600;opacity:.75;letter-spacing:.1px;
+  }
+  #tab-cashflow .cf-hero .cap .cap-dot{
+    width:6px;height:6px;border-radius:50%;background:#5fdba0;flex:0 0 auto;
+  }
   #tab-cashflow .cf-hero .amount{
     font-size:31px;font-weight:800;letter-spacing:-1px;line-height:1.1;
     margin-top:9px;cursor:pointer;user-select:none;
+    display:flex;align-items:baseline;gap:7px;
   }
+  #tab-cashflow .cf-hero .amount .unit{font-size:13px;font-weight:700;opacity:.55;letter-spacing:0;}
   #tab-cashflow .cf-hero .amount:active{opacity:.75;}
+  /* runway — в отдельной плашке */
   #tab-cashflow .cf-hero .runway{
-    display:flex;align-items:center;gap:7px;margin-top:auto;padding-top:14px;
-    font-size:11px;font-weight:600;line-height:1.35;
+    display:flex;align-items:center;gap:8px;margin-top:auto;
+    background:rgba(255,255,255,.09);border-radius:12px;padding:9px 11px;
+    font-size:10.8px;font-weight:600;line-height:1.35;
   }
   #tab-cashflow .cf-hero .runway svg{width:14px;height:14px;flex:0 0 auto;}
   #tab-cashflow .cf-hero .runway.ok{color:var(--cf-hero-fg);}
@@ -220,6 +230,17 @@
   #tab-cashflow .cf-kpi .dot.net{background:#b7bcc9;}
   /* cash flow — нейтральный текст, НЕ красный */
   #tab-cashflow .cf-kpi .k-val{font-size:12.8px;font-weight:800;color:#0d0f16;letter-spacing:-.3px;white-space:nowrap;}
+  #tab-cashflow .cf-kpi .k-sub{font-size:9.2px;font-weight:600;color:var(--muted);margin-top:3px;white-space:nowrap;}
+
+  /* переключатель гранулярности: месяцы / недели / дни */
+  #tab-cashflow .cf-gran{
+    display:flex;gap:3px;background:var(--soft-bg);border-radius:10px;padding:3px;margin-bottom:9px;
+  }
+  #tab-cashflow .cf-gran button{
+    flex:1;border:none;background:transparent;border-radius:8px;cursor:pointer;font-family:inherit;
+    padding:6px 4px;font-size:10.8px;font-weight:700;color:#5b6072;letter-spacing:.1px;transition:.15s;
+  }
+  #tab-cashflow .cf-gran button.on{background:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(0,111,125,.25);}
 
   /* секции */
   #tab-cashflow .cf-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:9px;}
@@ -1156,7 +1177,7 @@
 
         <!-- 2. hero -->
         <section class="cf-hero">
-          <div class="cap">Остаток денежных средств · <span id="cfCurr">UZS</span></div>
+          <div class="cap"><span class="cap-dot"></span>Остаток денежных средств · <span id="cfCurr">UZS</span></div>
           <div class="amount" id="cfAmount" title="Нажмите, чтобы переключить формат">0</div>
           <div class="runway ok" id="cfRunway">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M6 2c0 5 6 6 6 10s-6 5-6 10M18 2c0 5-6 6-6 10s6 5 6 10"/></svg>
@@ -1174,22 +1195,30 @@
           <div class="cf-kpi" data-kpi="income">
             <div class="k-cap"><span class="dot in"></span>Поступления</div>
             <div class="k-val" id="cfKpiIn"></div>
+            <div class="k-sub" id="cfKpiInSub"></div>
           </div>
           <div class="cf-kpi" data-kpi="expense">
             <div class="k-cap"><span class="dot out"></span>Списания</div>
             <div class="k-val" id="cfKpiOut"></div>
+            <div class="k-sub" id="cfKpiOutSub"></div>
           </div>
           <div class="cf-kpi" data-kpi="net">
             <div class="k-cap"><span class="dot net"></span>Cash flow</div>
             <div class="k-val" id="cfKpiNet"></div>
+            <div class="k-sub" id="cfKpiNetSub"></div>
           </div>
         </section>
 
         <!-- 4. график -->
         <section class="cf-chartwrap">
           <div class="cf-head">
-            <span class="cf-title">Динамика за январь</span>
-            <span class="cf-hint">Нажмите на день</span>
+            <span class="cf-title" id="cfChartTitle">Динамика за январь</span>
+            <span class="cf-hint" id="cfChartHint">Нажмите на неделю</span>
+          </div>
+          <div class="cf-gran" id="cfGran">
+            <button data-g="month">Месяцы</button>
+            <button data-g="week" class="on">Недели</button>
+            <button data-g="day">Дни</button>
           </div>
           <div class="cf-readout" id="cfReadout"></div>
           <div class="cf-chart" id="cfChart"></div>
@@ -1813,15 +1842,27 @@
       company: 'Mechanical United Service',
       currency: 'UZS',
       balance: { current: 4648500000, forecast: 3260000000, forecastLabel: '31 января' },
-      kpi: { income: 6355987718, expense: 7748072825 },
+      kpi: { income: 6355987718, expense: 7748072825, incomeCount: 14, expenseCount: 85 },
       periodDays: 30,
       period: { from: new Date(2023, 0, 1), to: new Date(2023, 0, 31) },
-      chart: [
-        { bucket: '1-7',   income: 1.10e9, expense: 1.35e9, balanceEnd: 4.40e9 },
-        { bucket: '8-14',  income: 0.95e9, expense: 1.20e9, balanceEnd: 4.15e9 },
-        { bucket: '15-21', income: 1.16e9, expense: 2.46e9, balanceEnd: 3.42e9 },
-        { bucket: '22-28', income: 0.55e9, expense: 0.62e9, balanceEnd: 4.65e9 }
-      ],
+      // ряды по гранулярности: месяцы / недели / дни
+      series: {
+        month: [
+          { bucket: 'Авг', income: 5.20e9, expense: 5.80e9, balanceEnd: 5.60e9 },
+          { bucket: 'Сен', income: 6.10e9, expense: 5.50e9, balanceEnd: 6.20e9 },
+          { bucket: 'Окт', income: 4.80e9, expense: 5.90e9, balanceEnd: 5.10e9 },
+          { bucket: 'Ноя', income: 5.50e9, expense: 5.20e9, balanceEnd: 5.40e9 },
+          { bucket: 'Дек', income: 6.90e9, expense: 6.30e9, balanceEnd: 6.04e9 },
+          { bucket: 'Янв', income: 6.36e9, expense: 7.75e9, balanceEnd: 4.65e9 }
+        ],
+        week: [
+          { bucket: '1-7',   income: 1.10e9, expense: 1.35e9, balanceEnd: 4.40e9 },
+          { bucket: '8-14',  income: 0.95e9, expense: 1.20e9, balanceEnd: 4.15e9 },
+          { bucket: '15-21', income: 1.16e9, expense: 2.46e9, balanceEnd: 3.42e9 },
+          { bucket: '22-28', income: 0.55e9, expense: 0.62e9, balanceEnd: 4.65e9 }
+        ],
+        day: []   // строится из недель ниже (детерминированно)
+      },
       categories: [
         { name:'Конвертация валюты',   amount:4100696284, icon:'swap' },
         { name:'Таможенные процедуры', amount:2687000000, icon:'ship' },
@@ -1907,6 +1948,9 @@
       $('cfKpiIn').textContent  = fmtCompact(income);
       $('cfKpiOut').textContent = fmtCompact(expense);
       $('cfKpiNet').textContent = fmtCompact(net);   // отрицательный — нейтральным цветом
+      $('cfKpiInSub').textContent  = `${DATA.kpi.incomeCount} опер.`;
+      $('cfKpiOutSub').textContent = `${DATA.kpi.expenseCount} опер.`;
+      $('cfKpiNetSub').textContent = 'за январь';
     }
     $('cfKpis').addEventListener('click', e => {
       const k = e.target.closest('.cf-kpi');
@@ -1916,56 +1960,116 @@
       if (!was) k.classList.add('on');
     });
 
-    /* ---- 4. график (SVG) + строка-readout ---- */
-    const W = 300, H = 130, ZERO = 64, MAXBAR = 50, BARW = 30;
+    /* ---- 4. график (SVG) + строка-readout + гранулярность ---- */
+    const W = 300, H = 130, ZERO = 64, MAXBAR = 50;
     let selected = null;
+    let gran = 'week';   // month | week | day
+
+    // дневной ряд строится из недельного (детерминированно): доли дней внутри недели
+    const DAY_W = [0.10, 0.18, 0.12, 0.20, 0.15, 0.14, 0.11];
+    (function buildDays(){
+      const out = [];
+      let prev = 4.65e9;                                  // остаток на начало месяца
+      DATA.series.week.forEach(w => {
+        for (let i = 0; i < 7; i++){
+          out.push({
+            bucket: String(out.length + 1),
+            income: w.income * DAY_W[i],
+            expense: w.expense * DAY_W[i],
+            balanceEnd: prev + (w.balanceEnd - prev) * ((i + 1) / 7)
+          });
+        }
+        prev = w.balanceEnd;
+      });
+      for (let d = 29; d <= 31; d++){                     // хвост месяца
+        out.push({ bucket: String(d), income: 0.06e9, expense: 0.05e9, balanceEnd: 4.65e9 });
+      }
+      DATA.series.day = out;
+    })();
+
+    const GRAN = {
+      month: { title: 'Динамика по месяцам', hint: 'Нажмите на месяц',  unit: ''      },
+      week:  { title: 'Динамика за январь',  hint: 'Нажмите на неделю', unit: ' янв'  },
+      day:   { title: 'Динамика за январь',  hint: 'Нажмите на день',   unit: ' янв'  }
+    };
+    const series = () => DATA.series[gran];
+
+    /** Сумма в млрд/млн — компактно, для readout */
+    const amt = v => fmtCompact(v);
 
     function renderChart(){
-      const d = DATA.chart;
+      const d = series();
       const maxAbs = Math.max(...d.map(b => Math.max(b.income, b.expense))) || 1;
       const bals = d.map(b => b.balanceEnd);
       const bMin = Math.min(...bals) * 0.92, bMax = Math.max(...bals) * 1.04;
       const slot = W / d.length, cx = i => slot * i + slot / 2;
       const by = v => 104 - ((v - bMin) / ((bMax - bMin) || 1)) * 82;
+      const barW = Math.min(30, Math.max(4, slot * 0.62));   // подстраиваем под число столбцов
+      const rx = barW < 10 ? 2 : 5;
 
       let s = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
       s += `<line x1="0" y1="${ZERO}" x2="${W}" y2="${ZERO}" stroke="var(--divider)" stroke-width="1"/>`;
       d.forEach((b, i) => {
         const hIn = (b.income/maxAbs)*MAXBAR, hOut = (b.expense/maxAbs)*MAXBAR;
-        const x = cx(i) - BARW/2;
+        const x = cx(i) - barW/2;
         const dim = (selected !== null && selected !== i) ? ' opacity=".35"' : '';
-        s += `<rect x="${x}" y="${ZERO-hIn}" width="${BARW}" height="${hIn}" rx="5" fill="var(--green)"${dim}/>`;
-        s += `<rect x="${x}" y="${ZERO}" width="${BARW}" height="${hOut}" rx="5" fill="var(--cf-out)"${dim}/>`;
+        s += `<rect x="${x}" y="${ZERO-hIn}" width="${barW}" height="${hIn}" rx="${rx}" fill="var(--green)"${dim}/>`;
+        s += `<rect x="${x}" y="${ZERO}" width="${barW}" height="${hOut}" rx="${rx}" fill="var(--cf-out)"${dim}/>`;
       });
       s += `<polyline points="${d.map((b,i) => `${cx(i)},${by(b.balanceEnd)}`).join(' ')}" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`;
-      d.forEach((b, i) => {
-        s += `<circle cx="${cx(i)}" cy="${by(b.balanceEnd)}" r="${selected === i ? 4.6 : 3.2}" fill="#fff" stroke="var(--blue)" stroke-width="2.2"/>`;
-      });
+      if (d.length <= 12){                                  // точки только когда не тесно
+        d.forEach((b, i) => {
+          s += `<circle cx="${cx(i)}" cy="${by(b.balanceEnd)}" r="${selected === i ? 4.6 : 3.2}" fill="#fff" stroke="var(--blue)" stroke-width="2.2"/>`;
+        });
+      } else if (selected !== null){
+        s += `<circle cx="${cx(selected)}" cy="${by(d[selected].balanceEnd)}" r="4.6" fill="#fff" stroke="var(--blue)" stroke-width="2.2"/>`;
+      }
       d.forEach((b, i) => {
         s += `<rect class="hit" data-i="${i}" x="${slot*i}" y="0" width="${slot}" height="${H}" fill="transparent"/>`;
       });
       s += `</svg>`;
       $('cfChart').innerHTML = s;
 
-      $('cfXlabels').innerHTML = d.map((b, i) =>
-        `<span data-i="${i}" class="${selected === i ? 'on' : ''}">${b.bucket.replace('-', '–')}</span>`).join('');
+      // подписи: при большом числе столбцов показываем каждую 5-ю
+      const sparse = d.length > 12;
+      $('cfXlabels').innerHTML = d.map((b, i) => {
+        const show = !sparse || i === 0 || (i + 1) % 5 === 0;
+        const txt = show ? b.bucket.replace('-', '–') : '';
+        return `<span data-i="${i}" class="${selected === i ? 'on' : ''}">${txt}</span>`;
+      }).join('');
 
+      $('cfChartTitle').textContent = GRAN[gran].title;
+      $('cfChartHint').textContent  = GRAN[gran].hint;
       renderReadout();
     }
+
     function renderReadout(){
-      const d = DATA.chart;
+      const d = series();
       if (selected === null){
         const balEnd = d[d.length-1].balanceEnd;
+        const inc = d.reduce((a, b) => a + b.income, 0);
+        const exp = d.reduce((a, b) => a + b.expense, 0);
+        const cap = gran === 'month' ? 'За 6 месяцев' : 'Январь';
         $('cfReadout').innerHTML =
-          `Январь: <b>+${bln(income)} / ${MINUS}${bln(expense)}${NBSP}млрд</b> · остаток <b>${bln(balEnd)}${NBSP}млрд</b>`;
+          `${cap}: <b>+${amt(inc)} / ${MINUS}${amt(exp)}</b> · остаток <b>${amt(balEnd)}</b>`;
       } else {
         const b = d[selected];
         $('cfReadout').innerHTML =
-          `${b.bucket.replace('-', '–')}${NBSP}янв: <b>+${bln(b.income)} / ${MINUS}${bln(b.expense)}${NBSP}млрд</b>`
-          + ` · остаток <b>${bln(b.balanceEnd)}${NBSP}млрд</b>`;
+          `${b.bucket.replace('-', '–')}${GRAN[gran].unit}: <b>+${amt(b.income)} / ${MINUS}${amt(b.expense)}</b>`
+          + ` · остаток <b>${amt(b.balanceEnd)}</b>`;
       }
     }
     function selectBucket(i){ selected = (selected === i) ? null : i; renderChart(); }
+
+    // переключатель гранулярности
+    $('cfGran').addEventListener('click', e => {
+      const b = e.target.closest('button[data-g]');
+      if (!b || b.dataset.g === gran) return;
+      gran = b.dataset.g;
+      selected = null;
+      root.querySelectorAll('#cfGran button').forEach(x => x.classList.toggle('on', x.dataset.g === gran));
+      renderChart();
+    });
     $('cfChart').addEventListener('click', e => {
       const h = e.target.closest('.hit'); if (h) selectBucket(+h.dataset.i);
     });
