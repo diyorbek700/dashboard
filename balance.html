@@ -81,17 +81,60 @@
   .batt::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:var(--text);border-radius:0 2px 2px 0;}
   .batt i{display:block;height:100%;width:82%;background:var(--text);border-radius:1px;}
 
-  /* ---------- Дешборд header + pill tabs (shared) ---------- */
-  .dash-header{flex:0 0 auto;padding:8px 22px 0;}
-  .dash-header h1{font-size:21px;font-weight:800;margin:0 0 12px;letter-spacing:-.4px;color:#0d0f16;}
-  .pill-row{display:flex;gap:8px;padding:0 22px 14px;flex:0 0 auto;}
-  .pill{
-    flex:1;text-align:center;padding:10px 6px;border-radius:20px;
-    font-size:12.2px;font-weight:700;letter-spacing:.1px;cursor:pointer;font-family:inherit;
-    border:1.5px solid #e4e7ee;background:#fff;color:#2b2f3a;
-    transition:background .15s,border-color .15s,color .15s;
+  /* ---------- Отчёты: шапка + сегментированный переключатель ---------- */
+  .dash-header{
+    flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:6px 20px 12px;
   }
-  .pill.active{background:var(--pill-active);border-color:var(--pill-active);color:#fff;box-shadow:0 6px 14px rgba(0,111,125,.28);}
+  .dash-header h1{font-size:21px;font-weight:800;margin:0;letter-spacing:-.4px;color:#0d0f16;}
+  .export-btn{
+    display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;border:none;cursor:pointer;
+    background:var(--blue);color:#fff;border-radius:20px;padding:8px 14px;
+    font:inherit;font-size:11.5px;font-weight:700;letter-spacing:.1px;
+    box-shadow:0 6px 14px rgba(0,111,125,.28);
+  }
+  .export-btn svg{width:13px;height:13px;}
+
+  /* сегментированный переключатель отчётов */
+  .rep-switch{
+    display:flex;gap:4px;flex:0 0 auto;margin:0 20px 12px;
+    background:#fff;border:1px solid var(--frame-border);border-radius:15px;padding:4px;
+    box-shadow:0 1px 3px rgba(16,24,40,.05);
+  }
+  .rep-switch button{
+    flex:1;min-width:0;border:none;background:transparent;border-radius:11px;cursor:pointer;
+    font-family:inherit;padding:8px 4px;transition:.15s;
+    display:flex;flex-direction:column;align-items:center;gap:1px;
+  }
+  .rep-switch button .t{font-size:12px;font-weight:700;color:#2b2f3a;letter-spacing:-.1px;}
+  .rep-switch button .s{font-size:8.8px;font-weight:600;color:var(--muted);letter-spacing:.2px;}
+  .rep-switch button:hover:not(.active){background:var(--soft-bg);}
+  .rep-switch button.active{background:var(--blue);box-shadow:0 5px 12px rgba(0,111,125,.28);}
+  .rep-switch button.active .t{color:#fff;}
+  .rep-switch button.active .s{color:rgba(255,255,255,.72);}
+
+  /* ---------- общий градиентный hero (P&L / Balance) ---------- */
+  .rep-hero{
+    background:linear-gradient(150deg,#0a7d8c 0%,#00596a 100%);
+    border-radius:18px;padding:14px 15px 13px;color:#fff;
+    box-shadow:0 12px 26px -12px rgba(0,89,106,.5);
+  }
+  .rep-hero .rh-cap{
+    font-size:9.4px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;opacity:.75;
+  }
+  .rep-hero .rh-val{font-size:24px;font-weight:800;letter-spacing:-.7px;margin:6px 0 12px;}
+  .rep-hero .rh-sub{display:flex;gap:8px;}
+  .rep-hero .rh-card{
+    flex:1;min-width:0;background:rgba(255,255,255,.14);border-radius:12px;padding:9px 10px;
+  }
+  .rep-hero .rh-card .c{
+    font-size:8.4px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;opacity:.8;margin-bottom:4px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .rep-hero .rh-card .v{font-size:14px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;}
+  .rep-hero .rh-card .v.pos{color:#7ff0c0;}
+  .rep-hero .rh-card.tap{cursor:pointer;transition:background .12s;}
+  .rep-hero .rh-card.tap:hover{background:rgba(255,255,255,.22);}
 
   /* ---------- outer tab switcher: Cash Flow / P&L / Balance Sheet ---------- */
   .tab-content-wrap{flex:1;min-height:0;position:relative;overflow:hidden;}
@@ -1166,11 +1209,17 @@
     </div>
   </div>
 
-  <div class="dash-header"><h1>Дешборд</h1></div>
-  <div class="pill-row">
-    <button class="pill" data-pill="cashflow">Cash Flow</button>
-    <button class="pill" data-pill="pnl">P&amp;L</button>
-    <button class="pill active" data-pill="balance">Balance Sheet</button>
+  <div class="dash-header">
+    <h1>Отчёты</h1>
+    <button class="export-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>
+      Экспорт
+    </button>
+  </div>
+  <div class="rep-switch">
+    <button data-pill="cashflow"><span class="t">Cashflow</span><span class="s">ДДС</span></button>
+    <button data-pill="pnl"><span class="t">P&amp;L</span><span class="s">ОПиУ</span></button>
+    <button data-pill="balance" class="active"><span class="t">Balance</span><span class="s">Баланс</span></button>
   </div>
 
   <div class="tab-content-wrap">
@@ -1327,6 +1376,16 @@
                 <span class="p-cap">Период:</span>
                 <span class="p-val">3 квартал 2026</span>
                 <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+              </div>
+            </div>
+
+            <!-- сводный hero -->
+            <div class="rep-hero" style="margin-bottom:10px;">
+              <div class="rh-cap">Чистая прибыль</div>
+              <div class="rh-val">+ 3 450</div>
+              <div class="rh-sub">
+                <div class="rh-card"><div class="c">Выручка</div><div class="v pos">20 120</div></div>
+                <div class="rh-card"><div class="c">Рентабельность</div><div class="v">17,1%</div></div>
               </div>
             </div>
 
@@ -1676,26 +1735,18 @@
                 <button data-year="prev">На 31.12.2025</button>
               </div>
 
-              <div class="cards-row" style="margin-top:14px;margin-bottom:14px;">
-                <div class="stat-card assets" data-goto="detail" data-tab="assets">
-                  <span class="label">Активы</span>
-                  <span class="value">124 560</span>
-                  <div class="foot"><span class="pct">+9.2%</span><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
+              <!-- сводный hero -->
+              <div class="rep-hero" style="margin:14px 0 18px;">
+                <div class="rh-cap">Валюта баланса</div>
+                <div class="rh-val">124 560</div>
+                <div class="rh-sub">
+                  <div class="rh-card tap" data-goto="detail" data-tab="assets">
+                    <div class="c">Активы</div><div class="v">124 560</div>
+                  </div>
+                  <div class="rh-card tap" data-goto="detail" data-tab="liab">
+                    <div class="c">Пассивы</div><div class="v">124 560</div>
+                  </div>
                 </div>
-                <div class="stat-card liab" data-goto="detail" data-tab="liab">
-                  <span class="label">Пассивы</span>
-                  <span class="value">124 560</span>
-                  <div class="foot"><span class="pct">+9.2%</span><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
-                </div>
-              </div>
-
-              <div class="balance-card" style="margin-bottom:18px;" data-goto="detail" data-tab="assets">
-                <div class="left">
-                  <div class="label">Баланс</div>
-                  <div class="value">124 560</div>
-                  <div class="pct">+9.2%</div>
-                </div>
-                <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></div>
               </div>
 
               <div class="section-title" style="margin-bottom:8px;">Структура баланса</div>
@@ -2294,9 +2345,9 @@
 
 <script>
   // ===== outer Дешборд pill switcher (Cash Flow / P&L / Balance Sheet) =====
-  document.querySelectorAll('.pill-row .pill').forEach(pill => {
+  document.querySelectorAll('.rep-switch button[data-pill]').forEach(pill => {
     pill.addEventListener('click', () => {
-      document.querySelectorAll('.pill-row .pill').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.rep-switch button[data-pill]').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
       document.querySelectorAll('.tab-content').forEach(tc => {
         tc.classList.toggle('active', tc.id === `tab-${pill.dataset.pill}`);
