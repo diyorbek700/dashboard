@@ -112,6 +112,8 @@
   .rep-switch button.active{background:var(--blue);box-shadow:0 5px 12px rgba(0,111,125,.28);}
   .rep-switch button.active .t{color:#fff;}
   .rep-switch button.active .s{color:rgba(255,255,255,.72);}
+  /* на детальном экране переключатель скрыт — возврат кнопкой «назад» */
+  .rep-switch.hidden{display:none;}
 
   /* ---------- общий градиентный hero (P&L / Balance) ---------- */
   .rep-hero{
@@ -2552,6 +2554,8 @@
       if (id !== 'screen-cards') closeSheet();
       screens.forEach(s => s.classList.toggle('active', s.id === id));
       if (id === 'screen-cards' && opts.chip) setChip(opts.chip);
+      // на детальном экране прячем переключатель отчётов: выйти можно кнопкой «назад»
+      document.querySelector('.rep-switch').classList.toggle('hidden', id === 'screen-cards');
     }
 
     root.querySelectorAll('[data-goto]').forEach(el => {
