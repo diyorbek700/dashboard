@@ -1379,16 +1379,6 @@
               </div>
             </div>
 
-            <!-- сводный hero -->
-            <div class="rep-hero" style="margin-bottom:10px;">
-              <div class="rh-cap">Чистая прибыль</div>
-              <div class="rh-val">+ 3 450</div>
-              <div class="rh-sub">
-                <div class="rh-card"><div class="c">Выручка</div><div class="v pos">20 120</div></div>
-                <div class="rh-card"><div class="c">Рентабельность</div><div class="v">17,1%</div></div>
-              </div>
-            </div>
-
             <div class="table-wrap">
               <table class="pnl">
                 <colgroup>
@@ -1437,6 +1427,16 @@
                 <span class="p-cap">Период:</span>
                 <span class="p-val">3 квартал 2026</span>
                 <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+              </div>
+            </div>
+
+            <!-- сводный hero (только на детальном экране) -->
+            <div class="rep-hero" style="margin-bottom:12px;">
+              <div class="rh-cap">Чистая прибыль</div>
+              <div class="rh-val">+ 3 450</div>
+              <div class="rh-sub">
+                <div class="rh-card"><div class="c">Выручка</div><div class="v pos">20 120</div></div>
+                <div class="rh-card"><div class="c">Рентабельность</div><div class="v">17,1%</div></div>
               </div>
             </div>
 
@@ -1781,19 +1781,6 @@
                 </div>
               </div>
 
-              <div class="section-title" style="margin-bottom:8px;">Коэффициенты</div>
-              <div class="coef-list" style="margin-bottom:16px;">
-                <div class="coef-row"><span class="name">Коэффициент текущей ликвидности</span><span class="right"><span class="val">1.82</span><span class="badge">норма</span></span></div>
-                <div class="coef-row"><span class="name">Коэффициент автономии</span><span class="right"><span class="val">0.50</span><span class="badge">норма</span></span></div>
-                <div class="coef-row"><span class="name">Коэффициент обеспеченности</span><span class="right"><span class="val">0.67</span><span class="badge">норма</span></span></div>
-              </div>
-
-              <div class="legend-swatches">
-                <div class="sw"><span class="dot" style="background:var(--green-dot)"></span>Зеленый — рост / положительная динамика</div>
-                <div class="sw"><span class="dot" style="background:var(--red-dot)"></span>Красный — снижение / отрицательная динамика</div>
-                <div class="sw"><span class="dot" style="background:var(--blue)"></span>Синий — итоговые показатели</div>
-                <div class="sw"><span class="dot" style="background:#c9cdd6"></span>Серый — нейтральная информация</div>
-              </div>
             </div>
           </div>
         </section>
@@ -2345,6 +2332,11 @@
 
 <script>
   // ===== outer Дешборд pill switcher (Cash Flow / P&L / Balance Sheet) =====
+  // «Экспорт» доступен только в P&L
+  const exportBtn = document.querySelector('.export-btn');
+  const syncExport = key => { exportBtn.style.display = key === 'pnl' ? 'inline-flex' : 'none'; };
+  syncExport(document.querySelector('.rep-switch button.active').dataset.pill);
+
   document.querySelectorAll('.rep-switch button[data-pill]').forEach(pill => {
     pill.addEventListener('click', () => {
       document.querySelectorAll('.rep-switch button[data-pill]').forEach(p => p.classList.remove('active'));
@@ -2352,6 +2344,7 @@
       document.querySelectorAll('.tab-content').forEach(tc => {
         tc.classList.toggle('active', tc.id === `tab-${pill.dataset.pill}`);
       });
+      syncExport(pill.dataset.pill);
     });
   });
 </script>
