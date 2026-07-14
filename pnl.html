@@ -294,12 +294,30 @@
 
   /* 4. график */
   #tab-cashflow .cf-chartwrap{margin-bottom:20px;}
+  /* строка-readout: карточка с тремя показателями */
   #tab-cashflow .cf-readout{
-    background:var(--soft-bg);border-radius:11px;padding:8px 11px;margin-bottom:9px;
-    font-size:10.8px;font-weight:600;color:var(--muted);line-height:1.35;min-height:33px;
-    display:flex;align-items:center;
+    background:var(--soft-bg);border:1px solid var(--divider);border-radius:12px;
+    padding:9px 11px 10px;margin-bottom:10px;
   }
-  #tab-cashflow .cf-readout b{color:#0d0f16;font-weight:800;}
+  #tab-cashflow .cf-readout .ro-period{
+    font-size:9.4px;font-weight:800;color:var(--blue);letter-spacing:.5px;
+    text-transform:uppercase;margin-bottom:8px;
+  }
+  #tab-cashflow .cf-readout .ro-stats{display:flex;gap:8px;}
+  #tab-cashflow .cf-readout .ro-s{
+    flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;
+    padding-left:8px;border-left:2px solid var(--divider);
+  }
+  #tab-cashflow .cf-readout .ro-s.in{border-left-color:var(--green);}
+  #tab-cashflow .cf-readout .ro-s.out{border-left-color:var(--cf-out);}
+  #tab-cashflow .cf-readout .ro-s.bal{border-left-color:var(--blue);}
+  #tab-cashflow .cf-readout .ro-s .l{
+    font-size:8.6px;font-weight:700;color:var(--muted);letter-spacing:.35px;text-transform:uppercase;
+  }
+  #tab-cashflow .cf-readout .ro-s .v{font-size:12.2px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;}
+  #tab-cashflow .cf-readout .ro-s .v.in{color:var(--green);}
+  #tab-cashflow .cf-readout .ro-s .v.out{color:var(--cf-out);}
+  #tab-cashflow .cf-readout .ro-s .v.bal{color:#0d0f16;}
   #tab-cashflow .cf-chart svg{width:100%;height:auto;display:block;}
   #tab-cashflow .cf-chart .hit{cursor:pointer;}
   #tab-cashflow .cf-xlabels{display:flex;margin-top:4px;}
@@ -2112,19 +2130,24 @@
 
     function renderReadout(){
       const d = series();
+      let label, inc, exp, bal;
       if (selected === null){
-        const balEnd = d[d.length-1].balanceEnd;
-        const inc = d.reduce((a, b) => a + b.income, 0);
-        const exp = d.reduce((a, b) => a + b.expense, 0);
-        const cap = gran === 'month' ? 'За 6 месяцев' : 'Январь';
-        $('cfReadout').innerHTML =
-          `${cap}: <b>+${amt(inc)} / ${MINUS}${amt(exp)}</b> · остаток <b>${amt(balEnd)}</b>`;
+        label = gran === 'month' ? 'За 6 месяцев' : 'Январь';
+        inc = d.reduce((a, b) => a + b.income, 0);
+        exp = d.reduce((a, b) => a + b.expense, 0);
+        bal = d[d.length - 1].balanceEnd;
       } else {
         const b = d[selected];
-        $('cfReadout').innerHTML =
-          `${b.bucket.replace('-', '–')}${GRAN[gran].unit}: <b>+${amt(b.income)} / ${MINUS}${amt(b.expense)}</b>`
-          + ` · остаток <b>${amt(b.balanceEnd)}</b>`;
+        label = b.bucket.replace('-', '–') + GRAN[gran].unit;
+        inc = b.income; exp = b.expense; bal = b.balanceEnd;
       }
+      $('cfReadout').innerHTML =
+        `<div class="ro-period">${label}</div>`
+        + `<div class="ro-stats">`
+        +   `<div class="ro-s in"><span class="l">Приход</span><span class="v in">+${amt(inc)}</span></div>`
+        +   `<div class="ro-s out"><span class="l">Расход</span><span class="v out">${MINUS}${amt(exp)}</span></div>`
+        +   `<div class="ro-s bal"><span class="l">Остаток</span><span class="v bal">${amt(bal)}</span></div>`
+        + `</div>`;
     }
     function selectBucket(i){ selected = (selected === i) ? null : i; renderChart(); }
 
