@@ -3116,6 +3116,8 @@
       if (id !== 'screen-detail') closeSheet();
       screens.forEach(s => s.classList.toggle('active', s.id === id));
       if (id === 'screen-detail' && opts.tab) setDetailTab(opts.tab);
+      // на детальном экране прячем переключатель отчётов: выйти можно кнопкой «назад»
+      document.querySelector('.rep-switch').classList.toggle('hidden', id === 'screen-detail');
     }
 
     root.querySelectorAll('.segmented[data-group="home-date"] button').forEach(btn => {
