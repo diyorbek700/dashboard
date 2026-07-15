@@ -1447,30 +1447,30 @@
             <div class="table-wrap">
               <table class="pnl">
                 <colgroup>
-                  <col class="col-name"><col class="col-num"><col class="col-num">
+                  <col class="col-name">
                 </colgroup>
                 <thead>
-                  <tr><th>Наименование</th><th>Прошлый год</th><th>Отчетный год</th></tr>
+                  <tr><th>Наименование</th></tr>
                 </thead>
                 <tbody>
-                  <tr class="section income" data-goto="cards" data-chip="income"><td>Доходы</td><td>18 670</td><td>20 120</td></tr>
-                  <tr><td>Чистая выручка</td><td>12 450</td><td>13 700</td></tr>
-                  <tr><td>Себестоимость</td><td>-7 250</td><td>-8 100</td></tr>
-                  <tr><td>Валовая прибыль</td><td>5 200</td><td>5 600</td></tr>
+                  <tr class="section income" data-goto="cards" data-chip="income" data-total="20120"><td>Доходы</td></tr>
+                  <tr data-total="13700"><td>Чистая выручка</td></tr>
+                  <tr data-total="-8100"><td>Себестоимость</td></tr>
+                  <tr data-total="5600"><td>Валовая прибыль</td></tr>
 
-                  <tr class="section expense" data-goto="cards" data-chip="expense"><td>Расходы</td><td>-16 450</td><td>-17 230</td></tr>
-                  <tr><td>Расходы периода, всего</td><td>-3 480</td><td>-3 980</td></tr>
-                  <tr><td>Административные расходы</td><td>-980</td><td>-1 120</td></tr>
-                  <tr><td>Прочие операционные расходы</td><td>-540</td><td>-620</td></tr>
-                  <tr><td>Прочие расходы</td><td>-350</td><td>-410</td></tr>
+                  <tr class="section expense" data-goto="cards" data-chip="expense" data-total="-17230"><td>Расходы</td></tr>
+                  <tr data-total="-3980"><td>Расходы периода, всего</td></tr>
+                  <tr data-total="-1120"><td>Административные расходы</td></tr>
+                  <tr data-total="-620"><td>Прочие операционные расходы</td></tr>
+                  <tr data-total="-410"><td>Прочие расходы</td></tr>
 
-                  <tr class="section profit" data-goto="cards" data-chip="all"><td>Прибыль</td><td>2 220</td><td>2 890</td></tr>
-                  <tr><td>Прибыль от основной деят.</td><td>6 990</td><td>7 800</td></tr>
-                  <tr><td>Доходы от фин. деятельности</td><td>1 230</td><td>1 450</td></tr>
-                  <tr><td>Налог на прибыль</td><td>-2 000</td><td>-2 360</td></tr>
+                  <tr class="section profit" data-goto="cards" data-chip="all" data-total="2890"><td>Прибыль</td></tr>
+                  <tr data-total="7800"><td>Прибыль от основной деят.</td></tr>
+                  <tr data-total="1450"><td>Доходы от фин. деятельности</td></tr>
+                  <tr data-total="-2360"><td>Налог на прибыль</td></tr>
 
-                  <tr class="spacer"><td colspan="3"></td></tr>
-                  <tr class="net-profit" data-goto="cards" data-chip="all"><td>Чистая прибыль (убыток)</td><td>3 450</td><td>3 890</td></tr>
+                  <tr class="spacer"><td colspan="1"></td></tr>
+                  <tr class="net-profit" data-goto="cards" data-chip="all" data-total="3890"><td>Чистая прибыль (убыток)</td></tr>
                 </tbody>
               </table>
             </div>
@@ -1782,10 +1782,10 @@
 
           <table class="detail">
             <colgroup>
-              <col class="col-name"><col class="col-num"><col class="col-num"><col class="col-pct">
+              <col class="col-name"><col class="col-num">
             </colgroup>
             <thead>
-              <tr><th>Наименование статьи</th><th>Прошлый год</th><th>Отчетный год</th><th>Δ, %</th></tr>
+              <tr><th>Наименование статьи</th><th>Сумма</th></tr>
             </thead>
             <tbody id="pnlSheetBody"></tbody>
           </table>
@@ -2518,15 +2518,14 @@
       const rowsHtml = data.rows.map(([name, prev, cur]) => {
         totalPrev += prev;
         totalCur += cur;
-        const pct = pctOf(prev, cur);
-        return `<tr><td>${name}</td><td>${fmt(prev)}</td><td>${fmt(cur)}</td><td class="${pct.cls}">${pct.text}</td></tr>`;
+        return `<tr><td>${name}</td><td class="${ng(cur).trim()}">${fmt(cur)}</td></tr>`;
       }).join('');
 
       const totalPct = pctOf(totalPrev, totalCur);
-      const totalHtml = `<tr class="total"><td>${data.total}</td><td>${fmt(totalPrev)}</td><td>${fmt(totalCur)}</td><td class="${totalPct.cls}">${totalPct.text}</td></tr>`;
+      const totalHtml = `<tr class="total"><td>${data.total}</td><td>${fmt(totalCur)}</td></tr>`;
 
       sheetLabel.textContent = data.label;
-      sheetValue.innerHTML = `${fmt(totalPrev)}<span class="unit">тыс. сум</span>`;
+      sheetValue.innerHTML = `${fmt(totalCur)}<span class="unit">тыс. сум</span>`;
       sheetPct.textContent = `${totalPct.text} к прошлому году`;
       sheetBody.innerHTML = rowsHtml + totalHtml;
 
@@ -2621,9 +2620,9 @@
       });
       pnlTable.querySelectorAll('tbody tr').forEach(tr => {
         const spacer = tr.querySelector('td[colspan]');
-        if (spacer){ spacer.setAttribute('colspan', String(3 + cols.length)); return; }
+        if (spacer){ spacer.setAttribute('colspan', String(1 + cols.length)); return; }
         tr.querySelectorAll('td.mo').forEach(td => td.remove());
-        const cur = parseInt((tr.children[2] ? tr.children[2].textContent : '').replace(/[^\d-]/g, ''), 10);
+        const cur = parseInt((tr.dataset.total || '').replace(/[^\d-]/g, ''), 10);
         cols.forEach(c => {
           const v = colVal(cur, c);
           const td = document.createElement('td');
