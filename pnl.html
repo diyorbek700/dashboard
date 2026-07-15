@@ -922,8 +922,22 @@
     content:"";position:absolute;inset:0;background:var(--blue);border-radius:9px;z-index:0;
   }
   #tab-pnl .cal-cell.selected span{position:relative;z-index:1;}
+  /* показывать статистику: по месяцам / по годам */
+  #tab-pnl .cal-gran{margin-top:14px;flex:0 0 auto;}
+  #tab-pnl .cal-gran .g-lbl{
+    font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:7px;
+  }
+  #tab-pnl .cal-gran .g-seg{display:flex;gap:4px;background:var(--soft-bg);border-radius:11px;padding:4px;}
+  #tab-pnl .cal-gran .g-seg button{
+    flex:1;border:none;background:transparent;border-radius:8px;cursor:pointer;font-family:inherit;
+    padding:9px 4px;font-size:12px;font-weight:700;color:#5b6072;letter-spacing:.1px;transition:.15s;
+  }
+  #tab-pnl .cal-gran .g-seg button.on{background:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(0,111,125,.25);}
+  #tab-pnl .cal-gran .g-seg button:disabled{opacity:.4;cursor:default;}
+  #tab-pnl .cal-gran.hidden{display:none;}
+
   #tab-pnl .cal-apply{
-    margin-top:14px;flex:0 0 auto;border:none;width:100%;
+    margin-top:12px;flex:0 0 auto;border:none;width:100%;
     background:var(--blue);color:#fff;border-radius:12px;padding:12px;
     font-size:13.5px;font-weight:700;letter-spacing:.1px;cursor:pointer;font-family:inherit;
     box-shadow:0 8px 16px rgba(0,111,125,.28);
@@ -1500,7 +1514,7 @@
                 <tbody id="pnlDetBody"></tbody>
               </table>
             </div>
-            <div class="det-hint">Прокрутите таблицу вправо, чтобы увидеть месяцы →</div>
+            <div class="det-hint">Прокрутите таблицу вправо →</div>
 
             <!-- source data for the table above (hidden) -->
             <div class="row-list">
@@ -1699,6 +1713,13 @@
               <div class="cn-btn" id="pnlCalNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
             </div>
             <div class="cal-grid" id="pnlCalGrid"></div>
+            <div class="cal-gran hidden" id="pnlCalGran">
+              <div class="g-lbl">Показывать статистику</div>
+              <div class="g-seg">
+                <button data-tg="month" class="on">По месяцам</button>
+                <button data-tg="year">По годам</button>
+              </div>
+            </div>
             <button class="cal-apply" id="pnlCalApply" disabled>Применить</button>
           </div>
         </div>
@@ -2454,78 +2475,90 @@
       sheet:    el.dataset.sheet || null,
     }));
     let currentChip = 'all';
+    let tableGran = 'month';   // для «Своего периода»: month | year
+    const detTable = root.querySelector('table.det-table');
+    const pnlTable = root.querySelector('table.pnl');
 
-    // split an item's total into 3 months of the quarter (sums back to the total)
+    // разбить годовой итог строки на 3 месяца квартала (сумма = итог)
     function splitMonths(total){
       const m1 = Math.round(total * 0.32);
       const m2 = Math.round(total * 0.33);
       return [m1, m2, total - m1 - m2];
     }
-    function detQuarter(){
-      if (selected && selected.type === 'quarter') return { q: selected.value, year: selected.year };
-      const n = new Date();
-      return { q: Math.floor(n.getMonth() / 3) + 1, year: (selected && selected.year) || n.getFullYear() };
+
+    // набор доп. колонок: месяцы квартала / месяцы диапазона / годы диапазона
+    function tableCols(){
+      const cols = [];
+      const qCols = (q, year) => {
+        const s = (q - 1) * 3, yy = String(year).slice(-2);
+        for (let i = 0; i < 3; i++) cols.push({ label: `${MONTHS_SHORT[s + i]} ${yy}`, kind: 'qmonth', i });
+      };
+      if (selected && selected.type === 'quarter'){ qCols(selected.value, selected.year); return cols; }
+      if (selected && selected.type === 'custom' && selected.from && selected.to){
+        if (tableGran === 'year'){
+          const y1 = selected.from.getFullYear(), y2 = selected.to.getFullYear(), n = y2 - y1 + 1;
+          for (let y = y1; y <= y2; y++) cols.push({ label: String(y), kind: 'year', idx: y - y1, n });
+        } else {
+          let y = selected.from.getFullYear(), m = selected.from.getMonth();
+          const ey = selected.to.getFullYear(), em = selected.to.getMonth();
+          let guard = 0;
+          while ((y < ey || (y === ey && m <= em)) && guard++ < 120){
+            cols.push({ label: `${MONTHS_SHORT[m]} ${String(y).slice(-2)}`, kind: 'cmonth' });
+            if (++m > 11){ m = 0; y++; }
+          }
+        }
+        return cols;
+      }
+      const now = new Date(); qCols(Math.floor(now.getMonth() / 3) + 1, now.getFullYear());
+      return cols;
     }
+    // значение строки для конкретной колонки
+    function colVal(total, col){
+      if (isNaN(total)) return NaN;
+      if (col.kind === 'qmonth') return splitMonths(total)[col.i];
+      if (col.kind === 'cmonth') return Math.round(total / 12);                                    // среднемесячное
+      if (col.kind === 'year')   return Math.round(total * (0.82 + 0.18 * (col.idx + 1) / col.n)); // рост, последний год = итог
+      return total;
+    }
+    const ng = v => (!isNaN(v) && v < 0) ? ' neg' : '';
+
     function renderDetail(){
-      const { q, year } = detQuarter();
-      const s = (q - 1) * 3, yy = String(year).slice(-2);
-      root.querySelector('#pnlDtM1').textContent = `${MONTHS_SHORT[s]} ${yy}`;
-      root.querySelector('#pnlDtM2').textContent = `${MONTHS_SHORT[s + 1]} ${yy}`;
-      root.querySelector('#pnlDtM3').textContent = `${MONTHS_SHORT[s + 2]} ${yy}`;
+      const cols = tableCols();
+      detTable.querySelector('thead tr').innerHTML =
+        `<th class="dt-name">Статья</th><th class="dt-tot">Итого</th>` + cols.map(c => `<th>${c.label}</th>`).join('');
       const items = DETAIL_ITEMS.filter(it => currentChip === 'all' || it.cat === currentChip);
-      const ng = v => v < 0 ? ' neg' : '';
       detBody.innerHTML = items.map(it => {
-        const [m1, m2, m3] = splitMonths(it.total);
         const cls = [it.subtotal ? 'subtotal' : '', it.child ? 'child' : ''].filter(Boolean).join(' ');
+        const cells = cols.map(c => { const v = colVal(it.total, c); return `<td class="${ng(v).trim()}">${fmt(v)}</td>`; }).join('');
         return `<tr class="${cls}"${it.sheet ? ` data-sheet="${it.sheet}"` : ''}>`
           + `<td class="dt-name">${it.name}</td>`
-          + `<td class="dt-tot${ng(it.total)}">${fmt(it.total)}</td>`
-          + `<td class="${ng(m1).trim()}">${fmt(m1)}</td>`
-          + `<td class="${ng(m2).trim()}">${fmt(m2)}</td>`
-          + `<td class="${ng(m3).trim()}">${fmt(m3)}</td></tr>`;
+          + `<td class="dt-tot${ng(it.total)}">${fmt(it.total)}</td>${cells}</tr>`;
       }).join('');
       emptyHint.classList.toggle('visible', items.length === 0);
-      renderTableMonths();          // сводная таблица тоже показывает месяцы квартала
+      renderSummaryCols(cols);
     }
 
-    /* ---- месячные колонки в сводной таблице (экран «Свод показателей») ---- */
-    const pnlTable = root.querySelector('table.pnl');
-    const moTh = [];
-    (function initTableMonths(){
+    // те же колонки в сводной таблице (первый экран)
+    function renderSummaryCols(cols){
       const headRow = pnlTable.querySelector('thead tr');
-      for (let i = 0; i < 3; i++){
+      headRow.querySelectorAll('th.mo').forEach(th => th.remove());
+      cols.forEach(c => {
         const th = document.createElement('th');
-        th.className = 'mo';
+        th.className = 'mo'; th.textContent = c.label;
         headRow.appendChild(th);
-        moTh.push(th);
-      }
+      });
       pnlTable.querySelectorAll('tbody tr').forEach(tr => {
         const spacer = tr.querySelector('td[colspan]');
-        if (spacer){ spacer.setAttribute('colspan', '6'); return; }
-        for (let i = 0; i < 3; i++){
+        if (spacer){ spacer.setAttribute('colspan', String(3 + cols.length)); return; }
+        tr.querySelectorAll('td.mo').forEach(td => td.remove());
+        const cur = parseInt((tr.children[2] ? tr.children[2].textContent : '').replace(/[^\d-]/g, ''), 10);
+        cols.forEach(c => {
+          const v = colVal(cur, c);
           const td = document.createElement('td');
-          td.className = 'mo';
+          td.className = 'mo' + ng(v);
+          td.textContent = isNaN(v) ? '—' : fmt(v);
           tr.appendChild(td);
-        }
-      });
-    })();
-
-    function renderTableMonths(){
-      const { q, year } = detQuarter();
-      const s = (q - 1) * 3, yy = String(year).slice(-2);
-      moTh.forEach((th, i) => { th.textContent = `${MONTHS_SHORT[s + i]} ${yy}`; });
-
-      pnlTable.querySelectorAll('tbody tr').forEach(tr => {
-        if (tr.querySelector('td[colspan]')) return;                 // строка-разделитель
-        const c = tr.children;                                        // [0]имя [1]прошлый [2]отчетный [3..5]месяцы
-        const cur = parseInt((c[2].textContent || '').replace(/[^\d-]/g, ''), 10);
-        const m = isNaN(cur) ? null : splitMonths(cur);
-        for (let i = 0; i < 3; i++){
-          const td = c[3 + i];
-          if (!td) continue;
-          td.textContent = m ? fmt(m[i]) : '—';
-          td.classList.toggle('neg', !!m && m[i] < 0);
-        }
+        });
       });
     }
 
@@ -2668,6 +2701,7 @@
       const r = periodRangeFor(type, value, year);
       if (!r) return;
       selected = { type, value, year };
+      tableGran = 'month';                       // квартал → колонки по месяцам
       setPeriodLabel(periodLabelFor(type, value, year));
       setDateRange(fmtRange(r.start, r.end));
       markActive();
@@ -2680,7 +2714,7 @@
     });
     root.querySelector('#pnlYearPrev').addEventListener('click', () => { pickerYear--; renderYear(); });
     root.querySelector('#pnlYearNext').addEventListener('click', () => { pickerYear++; renderYear(); });
-    customBtn.addEventListener('click', () => { showPeriodView('cal'); renderCal(); });
+    customBtn.addEventListener('click', () => { showPeriodView('cal'); calGran = 'month'; renderCal(); });
 
     /* ---- calendar range picker ---- */
     const calTitle = root.querySelector('#pnlCalTitle');
@@ -2690,12 +2724,30 @@
     const calApply = root.querySelector('#pnlCalApply');
     const calPrev  = root.querySelector('#pnlCalPrev');
     const calNext  = root.querySelector('#pnlCalNext');
+    const calGranBox = root.querySelector('#pnlCalGran');
 
     const today = new Date();
     let viewY = today.getFullYear();
     let viewM = today.getMonth();
     let rangeStart = null;   // {y,m,d} timestamps stored as Date
     let rangeEnd = null;
+    let calGran = 'month';   // выбор пользователя в «Своём периоде»
+
+    // «По годам» доступно только если диапазон охватывает 2+ календарных года
+    function updateCalGran(){
+      const multiYear = rangeStart && rangeEnd && rangeEnd.getFullYear() > rangeStart.getFullYear();
+      calGranBox.classList.toggle('hidden', !multiYear);
+      const yb = calGranBox.querySelector('button[data-tg="year"]');
+      yb.disabled = !multiYear;
+      if (!multiYear) calGran = 'month';
+      calGranBox.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.tg === calGran));
+    }
+    calGranBox.addEventListener('click', e => {
+      const b = e.target.closest('button[data-tg]');
+      if (!b || b.disabled) return;
+      calGran = b.dataset.tg;
+      calGranBox.querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.tg === calGran));
+    });
 
     function pad(n){ return String(n).padStart(2,'0'); }
     function fmtDate(d){ return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}`; }
@@ -2712,6 +2764,7 @@
       calFrom.classList.toggle('focus', !pickingEnd);
       calTo.classList.toggle('focus', !!pickingEnd);
       calApply.disabled = !(rangeStart && rangeEnd);
+      updateCalGran();
     }
 
     function renderCal(){
@@ -2760,7 +2813,9 @@
 
     calApply.addEventListener('click', () => {
       if (!(rangeStart && rangeEnd)) return;
-      selected = { type: 'custom' };
+      selected = { type: 'custom', from: rangeStart, to: rangeEnd };
+      // «По годам» применяется только для многолетнего диапазона
+      tableGran = (rangeEnd.getFullYear() > rangeStart.getFullYear()) ? calGran : 'month';
       setPeriodLabel(fmtRange(rangeStart, rangeEnd));
       setDateRange(fmtRange(rangeStart, rangeEnd));
       markActive();
