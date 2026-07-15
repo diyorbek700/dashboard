@@ -407,9 +407,13 @@
   #tab-cashflow .cf-cal-range{display:flex;gap:8px;margin-bottom:12px;}
   #tab-cashflow .cf-cal-range .fld{flex:1;background:var(--soft-bg);border-radius:10px;padding:8px 10px;}
   #tab-cashflow .cf-cal-range .fld .cap{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;}
-  #tab-cashflow .cf-cal-range .fld .val{font-size:13px;font-weight:700;color:#0d0f16;}
-  #tab-cashflow .cf-cal-range .fld.empty .val{color:#b7bcc9;}
+  #tab-cashflow .cf-cal-range .fld .val{
+    width:100%;border:none;background:transparent;padding:0;font-family:inherit;
+    font-size:13px;font-weight:700;color:#0d0f16;outline:none;
+  }
+  #tab-cashflow .cf-cal-range .fld .val::placeholder{color:#b7bcc9;font-weight:600;}
   #tab-cashflow .cf-cal-range .fld.focus{box-shadow:inset 0 0 0 1.5px var(--blue);}
+  #tab-cashflow .cf-cal-range .fld.bad{box-shadow:inset 0 0 0 1.5px var(--red);}
   #tab-cashflow .cf-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
   /* заголовок — кнопка выбора года */
   #tab-cashflow .cf-cal-nav .t{
@@ -888,17 +892,38 @@
     flex:1;background:var(--soft-bg);border-radius:10px;padding:8px 10px;
   }
   #tab-pnl .cal-range .cr-field .cr-cap{font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;margin-bottom:2px;}
-  #tab-pnl .cal-range .cr-field .cr-date{font-size:13px;font-weight:700;color:#0d0f16;}
-  #tab-pnl .cal-range .cr-field.empty .cr-date{color:#b7bcc9;}
+  #tab-pnl .cal-range .cr-field .cr-inp{
+    width:100%;border:none;background:transparent;padding:0;font-family:inherit;
+    font-size:13px;font-weight:700;color:#0d0f16;outline:none;
+  }
+  #tab-pnl .cal-range .cr-field .cr-inp::placeholder{color:#b7bcc9;font-weight:600;}
   #tab-pnl .cal-range .cr-field.focus{box-shadow:inset 0 0 0 1.5px var(--blue);}
+  #tab-pnl .cal-range .cr-field.bad{box-shadow:inset 0 0 0 1.5px var(--red);}
 
   #tab-pnl .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex:0 0 auto;}
-  #tab-pnl .cal-nav .cn-title{font-size:13.5px;font-weight:700;color:#0d0f16;letter-spacing:-.1px;}
+  #tab-pnl .cal-nav .cn-title{
+    display:flex;align-items:center;gap:6px;border:none;background:transparent;cursor:pointer;font-family:inherit;
+    font-size:13.5px;font-weight:700;color:#0d0f16;letter-spacing:-.1px;padding:5px 10px;border-radius:9px;
+  }
+  #tab-pnl .cal-nav .cn-title:hover{background:var(--soft-bg);}
+  #tab-pnl .cal-nav .cn-title svg{width:10px;height:10px;color:var(--muted);transition:transform .18s;}
+  #tab-pnl .cal-nav .cn-title.open{background:var(--blue-bg);color:var(--blue);}
+  #tab-pnl .cal-nav .cn-title.open svg{transform:rotate(180deg);color:var(--blue);}
   #tab-pnl .cal-nav .cn-btn{
-    width:28px;height:28px;border-radius:8px;background:var(--soft-bg);
-    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);
+    width:28px;height:28px;border-radius:8px;background:var(--soft-bg);border:none;cursor:pointer;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;color:var(--text);
   }
   #tab-pnl .cal-nav .cn-btn svg{width:14px;height:14px;}
+
+  /* сетка выбора года */
+  #tab-pnl .cal-year-grid{display:none;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;flex:0 0 auto;}
+  #tab-pnl .cal-year-grid.show{display:grid;}
+  #tab-pnl .cal-year-grid button{
+    border:1.5px solid var(--frame-border);background:#fff;border-radius:10px;cursor:pointer;font-family:inherit;
+    padding:11px 4px;font-size:12px;font-weight:700;color:#2b2f3a;transition:.12s;
+  }
+  #tab-pnl .cal-year-grid button:hover{border-color:var(--blue);color:var(--blue);}
+  #tab-pnl .cal-year-grid button.on{background:var(--blue);border-color:var(--blue);color:#fff;}
 
   #tab-pnl .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:0 0 auto;}
   #tab-pnl .cal-grid .cal-dow{
@@ -1365,8 +1390,8 @@
             </button>
           </div>
           <div class="cf-cal-range">
-            <div class="fld focus empty" id="cfCalFrom"><div class="cap">Начало</div><div class="val">Выберите</div></div>
-            <div class="fld empty" id="cfCalTo"><div class="cap">Конец</div><div class="val">Выберите</div></div>
+            <div class="fld focus" id="cfCalFrom"><div class="cap">Начало</div><input class="val" id="cfCalFromInp" inputmode="numeric" placeholder="дд.мм.гггг" maxlength="10" autocomplete="off"></div>
+            <div class="fld" id="cfCalTo"><div class="cap">Конец</div><input class="val" id="cfCalToInp" inputmode="numeric" placeholder="дд.мм.гггг" maxlength="10" autocomplete="off"></div>
           </div>
           <div class="cf-cal-nav">
             <button class="nav-btn" id="cfCalPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
@@ -1704,14 +1729,21 @@
           <!-- VIEW: calendar range -->
           <div class="period-view" id="pnlPeriodCalView">
             <div class="cal-range">
-              <div class="cr-field focus empty" id="pnlCalFrom"><div class="cr-cap">Начало</div><div class="cr-date">Выберите</div></div>
-              <div class="cr-field empty" id="pnlCalTo"><div class="cr-cap">Конец</div><div class="cr-date">Выберите</div></div>
+              <div class="cr-field focus" id="pnlCalFrom">
+                <div class="cr-cap">Начало</div>
+                <input class="cr-inp" id="pnlCalFromInp" inputmode="numeric" placeholder="дд.мм.гггг" maxlength="10" autocomplete="off">
+              </div>
+              <div class="cr-field" id="pnlCalTo">
+                <div class="cr-cap">Конец</div>
+                <input class="cr-inp" id="pnlCalToInp" inputmode="numeric" placeholder="дд.мм.гггг" maxlength="10" autocomplete="off">
+              </div>
             </div>
             <div class="cal-nav">
-              <div class="cn-btn" id="pnlCalPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div>
-              <div class="cn-title" id="pnlCalTitle">Месяц</div>
-              <div class="cn-btn" id="pnlCalNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+              <button class="cn-btn" id="pnlCalPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <button class="cn-title" id="pnlCalTitle" type="button"><span id="pnlCalTitleText">Месяц</span><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg></button>
+              <button class="cn-btn" id="pnlCalNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
             </div>
+            <div class="cal-year-grid" id="pnlCalYearGrid"></div>
             <div class="cal-grid" id="pnlCalGrid"></div>
             <div class="cal-gran hidden" id="pnlCalGran">
               <div class="g-lbl">Показывать статистику</div>
@@ -2264,6 +2296,7 @@
     const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
     const overlay = $('cfCalOverlay');
     const grid = $('cfCalGrid'), fFrom = $('cfCalFrom'), fTo = $('cfCalTo'), apply = $('cfCalApply');
+    const fFromInp = $('cfCalFromInp'), fToInp = $('cfCalToInp');
     let viewY = DATA.period.from.getFullYear(), viewM = DATA.period.from.getMonth();
     let rStart = null, rEnd = null;
 
@@ -2274,15 +2307,45 @@
       $('cfPeriodText').textContent = `${dmy(DATA.period.from)} — ${dmy(DATA.period.to)}`;
     }
     function updateFields(){
-      fFrom.classList.toggle('empty', !rStart);
-      fFrom.querySelector('.val').textContent = rStart ? dmy(rStart) : 'Выберите';
-      fTo.classList.toggle('empty', !rEnd);
-      fTo.querySelector('.val').textContent = rEnd ? dmy(rEnd) : 'Выберите';
+      if (document.activeElement !== fFromInp) fFromInp.value = rStart ? dmy(rStart) : '';
+      if (document.activeElement !== fToInp)   fToInp.value   = rEnd ? dmy(rEnd) : '';
       const pickingEnd = rStart && !rEnd;
       fFrom.classList.toggle('focus', !pickingEnd);
       fTo.classList.toggle('focus', !!pickingEnd);
+      fFrom.classList.remove('bad'); fTo.classList.remove('bad');
       apply.disabled = !(rStart && rEnd);
     }
+
+    /* ---- ручной ввод даты ---- */
+    function parseDMY(str){
+      const m = String(str).trim().match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+      if (!m) return null;
+      const d = +m[1], mo = +m[2] - 1, y = +m[3];
+      const dt = new Date(y, mo, d);
+      if (dt.getFullYear() !== y || dt.getMonth() !== mo || dt.getDate() !== d) return null;
+      return dt;
+    }
+    function commitInput(which){
+      const inp = which === 'from' ? fFromInp : fToInp;
+      const field = which === 'from' ? fFrom : fTo;
+      if (!inp.value.trim()){ field.classList.remove('bad'); return; }
+      const dt = parseDMY(inp.value);
+      if (!dt){ field.classList.add('bad'); return; }
+      field.classList.remove('bad');
+      if (which === 'from') rStart = dt; else rEnd = dt;
+      if (rStart && rEnd && rEnd.getTime() < rStart.getTime()){ const t = rStart; rStart = rEnd; rEnd = t; }
+      viewY = dt.getFullYear(); viewM = dt.getMonth();
+      updateFields();
+      renderCal();
+    }
+    [['from', fFromInp], ['to', fToInp]].forEach(([which, inp]) => {
+      inp.addEventListener('change', () => commitInput(which));
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); inp.blur(); commitInput(which); } });
+      inp.addEventListener('focus', () => {
+        fFrom.classList.toggle('focus', which === 'from');
+        fTo.classList.toggle('focus', which === 'to');
+      });
+    });
     function renderCal(){
       $('cfCalTitleText').textContent = `${MONTHS[viewM]} ${viewY}`;
       let html = DOW.map(d => `<div class="dow">${d}</div>`).join('');
@@ -2714,13 +2777,17 @@
     });
     root.querySelector('#pnlYearPrev').addEventListener('click', () => { pickerYear--; renderYear(); });
     root.querySelector('#pnlYearNext').addEventListener('click', () => { pickerYear++; renderYear(); });
-    customBtn.addEventListener('click', () => { showPeriodView('cal'); calGran = 'month'; renderCal(); });
+    customBtn.addEventListener('click', () => { showPeriodView('cal'); calGran = 'month'; toggleCalYears(false); renderCal(); });
 
     /* ---- calendar range picker ---- */
-    const calTitle = root.querySelector('#pnlCalTitle');
+    const calTitle     = root.querySelector('#pnlCalTitle');
+    const calTitleText = root.querySelector('#pnlCalTitleText');
+    const calYearGrid  = root.querySelector('#pnlCalYearGrid');
     const calGrid  = root.querySelector('#pnlCalGrid');
     const calFrom  = root.querySelector('#pnlCalFrom');
     const calTo    = root.querySelector('#pnlCalTo');
+    const calFromInp = root.querySelector('#pnlCalFromInp');
+    const calToInp   = root.querySelector('#pnlCalToInp');
     const calApply = root.querySelector('#pnlCalApply');
     const calPrev  = root.querySelector('#pnlCalPrev');
     const calNext  = root.querySelector('#pnlCalNext');
@@ -2755,20 +2822,73 @@
     function stripTime(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 
     function updateRangeFields(){
-      if (rangeStart){ calFrom.classList.remove('empty'); calFrom.querySelector('.cr-date').textContent = fmtDate(rangeStart); }
-      else { calFrom.classList.add('empty'); calFrom.querySelector('.cr-date').textContent = 'Выберите'; }
-      if (rangeEnd){ calTo.classList.remove('empty'); calTo.querySelector('.cr-date').textContent = fmtDate(rangeEnd); }
-      else { calTo.classList.add('empty'); calTo.querySelector('.cr-date').textContent = 'Выберите'; }
-      // focus hint
+      if (document.activeElement !== calFromInp) calFromInp.value = rangeStart ? fmtDate(rangeStart) : '';
+      if (document.activeElement !== calToInp)   calToInp.value   = rangeEnd ? fmtDate(rangeEnd) : '';
       const pickingEnd = rangeStart && !rangeEnd;
       calFrom.classList.toggle('focus', !pickingEnd);
       calTo.classList.toggle('focus', !!pickingEnd);
+      calFrom.classList.remove('bad'); calTo.classList.remove('bad');
       calApply.disabled = !(rangeStart && rangeEnd);
       updateCalGran();
     }
 
+    /* ---- выбор года (сетка) ---- */
+    let calYearOpen = false, calYearBase = 0;
+    function renderCalYears(){
+      let h = '';
+      for (let i = 0; i < 12; i++){ const y = calYearBase + i; h += `<button data-y="${y}" class="${y === viewY ? 'on' : ''}">${y}</button>`; }
+      calYearGrid.innerHTML = h;
+    }
+    function toggleCalYears(open){
+      calYearOpen = open;
+      if (open){ calYearBase = viewY - 6; renderCalYears(); }
+      calYearGrid.classList.toggle('show', open);
+      calGrid.style.display = open ? 'none' : 'grid';
+      calTitle.classList.toggle('open', open);
+    }
+    calTitle.addEventListener('click', () => toggleCalYears(!calYearOpen));
+    calYearGrid.addEventListener('click', e => {
+      const b = e.target.closest('button[data-y]');
+      if (!b) return;
+      viewY = +b.dataset.y; toggleCalYears(false); renderCal();
+    });
+
+    /* ---- ручной ввод даты ---- */
+    function parseDMY(str){
+      const m = String(str).trim().match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+      if (!m) return null;
+      const d = +m[1], mo = +m[2] - 1, y = +m[3];
+      const dt = new Date(y, mo, d);
+      if (dt.getFullYear() !== y || dt.getMonth() !== mo || dt.getDate() !== d) return null;
+      return dt;
+    }
+    function commitInput(which){
+      const inp = which === 'from' ? calFromInp : calToInp;
+      const field = which === 'from' ? calFrom : calTo;
+      if (!inp.value.trim()){ field.classList.remove('bad'); return; }
+      const dt = parseDMY(inp.value);
+      if (!dt){ field.classList.add('bad'); return; }
+      field.classList.remove('bad');
+      if (which === 'from') rangeStart = dt; else rangeEnd = dt;
+      if (rangeStart && rangeEnd && rangeEnd.getTime() < rangeStart.getTime()){
+        const t = rangeStart; rangeStart = rangeEnd; rangeEnd = t;
+      }
+      viewY = dt.getFullYear(); viewM = dt.getMonth();
+      if (calYearOpen) toggleCalYears(false);
+      updateRangeFields();
+      renderCal();
+    }
+    [['from', calFromInp], ['to', calToInp]].forEach(([which, inp]) => {
+      inp.addEventListener('change', () => commitInput(which));
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); inp.blur(); commitInput(which); } });
+      inp.addEventListener('focus', () => {
+        calFrom.classList.toggle('focus', which === 'from');
+        calTo.classList.toggle('focus', which === 'to');
+      });
+    });
+
     function renderCal(){
-      calTitle.textContent = `${MONTHS[viewM]} ${viewY}`;
+      calTitleText.textContent = `${MONTHS[viewM]} ${viewY}`;
       let html = DOW.map(d => `<div class="cal-dow">${d}</div>`).join('');
       const first = new Date(viewY, viewM, 1);
       // JS getDay: 0=Sun..6=Sat -> convert to Mon-first index 0..6
@@ -2808,8 +2928,14 @@
       });
     }
 
-    calPrev.addEventListener('click', () => { viewM--; if (viewM < 0){ viewM = 11; viewY--; } renderCal(); });
-    calNext.addEventListener('click', () => { viewM++; if (viewM > 11){ viewM = 0; viewY++; } renderCal(); });
+    calPrev.addEventListener('click', () => {
+      if (calYearOpen){ calYearBase -= 12; renderCalYears(); return; }
+      viewM--; if (viewM < 0){ viewM = 11; viewY--; } renderCal();
+    });
+    calNext.addEventListener('click', () => {
+      if (calYearOpen){ calYearBase += 12; renderCalYears(); return; }
+      viewM++; if (viewM > 11){ viewM = 0; viewY++; } renderCal();
+    });
 
     calApply.addEventListener('click', () => {
       if (!(rangeStart && rangeEnd)) return;
