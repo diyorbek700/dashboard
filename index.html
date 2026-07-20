@@ -1402,6 +1402,131 @@
   #tab-ar .ar-all:hover{background:#d1e7e9;}
   #tab-ar .ar-all svg{width:10px;height:10px;}
 
+  /* ---------- детальный экран «Возраст задолженности» ---------- */
+  #tab-ar .ar-dhead{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:1px 16px 10px;}
+  #tab-ar .ar-back{
+    width:28px;height:28px;flex:0 0 auto;border:none;border-radius:9px;background:transparent;
+    display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;transition:background .12s;
+  }
+  #tab-ar .ar-back:hover{background:var(--soft-bg);}
+  #tab-ar .ar-back svg{width:17px;height:17px;}
+  #tab-ar .ar-dhead h2{
+    margin:0;flex:1;min-width:0;display:flex;align-items:center;gap:5px;
+    font-size:14.6px;font-weight:800;letter-spacing:-.35px;color:#0d0f16;
+  }
+  #tab-ar .ar-dhead h2 .info{width:12px;height:12px;color:#b7bcc9;flex:0 0 auto;}
+
+  /* итог + кольцо */
+  #tab-ar .ar-agsum{padding:0;overflow:hidden;}
+  #tab-ar .agsum-top{padding:11px 12px 12px;}
+  #tab-ar .agsum-top .c{font-size:10px;font-weight:700;color:#5b6472;letter-spacing:-.05px;}
+  #tab-ar .agsum-top .v{font-size:18px;font-weight:800;letter-spacing:-.6px;color:var(--blue);margin:5px 0 4px;white-space:nowrap;}
+  #tab-ar .agsum-top .v i{font-style:normal;font-size:9.4px;font-weight:700;color:var(--muted);margin-left:4px;letter-spacing:.2px;}
+  #tab-ar .agsum-top .s{font-size:10.4px;font-weight:600;color:var(--muted);}
+  #tab-ar .agsum-bot{
+    display:flex;align-items:center;gap:10px;padding:12px;
+    border-top:1px solid var(--divider);background:#fcfdfe;
+  }
+  #tab-ar .ar-ring{width:66px;height:66px;flex:0 0 auto;}
+  #tab-ar .ar-ring svg{width:66px;height:66px;display:block;transform:rotate(-90deg);}
+  #tab-ar .ar-ringleg{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px;}
+  #tab-ar .ar-ringleg .lg{display:flex;align-items:center;gap:6px;font-size:9.2px;font-weight:600;}
+  #tab-ar .ar-ringleg .dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;}
+  #tab-ar .ar-ringleg .nm{flex:1;min-width:0;color:#5b6472;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #tab-ar .ar-ringleg .vl{font-weight:700;color:#12141c;letter-spacing:-.2px;white-space:nowrap;flex:0 0 auto;}
+  #tab-ar .ar-ringleg .pc{width:22px;text-align:right;font-weight:700;color:var(--muted);flex:0 0 auto;}
+
+  /* Таблица / Диаграмма */
+  #tab-ar .ar-tabs{display:flex;gap:4px;background:var(--soft-bg);border-radius:12px;padding:3px;}
+  #tab-ar .ar-tabs button{
+    flex:1;border:none;background:transparent;border-radius:9px;cursor:pointer;font-family:inherit;
+    padding:8px 6px;font-size:11.8px;font-weight:700;color:#5b6472;letter-spacing:-.1px;transition:.15s;
+  }
+  #tab-ar .ar-tabs button.active{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(16,24,40,.12);}
+
+  /* таблица корзин */
+  #tab-ar .ag-thead{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;
+    border-bottom:1px solid var(--divider);
+    font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;
+  }
+  #tab-ar .agrow{
+    display:flex;align-items:stretch;gap:9px;padding:10px 0;cursor:pointer;
+    border-bottom:1px solid var(--divider);transition:background .12s;
+  }
+  #tab-ar .agrow:last-child{border-bottom:none;}
+  #tab-ar .agrow:hover{background:#fbfcfe;}
+  #tab-ar .agrow.sel{background:#f4fafa;}
+  #tab-ar .agrow .rule{width:3px;border-radius:2px;flex:0 0 auto;}
+  #tab-ar .agrow.ok .rule,#tab-ar .agrow.ok .bar i{background:var(--blue);}
+  #tab-ar .agrow.w1 .rule,#tab-ar .agrow.w1 .bar i{background:var(--w1);}
+  #tab-ar .agrow.w2 .rule,#tab-ar .agrow.w2 .bar i{background:var(--w2);}
+  #tab-ar .agrow.w3 .rule,#tab-ar .agrow.w3 .bar i{background:var(--w3);}
+  #tab-ar .ag-main{flex:1;min-width:0;}
+  #tab-ar .ag-l1,#tab-ar .ag-l2{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  #tab-ar .ag-l1 .t{font-size:11.8px;font-weight:700;color:#12141c;letter-spacing:-.15px;}
+  #tab-ar .ag-l1 .amt{font-size:11.4px;font-weight:800;color:#12141c;letter-spacing:-.3px;white-space:nowrap;}
+  #tab-ar .ag-l1 .amt i{font-style:normal;font-size:8px;font-weight:700;color:var(--muted);margin-left:2px;}
+  #tab-ar .ag-l2{margin-top:2px;}
+  #tab-ar .ag-l2 .sub{font-size:9.4px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #tab-ar .ag-l2 .dlt{font-size:9.4px;font-weight:700;white-space:nowrap;flex:0 0 auto;}
+  #tab-ar .ag-l2 .dlt.up{color:var(--green);}
+  #tab-ar .ag-l2 .dlt.down{color:var(--red);}
+  #tab-ar .ag-l3{display:flex;align-items:center;gap:7px;margin-top:7px;}
+  #tab-ar .ag-l3 .bar{flex:0 1 92px;height:4px;border-radius:3px;background:#eceef3;overflow:hidden;}
+  #tab-ar .ag-l3 .bar i{display:block;height:100%;border-radius:3px;}
+  #tab-ar .ag-l3 .pc{font-size:9.6px;font-weight:700;color:#3a3f4d;flex:0 0 auto;}
+  #tab-ar .ag-l3 .cnt{margin-left:auto;font-size:9.6px;font-weight:600;color:var(--muted);white-space:nowrap;}
+  #tab-ar .agrow .caret{width:11px;height:11px;flex:0 0 auto;align-self:center;color:#c3c8d4;}
+
+  /* диаграмма корзин */
+  #tab-ar .agbar{padding:9px 0;border-bottom:1px solid var(--divider);}
+  #tab-ar .agbar:first-child{padding-top:1px;}
+  #tab-ar .agbar:last-child{border-bottom:none;padding-bottom:1px;}
+  #tab-ar .agbar .b1{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+  #tab-ar .agbar .nm{display:flex;align-items:center;gap:6px;min-width:0;font-size:11px;font-weight:700;color:#12141c;letter-spacing:-.15px;}
+  #tab-ar .agbar .dot{width:8px;height:8px;border-radius:2.5px;flex:0 0 auto;}
+  #tab-ar .agbar .pc{font-size:11.4px;font-weight:800;letter-spacing:-.3px;flex:0 0 auto;}
+  #tab-ar .agbar .track{height:8px;border-radius:5px;background:#eff1f5;overflow:hidden;}
+  #tab-ar .agbar .track i{display:block;height:100%;border-radius:5px;}
+  #tab-ar .agbar .b2{margin-top:5px;font-size:9.6px;font-weight:600;color:var(--muted);}
+
+  /* детализация корзины */
+  #tab-ar .det-head{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;
+    padding-bottom:9px;border-bottom:1px solid var(--divider);
+  }
+  #tab-ar .det-head .dh-l{font-size:11.6px;font-weight:700;color:#12141c;letter-spacing:-.15px;}
+  #tab-ar .det-head .dh-l b{font-weight:800;}
+  #tab-ar .det-head .dh-r{display:flex;align-items:center;gap:7px;flex:0 0 auto;}
+  #tab-ar .det-head .sum{font-size:11.4px;font-weight:800;color:#12141c;letter-spacing:-.3px;white-space:nowrap;}
+  #tab-ar .det-head .sum i{font-style:normal;font-size:8px;font-weight:700;color:var(--muted);margin-left:2px;}
+  #tab-ar .det-head .tg{
+    width:22px;height:22px;border-radius:7px;background:var(--soft-bg);flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;color:#5b6472;transition:transform .2s;
+  }
+  #tab-ar .det-head .tg svg{width:9px;height:9px;}
+  #tab-ar .ar-det.closed .det-head{border-bottom-color:transparent;padding-bottom:1px;}
+  #tab-ar .ar-det.closed .det-head .tg{transform:rotate(180deg);}
+  #tab-ar .ar-det.closed .ar-list{display:none;}
+  #tab-ar .ar-row.det{cursor:default;}
+  #tab-ar .ar-row.det:hover{background:transparent;}
+  #tab-ar .ar-row.det .ar-amt .a{color:var(--red);}
+  #tab-ar .ar-row.det .ar-amt .st{color:#9aa1b1;font-weight:600;}
+  #tab-ar .ar-av.other{background:#f0f2f6;color:#aab0be;font-size:14px;}
+
+  /* подсказка */
+  #tab-ar .ar-tip{display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--blue-bg);border-radius:14px;padding:11px 12px;}
+  #tab-ar .ar-tip .tip-ic{
+    width:28px;height:28px;border-radius:9px;background:#fff;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;color:var(--blue);
+  }
+  #tab-ar .ar-tip .tip-ic svg{width:14px;height:14px;}
+  #tab-ar .ar-tip .tip-tx{flex:1;min-width:0;}
+  #tab-ar .ar-tip .tip-tx b{display:block;font-size:11px;font-weight:800;color:#0b6672;letter-spacing:-.15px;margin-bottom:2px;}
+  #tab-ar .ar-tip .tip-tx span{display:block;font-size:9.8px;font-weight:600;color:#41727a;line-height:1.42;}
+  #tab-ar .ar-tip .chev{width:11px;height:11px;flex:0 0 auto;color:#84b3b9;}
+
   .navbar{
     flex:0 0 auto;
     display:flex;align-items:center;justify-content:space-around;
@@ -2146,7 +2271,11 @@
 
     <!-- ===================== TAB: ДЕБИТОРЫ И КРЕДИТОРЫ ===================== -->
     <div class="tab-content" id="tab-ar">
-      <div class="ar-scroll">
+     <div class="screens">
+
+      <!-- SCREEN: сводный экран -->
+      <section class="screen active" id="ar-main">
+       <div class="ar-scroll">
 
         <div class="ar-top">
           <h2>Дебиторы и кредиторы</h2>
@@ -2231,7 +2360,93 @@
           </button>
         </section>
 
-      </div>
+       </div>
+      </section>
+
+      <!-- SCREEN: детализация «Возраст задолженности» (конечный экран) -->
+      <section class="screen" id="ar-aging">
+        <div class="ar-dhead">
+          <button class="ar-back" id="arAgBack" aria-label="Назад">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h2>
+            Возраст задолженности
+            <svg class="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v5.5M12 7.6v.1"/></svg>
+          </h2>
+          <button class="ar-ico" aria-label="Фильтр">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8.2V20l-4 1.6v-8.4z"/></svg>
+          </button>
+        </div>
+
+        <div class="ar-scroll">
+
+          <div class="ar-filters">
+            <button class="ar-fl">
+              <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+              <span class="txt">Январь 2023</span>
+              <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+            </button>
+            <button class="ar-fl">
+              <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.6 19.2c1-3.3 3.6-4.9 6.4-4.9s5.4 1.6 6.4 4.9"/><path d="M16.6 5.7a3.1 3.1 0 010 5.4M18.2 14.5c1.9.8 3.1 2.3 3.6 4.7"/></svg>
+              <span class="txt">Все контрагенты</span>
+              <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+            </button>
+          </div>
+
+          <!-- итог + кольцевая диаграмма -->
+          <section class="ar-card ar-agsum">
+            <div class="agsum-top">
+              <div class="c" id="arAgCap">Дебиторская задолженность</div>
+              <div class="v" id="arAgVal"></div>
+              <div class="s" id="arAgSub"></div>
+            </div>
+            <div class="agsum-bot">
+              <div class="ar-ring" id="arAgRing"></div>
+              <div class="ar-ringleg" id="arAgLeg"></div>
+            </div>
+          </section>
+
+          <div class="ar-tabs">
+            <button class="active" data-view="table">Таблица</button>
+            <button data-view="chart">Диаграмма</button>
+          </div>
+
+          <section class="ar-card" id="arAgTableCard">
+            <div class="ag-thead"><span>Период просрочки</span><span>Сумма</span></div>
+            <div id="arAgTable"></div>
+          </section>
+
+          <section class="ar-card" id="arAgChartCard" style="display:none">
+            <div id="arAgChart"></div>
+          </section>
+
+          <!-- детализация выбранной корзины -->
+          <section class="ar-card ar-det" id="arDet">
+            <div class="det-head" id="arDetHead">
+              <div class="dh-l">Детализация: <b id="arDetName"></b></div>
+              <div class="dh-r">
+                <span class="sum" id="arDetSum"></span>
+                <span class="tg"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3.5-3 3.5 3"/></svg></span>
+              </div>
+            </div>
+            <div class="ar-list" id="arDetList"></div>
+          </section>
+
+          <div class="ar-tip">
+            <div class="tip-ic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21.5h4M12 2.5a6.5 6.5 0 00-3.8 11.8c.5.4.8 1 .8 1.7h6c0-.7.3-1.3.8-1.7A6.5 6.5 0 0012 2.5z"/></svg>
+            </div>
+            <div class="tip-tx">
+              <b>На что обратить внимание</b>
+              <span id="arTipTx"></span>
+            </div>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </div>
+
+        </div>
+      </section>
+
+     </div>
 
       <div class="navbar">
         <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Главная</div>
@@ -3425,42 +3640,78 @@
         cap: 'Дебиторская задолженность',
         listTitle: 'Топ должников',
         allTxt: n => `Показать всех дебиторов (${n})`,
-        total: 4256800000, totalCp: 32,
-        aging: [
-          { cap: 'Не просрочено', val: 3130000000, pct: 74, tone: 'ok' },
-          { cap: '1–30 дней',     val:  682000000, pct: 16, tone: 'w1' },
-          { cap: '31–60 дней',    val:  284000000, pct:  7, tone: 'w2' },
-          { cap: '> 60 дней',     val:  160800000, pct:  3, tone: 'w3' },
-        ],
-        overCp: 8,
+        tip: n => `У вас ${contractors(n)} с просрочкой более 60 дней. Рекомендуем связаться и уточнить сроки оплаты.`,
+        total: 4256800000, totalCp: 32, overCp: 8,
         chart: { t0: 2.75, t1: 4.26, o0: 0.72, o1: 1.13, yMax: 6, ticks: [0, 2, 4, 6] },
+        cp: {
+          stroy: { a:'S', bg:'#e4f6ec', fg:'#17a34a', n:'ООО «STROY GREEN HORSE»', d:'Договор №123 от 12.12.2022' },
+          bmb:   { a:'B', bg:'#ede9fb', fg:'#6d4bd6', n:'АО «BMB Trade Group»',     d:'Договор №215 от 05.01.2023' },
+          uzum:  { a:'U', bg:'#fdeee0', fg:'#e07a1f', n:'UZUM Market',              d:'Договор №112 от 20.12.2022' },
+          mega:  { a:'M', bg:'#e4eefc', fg:'#2f6fd0', n:'ООО «Mega Plast»',         d:'Договор №098 от 03.01.2023' },
+          abd:   { a:'А', bg:'#e2f0f1', fg:'#006F7D', n:'ИП Абдуллаев М.',          d:'Договор №087 от 15.01.2023' },
+        },
         rows: [
-          { a:'S', bg:'#e4f6ec', fg:'#17a34a', n:'ООО «STROY GREEN HORSE»', d:'Договор №123 от 12.12.2022', v:1256800000, late:345 },
-          { a:'B', bg:'#ede9fb', fg:'#6d4bd6', n:'АО «BMB Trade Group»',     d:'Договор №215 от 05.01.2023', v: 856300000, late:24  },
-          { a:'U', bg:'#fdeee0', fg:'#e07a1f', n:'UZUM Market',              d:'Договор №112 от 20.12.2022', v: 642000000, late:0   },
-          { a:'M', bg:'#e4eefc', fg:'#2f6fd0', n:'ООО «Mega Plast»',         d:'Договор №098 от 03.01.2023', v: 320500000, late:5   },
-          { a:'А', bg:'#e2f0f1', fg:'#006F7D', n:'ИП Абдуллаев М.',          d:'Договор №087 от 15.01.2023', v: 210700000, late:0   },
+          { k:'stroy', v:1256800000, late:345 },
+          { k:'bmb',   v: 856300000, late:24  },
+          { k:'uzum',  v: 642000000, late:0   },
+          { k:'mega',  v: 320500000, late:5   },
+          { k:'abd',   v: 210700000, late:0   },
+        ],
+        aging: [
+          { cap:'Не просрочено', sub:'Оплата в срок',           val:3130000000, pct:74, dlt:12, cnt:21, tone:'ok', rows:[
+            { k:'uzum', v:642000000, d:0 }, { k:'abd', v:210700000, d:0 }, { k:'stroy', v:180000000, d:0 },
+            { other:18, v:2097300000 },
+          ]},
+          { cap:'1–30 дней', sub:'Просрочка до 30 дней',        val: 682000000, pct:16, dlt:5,  cnt:6,  tone:'w1', rows:[
+            { k:'mega', v:242000000, d:18 }, { k:'bmb', v:186400000, d:24 }, { k:'uzum', v:118600000, d:12 },
+            { k:'stroy', v:85000000, d:7 }, { other:2, v:50000000 },
+          ]},
+          { cap:'31–60 дней', sub:'Просрочка 31–60 дней',       val: 284000000, pct:7,  dlt:8,  cnt:3,  tone:'w2', rows:[
+            { k:'stroy', v:142000000, d:52 }, { k:'mega', v:96500000, d:41 }, { k:'bmb', v:45500000, d:35 },
+          ]},
+          { cap:'> 60 дней', sub:'Просрочка более 60 дней',     val: 160800000, pct:3,  dlt:15, cnt:6,  tone:'w3', rows:[
+            { k:'mega', v:78400000, d:92 }, { k:'uzum', v:45600000, d:75 }, { k:'stroy', v:24800000, d:65 },
+            { k:'bmb', v:11400000, d:61 }, { other:2, v:600000 },
+          ]},
         ],
       },
       kred: {
         cap: 'Кредиторская задолженность',
         listTitle: 'Топ кредиторов',
         allTxt: n => `Показать всех кредиторов (${n})`,
-        total: 3180400000, totalCp: 24,
-        aging: [
-          { cap: 'Не просрочено', val: 2538300000, pct: 80, tone: 'ok' },
-          { cap: '1–30 дней',     val:  341700000, pct: 11, tone: 'w1' },
-          { cap: '31–60 дней',    val:  186500000, pct:  6, tone: 'w2' },
-          { cap: '> 60 дней',     val:  113900000, pct:  3, tone: 'w3' },
-        ],
-        overCp: 5,
+        tip: n => `У вас ${contractors(n)} с просрочкой оплаты более 60 дней. Рекомендуем погасить задолженность.`,
+        total: 3180400000, totalCp: 24, overCp: 5,
         chart: { t0: 2.10, t1: 3.18, o0: 0.35, o1: 0.64, yMax: 4, ticks: [0, 1, 2, 3, 4] },
+        cp: {
+          steel: { a:'S', bg:'#e4eefc', fg:'#2f6fd0', n:'ООО «Uzbek Steel Supply»', d:'Договор №301 от 10.11.2022' },
+          tash:  { a:'T', bg:'#fdeee0', fg:'#e07a1f', n:'АО «Tashkent Logistics»',  d:'Договор №288 от 22.12.2022' },
+          bek:   { a:'B', bg:'#e4f6ec', fg:'#17a34a', n:'ООО «Bek Cement»',         d:'Договор №254 от 08.01.2023' },
+          artel: { a:'A', bg:'#ede9fb', fg:'#6d4bd6', n:'Artel Electronics',        d:'Договор №241 от 19.12.2022' },
+          karim: { a:'К', bg:'#e2f0f1', fg:'#006F7D', n:'ИП Каримов Ж.',            d:'Договор №233 от 25.01.2023' },
+        },
         rows: [
-          { a:'S', bg:'#e4eefc', fg:'#2f6fd0', n:'ООО «Uzbek Steel Supply»', d:'Договор №301 от 10.11.2022', v:1042300000, late:62 },
-          { a:'T', bg:'#fdeee0', fg:'#e07a1f', n:'АО «Tashkent Logistics»',  d:'Договор №288 от 22.12.2022', v: 704900000, late:12 },
-          { a:'B', bg:'#e4f6ec', fg:'#17a34a', n:'ООО «Bek Cement»',         d:'Договор №254 от 08.01.2023', v: 518600000, late:0  },
-          { a:'A', bg:'#ede9fb', fg:'#6d4bd6', n:'Artel Electronics',        d:'Договор №241 от 19.12.2022', v: 486200000, late:3  },
-          { a:'К', bg:'#e2f0f1', fg:'#006F7D', n:'ИП Каримов Ж.',            d:'Договор №233 от 25.01.2023', v: 302400000, late:0  },
+          { k:'steel', v:1042300000, late:62 },
+          { k:'tash',  v: 704900000, late:12 },
+          { k:'bek',   v: 518600000, late:0  },
+          { k:'artel', v: 486200000, late:3  },
+          { k:'karim', v: 302400000, late:0  },
+        ],
+        aging: [
+          { cap:'Не просрочено', sub:'Оплата в срок',       val:2538300000, pct:80, dlt:9,  cnt:19, tone:'ok', rows:[
+            { k:'bek', v:518600000, d:0 }, { k:'karim', v:302400000, d:0 }, { k:'artel', v:286200000, d:0 },
+            { other:16, v:1431100000 },
+          ]},
+          { cap:'1–30 дней', sub:'Просрочка до 30 дней',    val: 341700000, pct:11, dlt:4,  cnt:5,  tone:'w1', rows:[
+            { k:'steel', v:142300000, d:21 }, { k:'tash', v:98400000, d:12 }, { k:'artel', v:62000000, d:3 },
+            { other:2, v:39000000 },
+          ]},
+          { cap:'31–60 дней', sub:'Просрочка 31–60 дней',   val: 186500000, pct:6,  dlt:-3, cnt:3,  tone:'w2', rows:[
+            { k:'tash', v:96500000, d:48 }, { k:'steel', v:58000000, d:39 }, { k:'bek', v:32000000, d:33 },
+          ]},
+          { cap:'> 60 дней', sub:'Просрочка более 60 дней', val: 113900000, pct:3,  dlt:11, cnt:4,  tone:'w3', rows:[
+            { k:'steel', v:68400000, d:84 }, { k:'tash', v:31200000, d:71 }, { k:'artel', v:12300000, d:66 },
+            { other:1, v:2000000 },
+          ]},
         ],
       },
     };
@@ -3469,6 +3720,8 @@
     let gran = 'day';       // day | week
 
     /* ---- форматирование ---- */
+    const CARET = '<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"'
+                + ' stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
     const full = n => n.toLocaleString('ru-RU');
     const dec  = (n, d) => n.toFixed(d).replace('.', ',').replace(/,0+$/, '');
     function compact(n){
@@ -3533,17 +3786,18 @@
       const d = AR[side];
       $('arListTitle').textContent = d.listTitle;
       $('arAllTxt').textContent    = d.allTxt(d.totalCp);
-      $('arList').innerHTML = d.rows.map(r =>
-        `<div class="ar-row">`
-        + `<div class="ar-av" style="background:${r.bg};color:${r.fg}">${r.a}</div>`
-        + `<div class="ar-who"><div class="n">${r.n}</div><div class="d">${r.d}</div></div>`
+      $('arList').innerHTML = d.rows.map(r => {
+        const c = d.cp[r.k];
+        return `<div class="ar-row">`
+        + `<div class="ar-av" style="background:${c.bg};color:${c.fg}">${c.a}</div>`
+        + `<div class="ar-who"><div class="n">${c.n}</div><div class="d">${c.d}</div></div>`
         + `<div class="ar-amt">`
         +   `<div class="a">${full(r.v)}<i>UZS</i></div>`
         +   `<div class="st ${r.late ? 'late' : 'ok'}">${r.late ? 'Просрочено ' + days(r.late) : 'Не просрочено'}</div>`
         + `</div>`
-        + `<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`
-        + `</div>`
-      ).join('');
+        + CARET
+        + `</div>`;
+      }).join('');
     }
 
     /* ---- график динамики ---- */
@@ -3615,7 +3869,141 @@
         + `</svg>`;
     }
 
-    function renderAll(){ renderSummary(); renderAging(); renderList(); renderChart(); }
+    /* =========== детальный экран «Возраст задолженности» =========== */
+    const TONE = { ok:'#006F7D', w1:'#f0a318', w2:'#f4772e', w3:'#e2394a' };
+    let bucket = 3;         // раскрытая корзина (по умолчанию «> 60 дней»)
+    let agView = 'table';   // table | chart
+
+    // кольцевая диаграмма из 4 сегментов
+    function renderRing(){
+      const R = 24, C = 2 * Math.PI * R, GAP = 3;
+      let off = 0;
+      const segs = AR[side].aging.map(a => {
+        const len = C * a.pct / 100;
+        const draw = Math.max(len - GAP, 1);
+        const s = `<circle cx="33" cy="33" r="${R}" fill="none" stroke="${TONE[a.tone]}" stroke-width="9"`
+                + ` stroke-dasharray="${draw.toFixed(2)} ${(C - draw).toFixed(2)}"`
+                + ` stroke-dashoffset="${(-off).toFixed(2)}"/>`;
+        off += len;
+        return s;
+      }).join('');
+      $('arAgRing').innerHTML = `<svg viewBox="0 0 66 66">${segs}</svg>`;
+
+      $('arAgLeg').innerHTML = AR[side].aging.map(a =>
+        `<div class="lg">`
+        + `<span class="dot" style="background:${TONE[a.tone]}"></span>`
+        + `<span class="nm">${a.cap}</span>`
+        + `<span class="vl">${full(a.val)}</span>`
+        + `<span class="pc">${a.pct}%</span>`
+        + `</div>`
+      ).join('');
+    }
+
+    // таблица корзин
+    function renderAgTable(){
+      $('arAgTable').innerHTML = AR[side].aging.map((a, i) =>
+        `<div class="agrow ${a.tone}${i === bucket ? ' sel' : ''}" data-bucket="${i}">`
+        + `<span class="rule"></span>`
+        + `<div class="ag-main">`
+        +   `<div class="ag-l1"><span class="t">${a.cap}</span>`
+        +     `<span class="amt">${full(a.val)}<i>UZS</i></span></div>`
+        +   `<div class="ag-l2"><span class="sub">${a.sub}</span>`
+        +     `<span class="dlt ${a.dlt >= 0 ? 'up' : 'down'}">${a.dlt >= 0 ? '+' : ''}${a.dlt}% к дек. 2022</span></div>`
+        +   `<div class="ag-l3"><span class="bar"><i style="width:${a.pct}%"></i></span>`
+        +     `<span class="pc">${a.pct}%</span><span class="cnt">${contractors(a.cnt)}</span></div>`
+        + `</div>`
+        + CARET
+        + `</div>`
+      ).join('');
+    }
+
+    // диаграмма корзин
+    function renderAgChart(){
+      $('arAgChart').innerHTML = AR[side].aging.map(a =>
+        `<div class="agbar">`
+        + `<div class="b1">`
+        +   `<span class="nm"><span class="dot" style="background:${TONE[a.tone]}"></span>${a.cap}</span>`
+        +   `<span class="pc" style="color:${TONE[a.tone]}">${a.pct}%</span>`
+        + `</div>`
+        + `<div class="track"><i style="width:${a.pct}%;background:${TONE[a.tone]}"></i></div>`
+        + `<div class="b2">${full(a.val)} UZS · ${contractors(a.cnt)}</div>`
+        + `</div>`
+      ).join('');
+    }
+
+    // раскрытая корзина
+    function renderDetail(){
+      const d = AR[side], b = d.aging[bucket];
+      const nameEl = $('arDetName');
+      nameEl.textContent = b.cap;
+      nameEl.style.color = TONE[b.tone];
+      $('arDetSum').innerHTML = `${full(b.val)}<i>UZS</i>`;
+
+      $('arDetList').innerHTML = b.rows.map(r => {
+        if (r.other) {
+          return `<div class="ar-row det">`
+            + `<div class="ar-av other">·</div>`
+            + `<div class="ar-who"><div class="n">Прочие (${contractors(r.other)})</div></div>`
+            + `<div class="ar-amt"><div class="a">${full(r.v)}<i>UZS</i></div>`
+            +   `<div class="st">${b.cap}</div></div>`
+            + CARET
+            + `</div>`;
+        }
+        const c = d.cp[r.k];
+        return `<div class="ar-row det">`
+          + `<div class="ar-av" style="background:${c.bg};color:${c.fg}">${c.a}</div>`
+          + `<div class="ar-who"><div class="n">${c.n}</div><div class="d">${c.d}</div></div>`
+          + `<div class="ar-amt"><div class="a">${full(r.v)}<i>UZS</i></div>`
+          +   `<div class="st">${r.d ? days(r.d) : 'Не просрочено'}</div></div>`
+          + CARET
+          + `</div>`;
+      }).join('');
+    }
+
+    function renderAgingScreen(){
+      const d = AR[side];
+      $('arAgCap').textContent = d.cap;
+      $('arAgVal').innerHTML   = `${full(d.total)}<i>UZS</i>`;
+      $('arAgSub').textContent = contractors(d.totalCp);
+      $('arTipTx').textContent = d.tip(d.aging[3].cnt);
+      renderRing(); renderAgTable(); renderAgChart(); renderDetail();
+    }
+
+    /* ---- навигация между экранами ---- */
+    const screens = root.querySelectorAll('.screen');
+    function showScreen(id){
+      screens.forEach(s => s.classList.toggle('active', s.id === id));
+      // на детальном экране прячем переключатель отчётов: выйти можно кнопкой «назад»
+      document.querySelector('.rep-switch').classList.toggle('hidden', id !== 'ar-main');
+    }
+    root.querySelector('.ar-link').addEventListener('click', () => showScreen('ar-aging'));
+    $('arAgBack').addEventListener('click', () => showScreen('ar-main'));
+
+    // выбор корзины → её детализация ниже
+    $('arAgTable').addEventListener('click', e => {
+      const row = e.target.closest('.agrow');
+      if (!row) return;
+      bucket = +row.dataset.bucket;
+      $('arDet').classList.remove('closed');
+      renderAgTable(); renderDetail();
+    });
+
+    // сворачивание детализации
+    $('arDetHead').addEventListener('click', () => $('arDet').classList.toggle('closed'));
+
+    // Таблица / Диаграмма
+    root.querySelectorAll('.ar-tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.view === agView) return;
+        root.querySelectorAll('.ar-tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        agView = btn.dataset.view;
+        $('arAgTableCard').style.display = agView === 'table' ? '' : 'none';
+        $('arAgChartCard').style.display = agView === 'chart' ? '' : 'none';
+      });
+    });
+
+    function renderAll(){ renderSummary(); renderAging(); renderList(); renderChart(); renderAgingScreen(); }
 
     /* ---- переключатели ---- */
     root.querySelectorAll('.ar-seg button').forEach(btn => {
