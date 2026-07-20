@@ -103,11 +103,17 @@
   }
   .rep-switch button{
     flex:1;min-width:0;border:none;background:transparent;border-radius:11px;cursor:pointer;
-    font-family:inherit;padding:8px 4px;transition:.15s;
+    font-family:inherit;padding:8px 3px;transition:.15s;
     display:flex;flex-direction:column;align-items:center;gap:1px;
   }
-  .rep-switch button .t{font-size:12px;font-weight:700;color:#2b2f3a;letter-spacing:-.1px;}
-  .rep-switch button .s{font-size:8.8px;font-weight:600;color:var(--muted);letter-spacing:.2px;}
+  .rep-switch button .t{
+    font-size:11.2px;font-weight:700;color:#2b2f3a;letter-spacing:-.2px;
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .rep-switch button .s{
+    font-size:8.2px;font-weight:600;color:var(--muted);letter-spacing:.1px;
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
   .rep-switch button:hover:not(.active){background:var(--soft-bg);}
   .rep-switch button.active{background:var(--blue);box-shadow:0 5px 12px rgba(0,111,125,.28);}
   .rep-switch button.active .t{color:#fff;}
@@ -1236,6 +1242,166 @@
   #tab-balance .neg{color:var(--red)!important;}
 
   /* ---------- shared bottom nav (each report keeps its own copy) ---------- */
+  /* =========================================================
+     #tab-ar — Дебиторы и кредиторы
+     ========================================================= */
+  #tab-ar{--w1:#f0a318;--w2:#f4772e;--w3:#e2394a;}
+  #tab-ar .ar-scroll{
+    flex:1;min-height:0;overflow-y:auto;
+    padding:0 16px 18px;display:flex;flex-direction:column;gap:11px;
+  }
+  #tab-ar .ar-scroll::-webkit-scrollbar{width:4px;}
+  #tab-ar .ar-scroll::-webkit-scrollbar-thumb{background:#dfe2ea;border-radius:4px;}
+
+  /* заголовок отчёта */
+  #tab-ar .ar-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:1px;}
+  #tab-ar .ar-top h2{margin:0;font-size:15px;font-weight:800;letter-spacing:-.3px;color:#0d0f16;}
+  #tab-ar .ar-ico{
+    width:30px;height:30px;flex:0 0 auto;border:none;border-radius:9px;background:var(--blue-bg);
+    display:flex;align-items:center;justify-content:center;color:var(--blue);cursor:pointer;transition:background .12s;
+  }
+  #tab-ar .ar-ico:hover{background:#d1e7e9;}
+  #tab-ar .ar-ico svg{width:14px;height:14px;}
+
+  /* Дебиторы / Кредиторы */
+  #tab-ar .ar-seg{display:flex;gap:4px;background:var(--soft-bg);border-radius:13px;padding:3px;}
+  #tab-ar .ar-seg button{
+    flex:1;border:none;background:transparent;border-radius:10px;cursor:pointer;font-family:inherit;
+    padding:8px 6px;font-size:12.3px;font-weight:700;color:#5b6472;letter-spacing:-.1px;transition:.15s;
+  }
+  #tab-ar .ar-seg button:hover:not(.active){background:#eceef3;}
+  #tab-ar .ar-seg button.active{background:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(0,111,125,.26);}
+
+  /* фильтры период / контрагенты */
+  #tab-ar .ar-filters{display:flex;gap:8px;}
+  #tab-ar .ar-fl{
+    flex:1;min-width:0;display:flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;
+    background:#fff;border:1px solid var(--frame-border);border-radius:11px;padding:8px 9px;
+    font-size:11.3px;font-weight:700;color:var(--text);letter-spacing:-.1px;transition:background .12s;
+  }
+  #tab-ar .ar-fl:hover{background:var(--soft-bg);}
+  #tab-ar .ar-fl .lead{width:13px;height:13px;flex:0 0 auto;color:var(--blue);}
+  #tab-ar .ar-fl .txt{flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  #tab-ar .ar-fl .chev{width:9px;height:9px;flex:0 0 auto;color:var(--muted);}
+
+  /* сводная плашка */
+  #tab-ar .ar-sum{display:flex;border:1px solid var(--frame-border);border-radius:16px;overflow:hidden;}
+  #tab-ar .ar-half{flex:1;min-width:0;padding:10px 11px 11px;}
+  #tab-ar .ar-half.tot{background:var(--blue-bg);}
+  #tab-ar .ar-half.ovd{background:var(--red-bg);border-left:1px solid rgba(226,57,74,.14);}
+  #tab-ar .ar-half .hrow{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:30px;}
+  #tab-ar .ar-half .c{font-size:9.4px;font-weight:800;letter-spacing:.15px;line-height:1.3;}
+  #tab-ar .ar-half.tot .c{color:#0b6672;}
+  #tab-ar .ar-half.ovd .c{color:#c23347;}
+  #tab-ar .ar-half .v{font-size:13.6px;font-weight:800;letter-spacing:-.45px;margin:5px 0 3px;white-space:nowrap;}
+  #tab-ar .ar-half.tot .v{color:var(--blue);}
+  #tab-ar .ar-half.ovd .v{color:var(--red);}
+  #tab-ar .ar-half .v i{font-style:normal;font-size:8.6px;font-weight:700;color:var(--muted);margin-left:3px;letter-spacing:.2px;}
+  #tab-ar .ar-half .s{font-size:10px;font-weight:600;color:#6b7280;letter-spacing:-.05px;}
+  #tab-ar .ar-donut{position:relative;width:30px;height:30px;flex:0 0 auto;}
+  #tab-ar .ar-donut svg{width:30px;height:30px;display:block;transform:rotate(-90deg);}
+  #tab-ar .ar-donut span{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:8.2px;font-weight:800;color:#b4441c;letter-spacing:-.3px;
+  }
+
+  /* общая карточка */
+  #tab-ar .ar-card{
+    background:#fff;border:1px solid var(--frame-border);border-radius:16px;padding:11px 12px 12px;
+    box-shadow:0 1px 3px rgba(16,24,40,.04);
+  }
+  #tab-ar .ar-chead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;}
+  #tab-ar .ar-chead h3{
+    margin:0;font-size:12.6px;font-weight:800;letter-spacing:-.2px;color:#0d0f16;
+    display:flex;align-items:center;gap:4px;min-width:0;
+  }
+  #tab-ar .ar-chead h3 .info{width:11px;height:11px;color:#b7bcc9;flex:0 0 auto;}
+  #tab-ar .ar-link{font-size:10.6px;font-weight:700;color:var(--blue);cursor:pointer;flex:0 0 auto;}
+  #tab-ar .ar-gran{
+    display:flex;align-items:center;gap:5px;flex:0 0 auto;cursor:pointer;font-family:inherit;
+    background:var(--soft-bg);border:1px solid var(--frame-border);border-radius:9px;padding:5px 8px;
+    font-size:10.3px;font-weight:700;color:#3a3f4d;letter-spacing:-.1px;
+  }
+  #tab-ar .ar-gran:hover{background:#eceef3;}
+  #tab-ar .ar-gran .chev{width:8px;height:8px;color:var(--muted);}
+
+  /* легенда + график */
+  #tab-ar .ar-legend{display:flex;gap:13px;margin-bottom:6px;}
+  #tab-ar .ar-legend i{
+    display:flex;align-items:center;gap:5px;font-style:normal;
+    font-size:9.4px;font-weight:600;color:#5b6472;letter-spacing:-.1px;
+  }
+  #tab-ar .ar-legend .sw{width:8px;height:8px;border-radius:2.5px;flex:0 0 auto;}
+  #tab-ar .ar-legend .sw.tot{background:var(--blue);}
+  #tab-ar .ar-legend .sw.ovd{background:var(--red);}
+  #tab-ar .ar-chart svg{width:100%;height:auto;display:block;overflow:visible;}
+
+  /* возраст задолженности */
+  #tab-ar .ar-aging{display:flex;gap:0;}
+  #tab-ar .ar-aging .cell{flex:1;min-width:0;padding:0 7px;}
+  #tab-ar .ar-aging .cell:first-child{padding-left:0;}
+  #tab-ar .ar-aging .cell:last-child{padding-right:0;}
+  #tab-ar .ar-aging .cell + .cell{border-left:1px solid var(--divider);}
+  #tab-ar .ar-aging .ac{
+    font-size:9px;font-weight:700;letter-spacing:-.1px;line-height:1.2;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #tab-ar .ar-aging .cell.ok  .ac{color:var(--blue);}
+  #tab-ar .ar-aging .cell.w1  .ac{color:var(--w1);}
+  #tab-ar .ar-aging .cell.w2  .ac{color:var(--w2);}
+  #tab-ar .ar-aging .cell.w3  .ac{color:var(--w3);}
+  #tab-ar .ar-aging .av{font-size:11.4px;font-weight:800;letter-spacing:-.35px;color:#0d0f16;margin:4px 0 3px;white-space:nowrap;}
+  #tab-ar .ar-aging .ap{font-size:9.6px;font-weight:700;color:var(--muted);margin-bottom:5px;}
+  #tab-ar .ar-aging .bar{height:4px;border-radius:3px;background:#eceef3;overflow:hidden;}
+  #tab-ar .ar-aging .bar i{display:block;height:100%;border-radius:3px;}
+  #tab-ar .ar-aging .cell.ok .bar i{background:var(--blue);}
+  #tab-ar .ar-aging .cell.w1 .bar i{background:var(--w1);}
+  #tab-ar .ar-aging .cell.w2 .bar i{background:var(--w2);}
+  #tab-ar .ar-aging .cell.w3 .bar i{background:var(--w3);}
+
+  /* поиск + список контрагентов */
+  #tab-ar .ar-search{
+    display:flex;align-items:center;gap:4px;flex:0 0 auto;
+    font-size:10.2px;font-weight:600;color:var(--muted);letter-spacing:-.1px;cursor:pointer;
+  }
+  #tab-ar .ar-search svg{width:11px;height:11px;}
+  #tab-ar .ar-list{display:flex;flex-direction:column;}
+  #tab-ar .ar-row{
+    display:flex;align-items:center;gap:9px;padding:9px 0;cursor:pointer;
+    border-bottom:1px solid var(--divider);
+  }
+  #tab-ar .ar-row:last-child{border-bottom:none;}
+  #tab-ar .ar-row:hover{background:#fbfcfe;}
+  #tab-ar .ar-av{
+    width:30px;height:30px;border-radius:10px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;letter-spacing:-.3px;
+  }
+  #tab-ar .ar-who{flex:1;min-width:0;}
+  #tab-ar .ar-who .n{
+    font-size:11.6px;font-weight:700;color:#12141c;letter-spacing:-.15px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #tab-ar .ar-who .d{
+    font-size:9.6px;font-weight:600;color:var(--muted);margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #tab-ar .ar-amt{flex:0 0 auto;text-align:right;}
+  #tab-ar .ar-amt .a{font-size:11.2px;font-weight:800;color:var(--blue);letter-spacing:-.3px;white-space:nowrap;}
+  #tab-ar .ar-amt .a i{font-style:normal;font-size:8px;font-weight:700;color:var(--muted);margin-left:2px;}
+  #tab-ar .ar-amt .st{font-size:9.2px;font-weight:700;margin-top:2px;white-space:nowrap;}
+  #tab-ar .ar-amt .st.late{color:var(--red);}
+  #tab-ar .ar-amt .st.ok{color:var(--green);}
+  #tab-ar .ar-row .caret{width:11px;height:11px;flex:0 0 auto;color:#c3c8d4;}
+  #tab-ar .ar-all{
+    width:100%;margin-top:10px;border:none;cursor:pointer;font-family:inherit;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--blue-bg);color:var(--blue);border-radius:11px;padding:10px;
+    font-size:11.3px;font-weight:700;letter-spacing:-.1px;transition:background .12s;
+  }
+  #tab-ar .ar-all:hover{background:#d1e7e9;}
+  #tab-ar .ar-all svg{width:10px;height:10px;}
+
   .navbar{
     flex:0 0 auto;
     display:flex;align-items:center;justify-content:space-around;
@@ -1285,6 +1451,7 @@
     <button data-pill="cashflow"><span class="t">Cashflow</span><span class="s">ДДС</span></button>
     <button data-pill="pnl" class="active"><span class="t">P&amp;L</span><span class="s">ОПиУ</span></button>
     <button data-pill="balance"><span class="t">Balance</span><span class="s">Баланс</span></button>
+    <button data-pill="ar"><span class="t">Дебиторы</span><span class="s">и кредиторы</span></button>
   </div>
 
   <div class="tab-content-wrap">
@@ -1971,6 +2138,104 @@
       <div class="navbar">
         <div class="navitem active" data-goto="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Главная</div>
         <div class="navitem" data-goto="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Отчеты</div>
+        <div class="navitem plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 01-3.4 0"/></svg>Уведомления</div>
+        <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Профиль</div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB: ДЕБИТОРЫ И КРЕДИТОРЫ ===================== -->
+    <div class="tab-content" id="tab-ar">
+      <div class="ar-scroll">
+
+        <div class="ar-top">
+          <h2>Дебиторы и кредиторы</h2>
+          <button class="ar-ico" aria-label="Фильтр">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8.2V20l-4 1.6v-8.4z"/></svg>
+          </button>
+        </div>
+
+        <div class="ar-seg">
+          <button class="active" data-side="deb">Дебиторы</button>
+          <button data-side="kred">Кредиторы</button>
+        </div>
+
+        <div class="ar-filters">
+          <button class="ar-fl">
+            <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+            <span class="txt">Январь 2023</span>
+            <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+          </button>
+          <button class="ar-fl">
+            <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.6 19.2c1-3.3 3.6-4.9 6.4-4.9s5.4 1.6 6.4 4.9"/><path d="M16.6 5.7a3.1 3.1 0 010 5.4M18.2 14.5c1.9.8 3.1 2.3 3.6 4.7"/></svg>
+            <span class="txt">Все контрагенты</span>
+            <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+          </button>
+        </div>
+
+        <!-- сводка: всего / просрочено -->
+        <section class="ar-sum">
+          <div class="ar-half tot">
+            <div class="hrow"><div class="c" id="arTotCap">Дебиторская задолженность</div></div>
+            <div class="v" id="arTotVal"></div>
+            <div class="s" id="arTotSub"></div>
+          </div>
+          <div class="ar-half ovd">
+            <div class="hrow"><div class="c">Просрочено</div><div class="ar-donut" id="arDonut"></div></div>
+            <div class="v" id="arOvdVal"></div>
+            <div class="s" id="arOvdSub"></div>
+          </div>
+        </section>
+
+        <!-- динамика задолженности -->
+        <section class="ar-card">
+          <div class="ar-chead">
+            <h3>Динамика задолженности</h3>
+            <button class="ar-gran" id="arGran">
+              <span id="arGranTxt">По дням</span>
+              <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+            </button>
+          </div>
+          <div class="ar-legend">
+            <i><span class="sw tot"></span>Общая задолженность</i>
+            <i><span class="sw ovd"></span>Просроченная</i>
+          </div>
+          <div class="ar-chart" id="arChart"></div>
+        </section>
+
+        <!-- возраст задолженности -->
+        <section class="ar-card">
+          <div class="ar-chead">
+            <h3>
+              Возраст задолженности
+              <svg class="info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v5.5M12 7.6v.1"/></svg>
+            </h3>
+            <span class="ar-link">Подробнее</span>
+          </div>
+          <div class="ar-aging" id="arAging"></div>
+        </section>
+
+        <!-- топ контрагентов -->
+        <section class="ar-card">
+          <div class="ar-chead">
+            <h3 id="arListTitle">Топ должников</h3>
+            <div class="ar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M16.2 16.2L21 21"/></svg>
+              Поиск контрагента
+            </div>
+          </div>
+          <div class="ar-list" id="arList"></div>
+          <button class="ar-all" id="arAll">
+            <span id="arAllTxt">Показать всех дебиторов (32)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </section>
+
+      </div>
+
+      <div class="navbar">
+        <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Главная</div>
+        <div class="navitem active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Отчеты</div>
         <div class="navitem plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
         <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 01-3.4 0"/></svg>Уведомления</div>
         <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Профиль</div>
@@ -3145,6 +3410,231 @@
     sheetOverlay.addEventListener('click', (e) => {
       if (e.target === sheetOverlay) closeSheet();
     });
+  })();
+</script>
+
+<script>
+  // ===== Дебиторы и кредиторы, полностью в области #tab-ar =====
+  (function(){
+    const root = document.getElementById('tab-ar');
+    const $ = id => root.querySelector('#' + id);
+
+    /* ---- mock-данные (январь 2023) ---- */
+    const AR = {
+      deb: {
+        cap: 'Дебиторская задолженность',
+        listTitle: 'Топ должников',
+        allTxt: n => `Показать всех дебиторов (${n})`,
+        total: 4256800000, totalCp: 32,
+        aging: [
+          { cap: 'Не просрочено', val: 3130000000, pct: 74, tone: 'ok' },
+          { cap: '1–30 дней',     val:  682000000, pct: 16, tone: 'w1' },
+          { cap: '31–60 дней',    val:  284000000, pct:  7, tone: 'w2' },
+          { cap: '> 60 дней',     val:  160800000, pct:  3, tone: 'w3' },
+        ],
+        overCp: 8,
+        chart: { t0: 2.75, t1: 4.26, o0: 0.72, o1: 1.13, yMax: 6, ticks: [0, 2, 4, 6] },
+        rows: [
+          { a:'S', bg:'#e4f6ec', fg:'#17a34a', n:'ООО «STROY GREEN HORSE»', d:'Договор №123 от 12.12.2022', v:1256800000, late:345 },
+          { a:'B', bg:'#ede9fb', fg:'#6d4bd6', n:'АО «BMB Trade Group»',     d:'Договор №215 от 05.01.2023', v: 856300000, late:24  },
+          { a:'U', bg:'#fdeee0', fg:'#e07a1f', n:'UZUM Market',              d:'Договор №112 от 20.12.2022', v: 642000000, late:0   },
+          { a:'M', bg:'#e4eefc', fg:'#2f6fd0', n:'ООО «Mega Plast»',         d:'Договор №098 от 03.01.2023', v: 320500000, late:5   },
+          { a:'А', bg:'#e2f0f1', fg:'#006F7D', n:'ИП Абдуллаев М.',          d:'Договор №087 от 15.01.2023', v: 210700000, late:0   },
+        ],
+      },
+      kred: {
+        cap: 'Кредиторская задолженность',
+        listTitle: 'Топ кредиторов',
+        allTxt: n => `Показать всех кредиторов (${n})`,
+        total: 3180400000, totalCp: 24,
+        aging: [
+          { cap: 'Не просрочено', val: 2538300000, pct: 80, tone: 'ok' },
+          { cap: '1–30 дней',     val:  341700000, pct: 11, tone: 'w1' },
+          { cap: '31–60 дней',    val:  186500000, pct:  6, tone: 'w2' },
+          { cap: '> 60 дней',     val:  113900000, pct:  3, tone: 'w3' },
+        ],
+        overCp: 5,
+        chart: { t0: 2.10, t1: 3.18, o0: 0.35, o1: 0.64, yMax: 4, ticks: [0, 1, 2, 3, 4] },
+        rows: [
+          { a:'S', bg:'#e4eefc', fg:'#2f6fd0', n:'ООО «Uzbek Steel Supply»', d:'Договор №301 от 10.11.2022', v:1042300000, late:62 },
+          { a:'T', bg:'#fdeee0', fg:'#e07a1f', n:'АО «Tashkent Logistics»',  d:'Договор №288 от 22.12.2022', v: 704900000, late:12 },
+          { a:'B', bg:'#e4f6ec', fg:'#17a34a', n:'ООО «Bek Cement»',         d:'Договор №254 от 08.01.2023', v: 518600000, late:0  },
+          { a:'A', bg:'#ede9fb', fg:'#6d4bd6', n:'Artel Electronics',        d:'Договор №241 от 19.12.2022', v: 486200000, late:3  },
+          { a:'К', bg:'#e2f0f1', fg:'#006F7D', n:'ИП Каримов Ж.',            d:'Договор №233 от 25.01.2023', v: 302400000, late:0  },
+        ],
+      },
+    };
+
+    let side = 'deb';       // deb | kred
+    let gran = 'day';       // day | week
+
+    /* ---- форматирование ---- */
+    const full = n => n.toLocaleString('ru-RU');
+    const dec  = (n, d) => n.toFixed(d).replace('.', ',').replace(/,0+$/, '');
+    function compact(n){
+      const a = Math.abs(n);
+      if (a >= 1e9) return dec(n / 1e9, 2) + ' млрд';
+      if (a >= 1e6) return dec(n / 1e6, 1) + ' млн';
+      if (a >= 1e3) return dec(n / 1e3, 0) + ' тыс';
+      return full(n);
+    }
+    // «345 дней» / «24 дня» / «5 дней»
+    function days(n){
+      const t = n % 100, o = n % 10;
+      if (t > 10 && t < 20) return `${n} дней`;
+      if (o === 1) return `${n} день`;
+      if (o >= 2 && o <= 4) return `${n} дня`;
+      return `${n} дней`;
+    }
+    function contractors(n){
+      const t = n % 100, o = n % 10;
+      if (t > 10 && t < 20) return `${n} контрагентов`;
+      if (o === 1) return `${n} контрагент`;
+      if (o >= 2 && o <= 4) return `${n} контрагента`;
+      return `${n} контрагентов`;
+    }
+    const overdueSum = d => d.aging.filter(a => a.tone !== 'ok').reduce((s, a) => s + a.val, 0);
+
+    /* ---- сводка ---- */
+    function renderSummary(){
+      const d = AR[side];
+      const ovd = overdueSum(d);
+      const pct = Math.round(ovd / d.total * 100);
+
+      $('arTotCap').textContent = d.cap;
+      $('arTotVal').innerHTML   = `${full(d.total)}<i>UZS</i>`;
+      $('arTotSub').textContent = contractors(d.totalCp);
+      $('arOvdVal').innerHTML   = `${full(ovd)}<i>UZS</i>`;
+      $('arOvdSub').textContent = contractors(d.overCp);
+
+      const R = 12.6, C = 2 * Math.PI * R;
+      $('arDonut').innerHTML =
+        `<svg viewBox="0 0 30 30">`
+        + `<circle cx="15" cy="15" r="${R}" fill="none" stroke="#f7d7d2" stroke-width="3.6"/>`
+        + `<circle cx="15" cy="15" r="${R}" fill="none" stroke="#e8720f" stroke-width="3.6" stroke-linecap="round"`
+        + ` stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - pct / 100)).toFixed(1)}"/>`
+        + `</svg><span>${pct}%</span>`;
+    }
+
+    /* ---- возраст задолженности ---- */
+    function renderAging(){
+      $('arAging').innerHTML = AR[side].aging.map(a =>
+        `<div class="cell ${a.tone}">`
+        + `<div class="ac">${a.cap}</div>`
+        + `<div class="av">${compact(a.val)}</div>`
+        + `<div class="ap">${a.pct}%</div>`
+        + `<div class="bar"><i style="width:${a.pct}%"></i></div>`
+        + `</div>`
+      ).join('');
+    }
+
+    /* ---- список контрагентов ---- */
+    function renderList(){
+      const d = AR[side];
+      $('arListTitle').textContent = d.listTitle;
+      $('arAllTxt').textContent    = d.allTxt(d.totalCp);
+      $('arList').innerHTML = d.rows.map(r =>
+        `<div class="ar-row">`
+        + `<div class="ar-av" style="background:${r.bg};color:${r.fg}">${r.a}</div>`
+        + `<div class="ar-who"><div class="n">${r.n}</div><div class="d">${r.d}</div></div>`
+        + `<div class="ar-amt">`
+        +   `<div class="a">${full(r.v)}<i>UZS</i></div>`
+        +   `<div class="st ${r.late ? 'late' : 'ok'}">${r.late ? 'Просрочено ' + days(r.late) : 'Не просрочено'}</div>`
+        + `</div>`
+        + `<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`
+        + `</div>`
+      ).join('');
+    }
+
+    /* ---- график динамики ---- */
+    const MONTH = 'янв';
+    function buildSeries(c, n){
+      const tot = [], ovd = [];
+      for (let i = 0; i < n; i++){
+        const t = n === 1 ? 1 : i / (n - 1);
+        tot.push(c.t0 + (c.t1 - c.t0) * t + Math.sin(i * 1.7) * 0.16);
+        ovd.push(c.o0 + (c.o1 - c.o0) * t + Math.sin(i * 2.3) * 0.07);
+      }
+      tot[n - 1] = c.t1; ovd[n - 1] = c.o1;   // хвост совпадает с цифрами в сводке
+      return { tot, ovd };
+    }
+
+    function renderChart(){
+      const c = AR[side].chart;
+      const n = gran === 'day' ? 31 : 5;
+      const { tot, ovd } = buildSeries(c, n);
+
+      const W = 284, x0 = 34, x1 = 222, yTop = 10, yBot = 86;
+      const X = i => x0 + (x1 - x0) * (n === 1 ? 0 : i / (n - 1));
+      const Y = v => yBot - (yBot - yTop) * (v / c.yMax);
+      const pts = s => s.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+
+      // сетка + подписи оси Y
+      const grid = c.ticks.map(t => {
+        const y = Y(t).toFixed(1);
+        return `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#eef0f4" stroke-width="1"/>`
+             + `<text x="30" y="${(+y + 3).toFixed(1)}" text-anchor="end" font-size="7.8" font-weight="600" fill="#9aa1b1">`
+             + `${t === 0 ? '0' : t + ' млрд'}</text>`;
+      }).join('');
+
+      // точки по оси X
+      const marks = gran === 'day'
+        ? [0, 7, 14, 21, 30].map(i => ({ i, t: `${i + 1} ${MONTH}` }))
+        : [0, 1, 2, 3, 4].map(i => ({ i, t: `${i + 1} нед` }));
+      const xlab = marks.map(m =>
+        `<text x="${X(m.i).toFixed(1)}" y="103" text-anchor="middle" font-size="8.2" font-weight="600" fill="#9aa1b1">${m.t}</text>`
+      ).join('');
+
+      const dots = s => s.map((v, i) =>
+        `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="${n > 12 ? 1.5 : 2.4}" fill="#fff" stroke-width="1.6"/>`
+      ).join('');
+
+      // подпись последнего значения
+      const pill = (v, color) => {
+        const y = Y(v), w = 50, h = 15;
+        return `<g><rect x="228" y="${(y - h / 2).toFixed(1)}" width="${w}" height="${h}" rx="7.5" fill="${color}"/>`
+             + `<text x="${228 + w / 2}" y="${(y + 3).toFixed(1)}" text-anchor="middle" font-size="8.2" font-weight="800" fill="#fff">`
+             + `${dec(v, 2)} млрд</text></g>`;
+      };
+
+      $('arChart').innerHTML =
+        `<svg viewBox="0 0 ${W} 110" role="img" aria-label="Динамика задолженности">`
+        + `<defs><linearGradient id="arFill" x1="0" y1="0" x2="0" y2="1">`
+        +   `<stop offset="0%" stop-color="#006F7D" stop-opacity=".16"/>`
+        +   `<stop offset="100%" stop-color="#006F7D" stop-opacity="0"/>`
+        + `</linearGradient></defs>`
+        + grid
+        + `<polygon points="${X(0).toFixed(1)},${yBot} ${pts(tot)} ${X(n - 1).toFixed(1)},${yBot}" fill="url(#arFill)"/>`
+        + `<polyline points="${pts(tot)}" fill="none" stroke="#006F7D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`
+        + `<polyline points="${pts(ovd)}" fill="none" stroke="#e2394a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`
+        + `<g stroke="#006F7D">${dots(tot)}</g>`
+        + `<g stroke="#e2394a">${dots(ovd)}</g>`
+        + pill(tot[n - 1], '#006F7D')
+        + pill(ovd[n - 1], '#e2394a')
+        + xlab
+        + `</svg>`;
+    }
+
+    function renderAll(){ renderSummary(); renderAging(); renderList(); renderChart(); }
+
+    /* ---- переключатели ---- */
+    root.querySelectorAll('.ar-seg button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.side === side) return;
+        root.querySelectorAll('.ar-seg button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        side = btn.dataset.side;
+        renderAll();
+      });
+    });
+
+    $('arGran').addEventListener('click', () => {
+      gran = gran === 'day' ? 'week' : 'day';
+      $('arGranTxt').textContent = gran === 'day' ? 'По дням' : 'По неделям';
+      renderChart();
+    });
+
+    renderAll();
   })();
 </script>
 
