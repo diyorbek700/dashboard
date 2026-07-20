@@ -1336,6 +1336,25 @@
   #tab-ar .ar-legend .sw.ovd{background:var(--red);}
   #tab-ar .ar-chart svg{width:100%;height:auto;display:block;overflow:visible;}
 
+  /* показания выбранного дня / недели */
+  #tab-ar .ar-ro{background:var(--soft-bg);border-radius:12px;padding:8px 10px 9px;margin-bottom:8px;}
+  #tab-ar .ar-ro .ro-per{
+    font-size:9.6px;font-weight:700;color:#3a3f4d;letter-spacing:-.05px;margin-bottom:7px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #tab-ar .ar-ro .ro-cols{display:flex;gap:8px;}
+  #tab-ar .ar-ro .ro-c{flex:1;min-width:0;padding-left:7px;border-left:2px solid #d3d8e2;}
+  #tab-ar .ar-ro .ro-c.tot{border-left-color:var(--blue);}
+  #tab-ar .ar-ro .ro-c.ovd{border-left-color:var(--red);}
+  #tab-ar .ar-ro .k{
+    display:block;font-size:8.6px;font-weight:600;color:var(--muted);letter-spacing:-.05px;margin-bottom:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #tab-ar .ar-ro .v{display:block;font-size:11.4px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;}
+  #tab-ar .ar-ro .ro-c.tot .v{color:var(--blue);}
+  #tab-ar .ar-ro .ro-c.ovd .v{color:var(--red);}
+  #tab-ar .ar-ro .ro-c.shr .v{color:#3a3f4d;}
+
   /* возраст задолженности */
   #tab-ar .ar-aging{display:flex;gap:0;}
   #tab-ar .ar-aging .cell{flex:1;min-width:0;padding:0 7px;}
@@ -2328,6 +2347,14 @@
           <div class="ar-legend">
             <i><span class="sw tot"></span>Общая задолженность</i>
             <i><span class="sw ovd"></span>Просроченная</i>
+          </div>
+          <div class="ar-ro">
+            <div class="ro-per" id="arRoPer"></div>
+            <div class="ro-cols">
+              <div class="ro-c tot"><span class="k">Общая</span><span class="v" id="arRoTot"></span></div>
+              <div class="ro-c ovd"><span class="k">Просроченная</span><span class="v" id="arRoOvd"></span></div>
+              <div class="ro-c shr"><span class="k">Доля просрочки</span><span class="v" id="arRoShr"></span></div>
+            </div>
           </div>
           <div class="ar-chart" id="arChart"></div>
         </section>
@@ -3718,6 +3745,7 @@
 
     let side = 'deb';       // deb | kred
     let gran = 'day';       // day | week
+    let sel  = null;        // выбранная точка графика (null = последняя)
 
     /* ---- форматирование ---- */
     const CARET = '<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"'
@@ -3843,6 +3871,27 @@
         `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="${n > 12 ? 1.5 : 2.4}" fill="#fff" stroke-width="1.6"/>`
       ).join('');
 
+      // выбранная точка: пунктирная направляющая + залитые маркеры
+      const si = sel === null ? n - 1 : Math.min(sel, n - 1);
+      const guide = `<line x1="${X(si).toFixed(1)}" y1="${yTop - 3}" x2="${X(si).toFixed(1)}" y2="${yBot}"`
+                  + ` stroke="#c2cad8" stroke-width="1" stroke-dasharray="2.5 2.5"/>`;
+      const selDots =
+          `<circle cx="${X(si).toFixed(1)}" cy="${Y(tot[si]).toFixed(1)}" r="3.6" fill="#006F7D" stroke="#fff" stroke-width="2"/>`
+        + `<circle cx="${X(si).toFixed(1)}" cy="${Y(ovd[si]).toFixed(1)}" r="3.6" fill="#e2394a" stroke="#fff" stroke-width="2"/>`;
+
+      // прозрачные зоны нажатия по каждой точке
+      const step = (x1 - x0) / (n > 1 ? n - 1 : 1);
+      const hits = Array.from({ length: n }, (_, i) =>
+        `<rect x="${(X(i) - step / 2).toFixed(1)}" y="0" width="${step.toFixed(1)}" height="110"`
+        + ` fill="transparent" data-i="${i}" style="cursor:pointer"/>`
+      ).join('');
+
+      // показания выбранной точки
+      $('arRoPer').textContent = pointLabel(si);
+      $('arRoTot').textContent = dec(tot[si], 2) + ' млрд';
+      $('arRoOvd').textContent = dec(ovd[si], 2) + ' млрд';
+      $('arRoShr').textContent = Math.round(ovd[si] / tot[si] * 100) + '%';
+
       // подпись последнего значения
       const pill = (v, color) => {
         const y = Y(v), w = 50, h = 15;
@@ -3858,16 +3907,33 @@
         +   `<stop offset="100%" stop-color="#006F7D" stop-opacity="0"/>`
         + `</linearGradient></defs>`
         + grid
+        + guide
         + `<polygon points="${X(0).toFixed(1)},${yBot} ${pts(tot)} ${X(n - 1).toFixed(1)},${yBot}" fill="url(#arFill)"/>`
         + `<polyline points="${pts(tot)}" fill="none" stroke="#006F7D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`
         + `<polyline points="${pts(ovd)}" fill="none" stroke="#e2394a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`
         + `<g stroke="#006F7D">${dots(tot)}</g>`
         + `<g stroke="#e2394a">${dots(ovd)}</g>`
+        + selDots
         + pill(tot[n - 1], '#006F7D')
         + pill(ovd[n - 1], '#e2394a')
         + xlab
+        + hits
         + `</svg>`;
     }
+
+    // подпись выбранной точки
+    function pointLabel(i){
+      return gran === 'day'
+        ? `${i + 1} января 2023`
+        : `${i + 1}-я неделя января 2023`;
+    }
+
+    $('arChart').addEventListener('click', e => {
+      const hit = e.target.closest('[data-i]');
+      if (!hit) return;
+      sel = +hit.dataset.i;
+      renderChart();
+    });
 
     /* =========== детальный экран «Возраст задолженности» =========== */
     const TONE = { ok:'#006F7D', w1:'#f0a318', w2:'#f4772e', w3:'#e2394a' };
@@ -4012,6 +4078,7 @@
         root.querySelectorAll('.ar-seg button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         side = btn.dataset.side;
+        sel = null;
         renderAll();
       });
     });
@@ -4019,6 +4086,7 @@
     $('arGran').addEventListener('click', () => {
       gran = gran === 'day' ? 'week' : 'day';
       $('arGranTxt').textContent = gran === 'day' ? 'По дням' : 'По неделям';
+      sel = null;              // гранулярность сменилась → индекс точки уже не тот
       renderChart();
     });
 
