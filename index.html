@@ -1546,6 +1546,87 @@
   #tab-ar .ar-tip .tip-tx span{display:block;font-size:9.8px;font-weight:600;color:#41727a;line-height:1.42;}
   #tab-ar .ar-tip .chev{width:11px;height:11px;flex:0 0 auto;color:#84b3b9;}
 
+  /* ---------- календарь: одна дата ---------- */
+  #tab-ar .ar-cal-overlay{
+    position:absolute;inset:0;background:rgba(15,17,25,.4);
+    display:flex;align-items:flex-end;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:4;
+  }
+  #tab-ar .ar-cal-overlay.visible{opacity:1;}
+  #tab-ar.active .ar-cal-overlay.visible{pointer-events:auto;}
+  #tab-ar .ar-cal{
+    width:100%;background:#fff;border-radius:22px 22px 0 0;
+    box-shadow:0 -12px 32px rgba(20,25,40,.18);padding:16px 18px 18px;
+    max-height:90%;overflow-y:auto;scrollbar-width:none;
+    transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);
+  }
+  #tab-ar .ar-cal::-webkit-scrollbar{display:none;}
+  #tab-ar .ar-cal-overlay.visible .ar-cal{transform:translateY(0);}
+  #tab-ar .ar-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  #tab-ar .ar-cal-head h3{font-size:15px;font-weight:800;color:var(--blue);margin:0;letter-spacing:-.2px;}
+  #tab-ar .ar-cal-close{
+    width:26px;height:26px;border-radius:8px;background:var(--soft-bg);border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:var(--text);
+  }
+  #tab-ar .ar-cal-close svg{width:12px;height:12px;}
+
+  #tab-ar .ar-cal-fld{
+    background:var(--soft-bg);border-radius:11px;padding:9px 11px;margin-bottom:13px;
+    box-shadow:inset 0 0 0 1.5px var(--blue);
+  }
+  #tab-ar .ar-cal-fld.bad{box-shadow:inset 0 0 0 1.5px var(--red);}
+  #tab-ar .ar-cal-fld .cap{
+    font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px;
+  }
+  #tab-ar .ar-cal-fld input{
+    width:100%;border:none;background:transparent;padding:0;font-family:inherit;
+    font-size:15px;font-weight:800;color:#0d0f16;outline:none;letter-spacing:-.3px;
+  }
+  #tab-ar .ar-cal-fld input::placeholder{color:#b7bcc9;font-weight:600;}
+
+  #tab-ar .ar-cal-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+  #tab-ar .ar-cal-nav .nv{
+    width:28px;height:28px;flex:0 0 auto;border-radius:9px;border:none;background:var(--soft-bg);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:var(--text);transition:background .12s;
+  }
+  #tab-ar .ar-cal-nav .nv:hover{background:#eceef3;}
+  #tab-ar .ar-cal-nav .nv svg{width:12px;height:12px;}
+  #tab-ar .ar-cal-title{
+    display:flex;align-items:center;gap:5px;cursor:pointer;border:none;background:transparent;font-family:inherit;
+    font-size:13px;font-weight:800;color:var(--text);letter-spacing:-.2px;padding:4px 6px;border-radius:8px;
+  }
+  #tab-ar .ar-cal-title:hover{background:var(--soft-bg);}
+  #tab-ar .ar-cal-title svg{width:10px;height:10px;color:var(--muted);transition:transform .2s;}
+  #tab-ar .ar-cal.years .ar-cal-title svg{transform:rotate(180deg);}
+
+  #tab-ar .ar-cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;}
+  #tab-ar .ar-cal-dow span{
+    text-align:center;font-size:9.4px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.2px;
+  }
+  #tab-ar .ar-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+  #tab-ar .ar-cal-grid button{
+    aspect-ratio:1;border:none;background:var(--blue-bg);border-radius:9px;cursor:pointer;font-family:inherit;
+    font-size:12px;font-weight:700;color:var(--blue);transition:.12s;
+  }
+  #tab-ar .ar-cal-grid button.empty{background:transparent;cursor:default;}
+  #tab-ar .ar-cal-grid button:hover:not(.on):not(.empty){background:#cfe6e8;}
+  #tab-ar .ar-cal-grid button.on{background:var(--blue);color:#fff;box-shadow:0 5px 12px rgba(0,111,125,.3);}
+
+  #tab-ar .ar-cal-years{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  #tab-ar .ar-cal-years button{
+    border:none;background:var(--soft-bg);border-radius:10px;padding:11px 0;cursor:pointer;font-family:inherit;
+    font-size:12px;font-weight:700;color:var(--text);transition:.12s;
+  }
+  #tab-ar .ar-cal-years button:hover{background:#eceef3;}
+  #tab-ar .ar-cal-years button.on{background:var(--blue);color:#fff;box-shadow:0 5px 12px rgba(0,111,125,.28);}
+
+  #tab-ar .ar-cal-apply{
+    width:100%;margin-top:14px;border:none;background:var(--blue);color:#fff;border-radius:12px;
+    padding:12px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;
+    position:sticky;bottom:0;
+    box-shadow:0 8px 16px rgba(0,111,125,.28),0 0 0 8px #fff,0 12px 0 8px #fff;
+  }
+
   .navbar{
     flex:0 0 auto;
     display:flex;align-items:center;justify-content:space-around;
@@ -2311,7 +2392,7 @@
         <div class="ar-filters">
           <button class="ar-fl">
             <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
-            <span class="txt">Январь 2023</span>
+            <span class="txt ar-date-txt">Январь 2023</span>
             <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
           </button>
           <button class="ar-fl">
@@ -2410,7 +2491,7 @@
           <div class="ar-filters">
             <button class="ar-fl">
               <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
-              <span class="txt">Январь 2023</span>
+              <span class="txt ar-date-txt">Январь 2023</span>
               <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
             </button>
             <button class="ar-fl">
@@ -2474,6 +2555,44 @@
       </section>
 
      </div>
+
+      <!-- выбор даты отчёта (одна дата) -->
+      <div class="ar-cal-overlay" id="arCalOverlay">
+        <div class="ar-cal" id="arCal">
+          <div class="ar-cal-head">
+            <h3>Дата отчёта</h3>
+            <button class="ar-cal-close" id="arCalClose" aria-label="Закрыть">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg>
+            </button>
+          </div>
+
+          <div class="ar-cal-fld" id="arCalFld">
+            <div class="cap">Показать данные на</div>
+            <input id="arCalInp" inputmode="numeric" placeholder="дд.мм.гггг" maxlength="10" autocomplete="off">
+          </div>
+
+          <div class="ar-cal-nav">
+            <button class="nv" id="arCalPrev" aria-label="Предыдущий месяц">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button class="ar-cal-title" id="arCalTitle">
+              <span id="arCalTitleTxt">Январь 2023</span>
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+            </button>
+            <button class="nv" id="arCalNext" aria-label="Следующий месяц">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+
+          <div id="arCalDays">
+            <div class="ar-cal-dow"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+            <div class="ar-cal-grid" id="arCalGrid"></div>
+          </div>
+          <div class="ar-cal-years" id="arCalYears" style="display:none"></div>
+
+          <button class="ar-cal-apply" id="arCalApply">Применить</button>
+        </div>
+      </div>
 
       <div class="navbar">
         <div class="navitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Главная</div>
@@ -4069,6 +4188,127 @@
       });
     });
 
+    /* =========== выбор даты отчёта (одна дата) =========== */
+    const MONTHS_FULL = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                         'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const pad = n => String(n).padStart(2, '0');
+    const fmtDate = d => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
+
+    let picked = new Date(2023, 0, 31);   // применённая дата
+    let draft  = new Date(picked);        // выбор до нажатия «Применить»
+    let calY = 2023, calM = 0;            // месяц, показанный в сетке
+
+    function parseDMY(s){
+      const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s.trim());
+      if (!m) return null;
+      const d = new Date(+m[3], +m[2] - 1, +m[1]);
+      if (d.getDate() !== +m[1] || d.getMonth() !== +m[2] - 1) return null;   // 31.02 и т.п.
+      return d;
+    }
+
+    function renderCalDays(){
+      $('arCalTitleTxt').textContent = `${MONTHS_FULL[calM]} ${calY}`;
+      const shift = (new Date(calY, calM, 1).getDay() + 6) % 7;   // неделя с понедельника
+      const dim   = new Date(calY, calM + 1, 0).getDate();
+      let h = '';
+      for (let i = 0; i < shift; i++) h += `<button class="empty" disabled></button>`;
+      for (let d = 1; d <= dim; d++){
+        const on = draft.getFullYear() === calY && draft.getMonth() === calM && draft.getDate() === d;
+        h += `<button data-d="${d}"${on ? ' class="on"' : ''}>${d}</button>`;
+      }
+      $('arCalGrid').innerHTML = h;
+    }
+
+    function renderCalYears(){
+      const base = calY - 6;
+      $('arCalYears').innerHTML = Array.from({ length: 12 }, (_, i) => {
+        const y = base + i;
+        return `<button data-y="${y}"${y === calY ? ' class="on"' : ''}>${y}</button>`;
+      }).join('');
+    }
+
+    function showYears(on){
+      $('arCal').classList.toggle('years', on);
+      $('arCalDays').style.display  = on ? 'none' : '';
+      $('arCalYears').style.display = on ? 'grid' : 'none';
+      if (on) renderCalYears();
+    }
+
+    function setDraft(d){
+      draft = d;
+      $('arCalInp').value = fmtDate(d);
+      $('arCalFld').classList.remove('bad');
+      renderCalDays();
+    }
+
+    function applyDateLabel(){
+      root.querySelectorAll('.ar-date-txt').forEach(el => { el.textContent = fmtDate(picked); });
+    }
+
+    function openCal(){
+      draft = new Date(picked);
+      calY = draft.getFullYear(); calM = draft.getMonth();
+      $('arCalInp').value = fmtDate(draft);
+      $('arCalFld').classList.remove('bad');
+      showYears(false);
+      renderCalDays();
+      $('arCalOverlay').classList.add('visible');
+    }
+    const closeCal = () => $('arCalOverlay').classList.remove('visible');
+
+    // обе кнопки «дата» (сводный и детальный экран) открывают один календарь
+    root.querySelectorAll('.ar-date-txt').forEach(el => {
+      el.closest('.ar-fl').addEventListener('click', openCal);
+    });
+
+    $('arCalClose').addEventListener('click', closeCal);
+    $('arCalOverlay').addEventListener('click', e => { if (e.target === $('arCalOverlay')) closeCal(); });
+
+    $('arCalPrev').addEventListener('click', () => {
+      if (--calM < 0){ calM = 11; calY--; }
+      renderCalDays();
+    });
+    $('arCalNext').addEventListener('click', () => {
+      if (++calM > 11){ calM = 0; calY++; }
+      renderCalDays();
+    });
+    $('arCalTitle').addEventListener('click', () => showYears(!$('arCal').classList.contains('years')));
+
+    $('arCalYears').addEventListener('click', e => {
+      const b = e.target.closest('button[data-y]');
+      if (!b) return;
+      calY = +b.dataset.y;
+      showYears(false);
+      renderCalDays();
+    });
+
+    $('arCalGrid').addEventListener('click', e => {
+      const b = e.target.closest('button[data-d]');
+      if (!b) return;
+      setDraft(new Date(calY, calM, +b.dataset.d));
+    });
+
+    // ручной ввод: цифры сами расставляются в дд.мм.гггг
+    $('arCalInp').addEventListener('input', e => {
+      const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+      let out = digits.slice(0, 2);
+      if (digits.length > 2) out += '.' + digits.slice(2, 4);
+      if (digits.length > 4) out += '.' + digits.slice(4, 8);
+      e.target.value = out;
+
+      const d = parseDMY(out);
+      $('arCalFld').classList.toggle('bad', out.length === 10 && !d);
+      if (d){ draft = d; calY = d.getFullYear(); calM = d.getMonth(); renderCalDays(); }
+    });
+
+    $('arCalApply').addEventListener('click', () => {
+      const typed = parseDMY($('arCalInp').value);
+      if ($('arCalInp').value.length === 10 && !typed){ $('arCalFld').classList.add('bad'); return; }
+      picked = new Date(typed || draft);
+      applyDateLabel();
+      closeCal();
+    });
+
     function renderAll(){ renderSummary(); renderAging(); renderList(); renderChart(); renderAgingScreen(); }
 
     /* ---- переключатели ---- */
@@ -4090,6 +4330,7 @@
       renderChart();
     });
 
+    applyDateLabel();
     renderAll();
   })();
 </script>
