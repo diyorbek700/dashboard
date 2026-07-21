@@ -1546,6 +1546,32 @@
   #tab-ar .ar-tip .tip-tx span{display:block;font-size:9.8px;font-weight:600;color:#41727a;line-height:1.42;}
   #tab-ar .ar-tip .chev{width:11px;height:11px;flex:0 0 auto;color:#84b3b9;}
 
+  /* ---------- полный список + поиск ---------- */
+  #tab-ar .ar-fsearch{
+    flex:0 0 auto;margin:0 16px 11px;display:flex;align-items:center;gap:8px;
+    background:var(--soft-bg);border:1px solid var(--frame-border);border-radius:12px;padding:9px 11px;
+    transition:box-shadow .12s;
+  }
+  #tab-ar .ar-fsearch:focus-within{box-shadow:inset 0 0 0 1.5px var(--blue);border-color:transparent;background:#fff;}
+  #tab-ar .ar-fsearch > svg{width:14px;height:14px;color:var(--muted);flex:0 0 auto;}
+  #tab-ar .ar-fsearch:focus-within > svg{color:var(--blue);}
+  #tab-ar .ar-fsearch input{
+    flex:1;min-width:0;border:none;background:transparent;font-family:inherit;
+    font-size:12.5px;font-weight:600;color:var(--text);letter-spacing:-.1px;outline:none;
+  }
+  #tab-ar .ar-fsearch input::placeholder{color:#9aa1b1;font-weight:600;}
+  #tab-ar .ar-fsearch .clr{
+    width:17px;height:17px;flex:0 0 auto;border:none;border-radius:50%;background:#cfd4de;color:#fff;cursor:pointer;
+    display:none;align-items:center;justify-content:center;
+  }
+  #tab-ar .ar-fsearch .clr svg{width:8px;height:8px;}
+  #tab-ar .ar-fsearch.has .clr{display:flex;}
+  #tab-ar .ar-cnt{
+    font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;margin:-1px 0 -3px;
+  }
+  #tab-ar .ar-cnt b{color:var(--blue);}
+  #tab-ar .ar-empty{display:none;text-align:center;padding:34px 0;color:var(--muted);font-size:11.6px;font-weight:600;}
+
   /* ---------- календарь: одна дата ---------- */
   #tab-ar .ar-cal-overlay{
     position:absolute;inset:0;background:rgba(15,17,25,.4);
@@ -2551,6 +2577,30 @@
             <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
           </div>
 
+        </div>
+      </section>
+
+      <!-- SCREEN: полный список контрагентов + поиск (без верхних фильтров) -->
+      <section class="screen" id="ar-full">
+        <div class="ar-dhead">
+          <button class="ar-back" id="arFullBack" aria-label="Назад">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h2 id="arFullTitle">Все дебиторы</h2>
+        </div>
+
+        <div class="ar-fsearch" id="arFullSearchBox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M16.2 16.2L21 21"/></svg>
+          <input id="arFullSearch" placeholder="Поиск контрагента" autocomplete="off">
+          <button class="clr" id="arFullClear" aria-label="Очистить">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+          </button>
+        </div>
+
+        <div class="ar-scroll">
+          <div class="ar-cnt" id="arFullCount"></div>
+          <div class="ar-list" id="arFullList"></div>
+          <div class="ar-empty" id="arFullEmpty">Контрагент не найден</div>
         </div>
       </section>
 
@@ -3929,22 +3979,73 @@
     }
 
     /* ---- список контрагентов ---- */
-    function renderList(){
-      const d = AR[side];
-      $('arListTitle').textContent = d.listTitle;
-      $('arAllTxt').textContent    = d.allTxt(d.totalCp);
-      $('arList').innerHTML = d.rows.map(r => {
-        const c = d.cp[r.k];
-        return `<div class="ar-row">`
-        + `<div class="ar-av" style="background:${c.bg};color:${c.fg}">${c.a}</div>`
-        + `<div class="ar-who"><div class="n">${c.n}</div><div class="d">${c.d}</div></div>`
+    // одна строка контрагента (r = {a,bg,fg,n,d,v,late})
+    function personRow(r){
+      return `<div class="ar-row">`
+        + `<div class="ar-av" style="background:${r.bg};color:${r.fg}">${r.a}</div>`
+        + `<div class="ar-who"><div class="n">${r.n}</div><div class="d">${r.d}</div></div>`
         + `<div class="ar-amt">`
         +   `<div class="a">${full(r.v)}<i>UZS</i></div>`
         +   `<div class="st ${r.late ? 'late' : 'ok'}">${r.late ? 'Просрочено ' + days(r.late) : 'Не просрочено'}</div>`
         + `</div>`
         + CARET
         + `</div>`;
-      }).join('');
+    }
+
+    function renderList(){
+      const d = AR[side];
+      $('arListTitle').textContent = d.listTitle;
+      $('arAllTxt').textContent    = d.allTxt(d.totalCp);
+      $('arList').innerHTML = d.rows.map(r => personRow({ ...d.cp[r.k], v: r.v, late: r.late })).join('');
+    }
+
+    /* ---- полный список контрагентов (топ + сгенерированный «хвост») ---- */
+    const FULL = { deb: null, kred: null };
+    const FILLER = ['Nur Savdo','Oltin Vodiy','Zamin Build','Baraka Trade','Silk Road Textile',
+      'Yashil Bog','Tong Logistic','Asaka Motors','Hunar Group','Farovon Trade','Buyuk Ipak',
+      'Mehr Agro','Diyor Plast','Orzu Market','Samarqand Steel','Navoi Kimyo','Qadam Stroy',
+      'Ziyo Print','Amu Trans','Registon Foods','Bahor Tekstil','Chust Pichoq','Sirdaryo Grain',
+      'Turon Mebel','Vodiy Sut','Aral Fish','Chimyon Suv','Zomin Beton','Guliston Agro'];
+    const FORMS = ['ООО','АО','ИП','ЧП'];
+    const PALS = [['#e4f6ec','#17a34a'],['#ede9fb','#6d4bd6'],['#fdeee0','#e07a1f'],
+                  ['#e4eefc','#2f6fd0'],['#e2f0f1','#006F7D'],['#fdeef0','#d84a57'],['#fef3d6','#c9971a']];
+
+    function buildFull(sd){
+      const d = AR[sd];
+      const rows = d.rows.map(r => ({ ...d.cp[r.k], v: r.v, late: r.late }));
+      let amt = rows[rows.length - 1].v;
+      const seedOff = sd === 'deb' ? 0 : 11;
+      for (let i = rows.length; i < d.totalCp; i++){
+        const idx  = i - rows.length + seedOff;
+        const root = FILLER[idx % FILLER.length];
+        const form = FORMS[idx % FORMS.length];
+        const pal  = PALS[idx % PALS.length];
+        amt = Math.max(3000000, Math.round(amt * (0.9 - (idx % 3) * 0.04) / 100000) * 100000);
+        const seed = (idx * 37) % 100;
+        const late = seed < 58 ? 0 : seed - 42;
+        const name = form === 'ИП' ? `ИП ${root.split(' ')[0]} ${'АБВГДЕЖЗ'[idx % 8]}.` : `${form} «${root}»`;
+        rows.push({
+          a: root[0], bg: pal[0], fg: pal[1], n: name,
+          d: `Договор №${100 + idx} от ${pad(1 + (idx * 7) % 27)}.${pad(1 + (idx * 5) % 12)}.2022`,
+          v: amt, late,
+        });
+      }
+      return rows;
+    }
+
+    let fullQuery = '';
+    function renderFull(){
+      const d = AR[side];
+      const list = FULL[side] || (FULL[side] = buildFull(side));
+      const q = fullQuery.trim().toLowerCase();
+      const shown = q ? list.filter(r => r.n.toLowerCase().includes(q)) : list;
+
+      $('arFullTitle').textContent = side === 'deb' ? 'Все дебиторы' : 'Все кредиторы';
+      $('arFullCount').innerHTML = q
+        ? `Найдено: <b>${shown.length}</b>`
+        : `Всего: <b>${list.length}</b>`;
+      $('arFullList').innerHTML = shown.map(personRow).join('');
+      $('arFullEmpty').style.display = shown.length ? 'none' : 'block';
     }
 
     /* ---- график динамики ---- */
@@ -4163,6 +4264,27 @@
     }
     root.querySelector('.ar-link').addEventListener('click', () => showScreen('ar-aging'));
     $('arAgBack').addEventListener('click', () => showScreen('ar-main'));
+
+    /* ---- полный список: открытие / поиск ---- */
+    function openFull(focus){
+      renderFull();
+      showScreen('ar-full');
+      $('arFullSearchBox').classList.toggle('has', fullQuery !== '');
+      if (focus) setTimeout(() => $('arFullSearch').focus(), 60);
+    }
+    $('arAll').addEventListener('click', () => { fullQuery = ''; $('arFullSearch').value = ''; openFull(false); });
+    root.querySelector('.ar-search').addEventListener('click', () => { fullQuery = ''; $('arFullSearch').value = ''; openFull(true); });
+    $('arFullBack').addEventListener('click', () => showScreen('ar-main'));
+    $('arFullSearch').addEventListener('input', e => {
+      fullQuery = e.target.value;
+      $('arFullSearchBox').classList.toggle('has', fullQuery !== '');
+      renderFull();
+    });
+    $('arFullClear').addEventListener('click', () => {
+      fullQuery = ''; $('arFullSearch').value = '';
+      $('arFullSearchBox').classList.remove('has');
+      renderFull(); $('arFullSearch').focus();
+    });
 
     // выбор корзины → её детализация ниже
     $('arAgTable').addEventListener('click', e => {
