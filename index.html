@@ -3836,8 +3836,8 @@
         cap: 'Дебиторская задолженность',
         listTitle: 'Топ должников',
         allTxt: n => `Показать всех дебиторов (${n})`,
-        tip: n => `У вас ${contractors(n)} с просрочкой более 60 дней. Рекомендуем связаться и уточнить сроки оплаты.`,
-        total: 4256800000, totalCp: 32, overCp: 8,
+        tip: n => `У вас ${contractors(n)} с просрочкой более 90 дней. Рекомендуем связаться и уточнить сроки оплаты.`,
+        total: 4256800000, totalCp: 32, overCp: 11,
         chart: { t0: 2.75, t1: 4.26, o0: 0.72, o1: 1.13, yMax: 6, ticks: [0, 2, 4, 6] },
         cp: {
           stroy: { a:'S', bg:'#e4f6ec', fg:'#17a34a', n:'ООО «STROY GREEN HORSE»', d:'Договор №123 от 12.12.2022' },
@@ -3854,20 +3854,15 @@
           { k:'abd',   v: 210700000, late:0   },
         ],
         aging: [
-          { cap:'Не просрочено', sub:'Оплата в срок',           val:3130000000, pct:74, dlt:12, cnt:21, tone:'ok', rows:[
-            { k:'uzum', v:642000000, d:0 }, { k:'abd', v:210700000, d:0 }, { k:'stroy', v:180000000, d:0 },
-            { other:18, v:2097300000 },
+          { cap:'1–30 дней', sub:'Просрочка 1–30 дней',      val:676000000, pct:60, dlt:5,  cnt:6, tone:'w1', rows:[
+            { k:'mega', v:242000000, d:18 }, { k:'bmb', v:186000000, d:24 }, { k:'uzum', v:118000000, d:12 },
+            { k:'stroy', v:85000000, d:7 }, { other:2, v:45000000 },
           ]},
-          { cap:'1–30 дней', sub:'Просрочка до 30 дней',        val: 682000000, pct:16, dlt:5,  cnt:6,  tone:'w1', rows:[
-            { k:'mega', v:242000000, d:18 }, { k:'bmb', v:186400000, d:24 }, { k:'uzum', v:118600000, d:12 },
-            { k:'stroy', v:85000000, d:7 }, { other:2, v:50000000 },
+          { cap:'30–90 дней', sub:'Просрочка 30–90 дней',     val:300000000, pct:27, dlt:8,  cnt:3, tone:'w2', rows:[
+            { k:'stroy', v:142000000, d:52 }, { k:'mega', v:96000000, d:71 }, { k:'bmb', v:62000000, d:40 },
           ]},
-          { cap:'31–60 дней', sub:'Просрочка 31–60 дней',       val: 284000000, pct:7,  dlt:8,  cnt:3,  tone:'w2', rows:[
-            { k:'stroy', v:142000000, d:52 }, { k:'mega', v:96500000, d:41 }, { k:'bmb', v:45500000, d:35 },
-          ]},
-          { cap:'> 60 дней', sub:'Просрочка более 60 дней',     val: 160800000, pct:3,  dlt:15, cnt:6,  tone:'w3', rows:[
-            { k:'mega', v:78400000, d:92 }, { k:'uzum', v:45600000, d:75 }, { k:'stroy', v:24800000, d:65 },
-            { k:'bmb', v:11400000, d:61 }, { other:2, v:600000 },
+          { cap:'90+ дней', sub:'Просрочка более 90 дней',    val:144000000, pct:13, dlt:15, cnt:2, tone:'w3', rows:[
+            { k:'mega', v:96000000, d:112 }, { k:'uzum', v:48000000, d:95 },
           ]},
         ],
       },
@@ -3875,8 +3870,8 @@
         cap: 'Кредиторская задолженность',
         listTitle: 'Топ кредиторов',
         allTxt: n => `Показать всех кредиторов (${n})`,
-        tip: n => `У вас ${contractors(n)} с просрочкой оплаты более 60 дней. Рекомендуем погасить задолженность.`,
-        total: 3180400000, totalCp: 24, overCp: 5,
+        tip: n => `У вас ${contractors(n)} с просрочкой оплаты более 90 дней. Рекомендуем погасить задолженность.`,
+        total: 3180400000, totalCp: 24, overCp: 10,
         chart: { t0: 2.10, t1: 3.18, o0: 0.35, o1: 0.64, yMax: 4, ticks: [0, 1, 2, 3, 4] },
         cp: {
           steel: { a:'S', bg:'#e4eefc', fg:'#2f6fd0', n:'ООО «Uzbek Steel Supply»', d:'Договор №301 от 10.11.2022' },
@@ -3893,20 +3888,15 @@
           { k:'karim', v: 302400000, late:0  },
         ],
         aging: [
-          { cap:'Не просрочено', sub:'Оплата в срок',       val:2538300000, pct:80, dlt:9,  cnt:19, tone:'ok', rows:[
-            { k:'bek', v:518600000, d:0 }, { k:'karim', v:302400000, d:0 }, { k:'artel', v:286200000, d:0 },
-            { other:16, v:1431100000 },
-          ]},
-          { cap:'1–30 дней', sub:'Просрочка до 30 дней',    val: 341700000, pct:11, dlt:4,  cnt:5,  tone:'w1', rows:[
-            { k:'steel', v:142300000, d:21 }, { k:'tash', v:98400000, d:12 }, { k:'artel', v:62000000, d:3 },
+          { cap:'1–30 дней', sub:'Просрочка 1–30 дней',   val:340000000, pct:53, dlt:4,  cnt:5, tone:'w1', rows:[
+            { k:'steel', v:142000000, d:21 }, { k:'tash', v:98000000, d:12 }, { k:'artel', v:61000000, d:3 },
             { other:2, v:39000000 },
           ]},
-          { cap:'31–60 дней', sub:'Просрочка 31–60 дней',   val: 186500000, pct:6,  dlt:-3, cnt:3,  tone:'w2', rows:[
-            { k:'tash', v:96500000, d:48 }, { k:'steel', v:58000000, d:39 }, { k:'bek', v:32000000, d:33 },
+          { cap:'30–90 дней', sub:'Просрочка 30–90 дней',  val:200000000, pct:31, dlt:-3, cnt:3, tone:'w2', rows:[
+            { k:'tash', v:110000000, d:48 }, { k:'steel', v:58000000, d:55 }, { k:'bek', v:32000000, d:40 },
           ]},
-          { cap:'> 60 дней', sub:'Просрочка более 60 дней', val: 113900000, pct:3,  dlt:11, cnt:4,  tone:'w3', rows:[
-            { k:'steel', v:68400000, d:84 }, { k:'tash', v:31200000, d:71 }, { k:'artel', v:12300000, d:66 },
-            { other:1, v:2000000 },
+          { cap:'90+ дней', sub:'Просрочка более 90 дней', val:100000000, pct:16, dlt:11, cnt:2, tone:'w3', rows:[
+            { k:'steel', v:68000000, d:84 }, { k:'tash', v:32000000, d:95 },
           ]},
         ],
       },
@@ -4157,7 +4147,7 @@
 
     /* =========== детальный экран «Возраст задолженности» =========== */
     const TONE = { ok:'#006F7D', w1:'#f0a318', w2:'#f4772e', w3:'#e2394a' };
-    let bucket = 3;         // раскрытая корзина (по умолчанию «> 60 дней»)
+    let bucket = 2;         // раскрытая корзина (по умолчанию «90+ дней»)
     let agView = 'table';   // table | chart
 
     // кольцевая диаграмма из 4 сегментов
@@ -4248,10 +4238,10 @@
 
     function renderAgingScreen(){
       const d = AR[side];
-      $('arAgCap').textContent = d.cap;
-      $('arAgVal').innerHTML   = `${full(d.total)}<i>UZS</i>`;
-      $('arAgSub').textContent = contractors(d.totalCp);
-      $('arTipTx').textContent = d.tip(d.aging[3].cnt);
+      $('arAgCap').textContent = 'Просроченная задолженность';
+      $('arAgVal').innerHTML   = `${full(overdueSum(d))}<i>UZS</i>`;
+      $('arAgSub').textContent = contractors(d.overCp);
+      $('arTipTx').textContent = d.tip(d.aging[2].cnt);
       renderRing(); renderAgTable(); renderAgChart(); renderDetail();
     }
 
