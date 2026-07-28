@@ -1530,6 +1530,8 @@
   #tab-ar .ar-det.closed .ar-list{display:none;}
   #tab-ar .ar-row.det{cursor:default;}
   #tab-ar .ar-row.det:hover{background:transparent;}
+  #tab-ar .ar-row.det[data-cp]{cursor:pointer;}
+  #tab-ar .ar-row.det[data-cp]:hover{background:#fbfcfe;}
   #tab-ar .ar-row.det .ar-amt .a{color:var(--red);}
   #tab-ar .ar-row.det .ar-amt .st{color:#9aa1b1;font-weight:600;}
   #tab-ar .ar-av.other{background:#f0f2f6;color:#aab0be;font-size:14px;}
@@ -1571,6 +1573,145 @@
   }
   #tab-ar .ar-cnt b{color:var(--blue);}
   #tab-ar .ar-empty{display:none;text-align:center;padding:34px 0;color:var(--muted);font-size:11.6px;font-weight:600;}
+
+  /* ---------- экран контрагента: детализация задолженности ---------- */
+  #tab-ar .cp-card{padding:12px;}
+  #tab-ar .cp-top{display:flex;align-items:center;gap:9px;}
+  #tab-ar .cp-who{flex:1;min-width:0;}
+  #tab-ar .cp-who .n{
+    font-size:12.4px;font-weight:800;color:#12141c;letter-spacing:-.2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #tab-ar .cp-who .d{font-size:9.6px;font-weight:600;color:var(--muted);margin-top:2px;}
+  #tab-ar .cp-cap{
+    font-size:9.4px;font-weight:800;color:#0b6672;letter-spacing:.15px;margin:12px 0 0;
+  }
+  #tab-ar .cp-val{
+    font-size:22px;font-weight:800;letter-spacing:-.8px;color:var(--blue);margin:3px 0 5px;white-space:nowrap;
+  }
+  #tab-ar .cp-val i{font-style:normal;font-size:9.4px;font-weight:700;color:var(--muted);margin-left:4px;letter-spacing:.2px;}
+  #tab-ar .cp-sub{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:9.6px;font-weight:700;}
+  #tab-ar .cp-sub .st.late{color:var(--red);}
+  #tab-ar .cp-sub .st.ok{color:var(--green);}
+  #tab-ar .cp-sub .dot{width:3px;height:3px;border-radius:50%;background:#cfd4de;}
+  #tab-ar .cp-sub .cnt{color:var(--muted);font-weight:600;}
+  #tab-ar .man-badge{
+    display:inline-flex;align-items:center;gap:3px;background:#fef3d6;color:#8a6413;
+    border-radius:6px;padding:2px 5px;font-size:8.6px;font-weight:800;letter-spacing:-.05px;
+  }
+  #tab-ar .man-badge svg{width:8px;height:8px;}
+  #tab-ar .cp-edit{
+    width:100%;margin-top:12px;border:none;cursor:pointer;font-family:inherit;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--blue-bg);color:var(--blue);border-radius:11px;padding:10px;
+    font-size:11.3px;font-weight:700;letter-spacing:-.1px;transition:background .12s;
+  }
+  #tab-ar .cp-edit:hover{background:#d1e7e9;}
+  #tab-ar .cp-edit svg{width:12px;height:12px;}
+
+  #tab-ar .cp-ops{display:flex;flex-direction:column;}
+  #tab-ar .op{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--divider);}
+  #tab-ar .op:last-child{border-bottom:none;}
+  #tab-ar .op .op-ic{
+    width:28px;height:28px;border-radius:9px;flex:0 0 auto;background:var(--soft-bg);color:#7b8393;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #tab-ar .op.man .op-ic{background:#fef3d6;color:#c9971a;}
+  #tab-ar .op .op-ic svg{width:13px;height:13px;}
+  #tab-ar .op .op-m{flex:1;min-width:0;}
+  #tab-ar .op .op-m .t{
+    font-size:11.2px;font-weight:700;color:#12141c;letter-spacing:-.15px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #tab-ar .op .op-m .dt{font-size:9.4px;font-weight:600;color:var(--muted);margin-top:2px;}
+  #tab-ar .op .op-m .note{font-size:9.2px;font-weight:600;color:#8a6413;margin-top:3px;line-height:1.35;}
+  #tab-ar .op .op-m .man-badge{margin-top:4px;}
+  #tab-ar .op .op-r{flex:0 0 auto;text-align:right;}
+  #tab-ar .op .op-r .a{font-size:11.2px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;}
+  #tab-ar .op .op-r .a.up{color:var(--blue);}
+  #tab-ar .op .op-r .a.down{color:var(--red);}
+  #tab-ar .op .op-r .a i{font-style:normal;font-size:8px;font-weight:700;color:var(--muted);margin-left:2px;}
+  #tab-ar .op .op-r .b{font-size:9px;font-weight:600;color:#9aa1b1;margin-top:3px;white-space:nowrap;}
+
+  /* ---------- лист «изменить сумму» ---------- */
+  #tab-ar .ar-ed-overlay{
+    position:absolute;inset:0;background:rgba(15,17,25,.4);
+    display:flex;align-items:flex-end;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:5;
+  }
+  #tab-ar .ar-ed-overlay.visible{opacity:1;}
+  #tab-ar.active .ar-ed-overlay.visible{pointer-events:auto;}
+  #tab-ar .ar-ed{
+    width:100%;background:#fff;border-radius:22px 22px 0 0;
+    box-shadow:0 -12px 32px rgba(20,25,40,.18);padding:16px 18px 18px;
+    max-height:92%;overflow-y:auto;scrollbar-width:none;
+    transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);
+  }
+  #tab-ar .ar-ed::-webkit-scrollbar{display:none;}
+  #tab-ar .ar-ed-overlay.visible .ar-ed{transform:translateY(0);}
+  #tab-ar .ar-ed-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px;}
+  #tab-ar .ar-ed-head h3{font-size:15px;font-weight:800;color:var(--blue);margin:0;letter-spacing:-.2px;}
+  #tab-ar .ar-ed-head .ar-cal-close{flex:0 0 auto;}
+  #tab-ar .ar-ed-who{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:12px;}
+  #tab-ar .ar-ed-cur{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    background:var(--soft-bg);border-radius:11px;padding:9px 11px;margin-bottom:9px;
+  }
+  #tab-ar .ar-ed-cur .k{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;}
+  #tab-ar .ar-ed-cur .v{font-size:12.4px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+  #tab-ar .ar-ed-fld{
+    background:var(--soft-bg);border-radius:11px;padding:9px 11px;margin-bottom:9px;
+    box-shadow:inset 0 0 0 1.5px var(--blue);
+  }
+  #tab-ar .ar-ed-fld.bad{box-shadow:inset 0 0 0 1.5px var(--red);}
+  #tab-ar .ar-ed-fld .cap{
+    font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px;
+  }
+  #tab-ar .ar-ed-fld .inp{display:flex;align-items:baseline;gap:5px;}
+  #tab-ar .ar-ed-fld input{
+    width:100%;border:none;background:transparent;padding:0;font-family:inherit;
+    font-size:17px;font-weight:800;color:#0d0f16;outline:none;letter-spacing:-.4px;
+  }
+  #tab-ar .ar-ed-fld input::placeholder{color:#b7bcc9;font-weight:600;}
+  #tab-ar .ar-ed-fld .cur{font-size:9.4px;font-weight:700;color:var(--muted);letter-spacing:.2px;}
+  #tab-ar .ar-ed-fld textarea{
+    width:100%;border:none;background:transparent;padding:0;font-family:inherit;resize:none;
+    font-size:11.8px;font-weight:600;color:#0d0f16;outline:none;letter-spacing:-.1px;line-height:1.4;
+  }
+  #tab-ar .ar-ed-fld.note{box-shadow:inset 0 0 0 1px var(--frame-border);}
+  #tab-ar .ar-ed-fld textarea::placeholder{color:#b7bcc9;font-weight:600;}
+  #tab-ar .ar-ed-quick{display:flex;gap:6px;margin-bottom:11px;}
+  #tab-ar .ar-ed-quick button{
+    flex:1;border:1px solid var(--frame-border);background:#fff;border-radius:10px;cursor:pointer;font-family:inherit;
+    padding:7px 4px;font-size:10.4px;font-weight:700;color:var(--text);letter-spacing:-.1px;transition:.12s;
+  }
+  #tab-ar .ar-ed-quick button:hover{background:var(--soft-bg);}
+  #tab-ar .ar-ed-prev{
+    display:flex;align-items:flex-start;gap:9px;border-radius:12px;padding:10px 11px;margin-bottom:4px;
+    background:var(--blue-bg);
+  }
+  #tab-ar .ar-ed-prev.down{background:var(--red-bg);}
+  #tab-ar .ar-ed-prev.none{background:var(--soft-bg);}
+  #tab-ar .ar-ed-prev .pi{
+    width:26px;height:26px;border-radius:8px;background:#fff;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;color:var(--blue);
+  }
+  #tab-ar .ar-ed-prev.down .pi{color:var(--red);}
+  #tab-ar .ar-ed-prev.none .pi{color:var(--muted);}
+  #tab-ar .ar-ed-prev .pi svg{width:13px;height:13px;}
+  #tab-ar .ar-ed-prev .px{flex:1;min-width:0;}
+  #tab-ar .ar-ed-prev .px b{display:block;font-size:11px;font-weight:800;letter-spacing:-.15px;margin-bottom:2px;color:#0b6672;}
+  #tab-ar .ar-ed-prev.down .px b{color:#c23347;}
+  #tab-ar .ar-ed-prev.none .px b{color:#5b6472;}
+  #tab-ar .ar-ed-prev .px span{display:block;font-size:9.6px;font-weight:600;line-height:1.42;color:#41727a;}
+  #tab-ar .ar-ed-prev.down .px span{color:#a05460;}
+  #tab-ar .ar-ed-prev.none .px span{color:var(--muted);}
+  #tab-ar .ar-ed-apply{
+    width:100%;margin-top:14px;border:none;background:var(--blue);color:#fff;border-radius:12px;
+    padding:12px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;
+    box-shadow:0 8px 16px rgba(0,111,125,.28);
+  }
+  #tab-ar .ar-ed-apply:disabled{background:#dfe2ea;color:#9aa1b1;box-shadow:none;cursor:default;}
 
   /* ---------- календарь: одна дата ---------- */
   #tab-ar .ar-cal-overlay{
@@ -2604,7 +2745,91 @@
         </div>
       </section>
 
+      <!-- SCREEN: детализация задолженности по контрагенту -->
+      <section class="screen" id="ar-cp">
+        <div class="ar-dhead">
+          <button class="ar-back" id="arCpBack" aria-label="Назад">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h2>Детализация задолженности</h2>
+        </div>
+
+        <div class="ar-scroll">
+
+          <section class="ar-card cp-card">
+            <div class="cp-top">
+              <div class="ar-av" id="arCpAv"></div>
+              <div class="cp-who">
+                <div class="n" id="arCpName"></div>
+                <div class="d" id="arCpDoc"></div>
+              </div>
+            </div>
+            <div class="cp-cap" id="arCpCap"></div>
+            <div class="cp-val" id="arCpVal"></div>
+            <div class="cp-sub" id="arCpSub"></div>
+            <button class="cp-edit" id="arCpEdit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.1 2.1 0 00-3-3L5 17v3z"/><path d="M14.5 6.5l3 3"/></svg>
+              Изменить сумму
+            </button>
+          </section>
+
+          <section class="ar-card">
+            <div class="ar-chead">
+              <h3>Операции</h3>
+              <span class="ar-cnt" id="arCpCnt"></span>
+            </div>
+            <div class="cp-ops" id="arCpOps"></div>
+          </section>
+
+        </div>
+      </section>
+
      </div>
+
+      <!-- изменение общей суммы задолженности по контрагенту -->
+      <div class="ar-ed-overlay" id="arEdOverlay">
+        <div class="ar-ed" id="arEd">
+          <div class="ar-ed-head">
+            <h3 id="arEdTitle">Изменить сумму</h3>
+            <button class="ar-cal-close" id="arEdClose" aria-label="Закрыть">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg>
+            </button>
+          </div>
+          <div class="ar-ed-who" id="arEdWho"></div>
+
+          <div class="ar-ed-cur">
+            <span class="k">Сейчас</span>
+            <span class="v" id="arEdCur"></span>
+          </div>
+
+          <div class="ar-ed-fld" id="arEdFld">
+            <div class="cap">Новая сумма задолженности</div>
+            <div class="inp">
+              <input id="arEdInp" inputmode="numeric" placeholder="0" autocomplete="off">
+              <span class="cur">UZS</span>
+            </div>
+          </div>
+
+          <div class="ar-ed-quick">
+            <button data-q="-100000000">− 100 млн</button>
+            <button data-q="-10000000">− 10 млн</button>
+            <button data-q="10000000">+ 10 млн</button>
+            <button data-q="100000000">+ 100 млн</button>
+          </div>
+
+          <div class="ar-ed-fld note">
+            <div class="cap">Комментарий к операции</div>
+            <textarea id="arEdNote" rows="2" placeholder="Например: акт сверки от 31.01.2023"></textarea>
+          </div>
+
+          <div class="ar-ed-prev none" id="arEdPrev">
+            <div class="pi" id="arEdPrevIc"></div>
+            <div class="px"><b id="arEdPrevT"></b><span id="arEdPrevS"></span></div>
+          </div>
+
+          <button class="ar-ed-apply" id="arEdApply" disabled>Сохранить</button>
+        </div>
+      </div>
 
       <!-- выбор даты отчёта (одна дата) -->
       <div class="ar-cal-overlay" id="arCalOverlay">
@@ -3969,9 +4194,9 @@
     }
 
     /* ---- список контрагентов ---- */
-    // одна строка контрагента (r = {a,bg,fg,n,d,v,late})
+    // одна строка контрагента (r = {a,bg,fg,n,d,v,late}); r.i — индекс в полном списке
     function personRow(r){
-      return `<div class="ar-row">`
+      return `<div class="ar-row"${r.i === undefined ? '' : ` data-cp="${r.i}"`}>`
         + `<div class="ar-av" style="background:${r.bg};color:${r.fg}">${r.a}</div>`
         + `<div class="ar-who"><div class="n">${r.n}</div><div class="d">${r.d}</div></div>`
         + `<div class="ar-amt">`
@@ -3986,7 +4211,8 @@
       const d = AR[side];
       $('arListTitle').textContent = d.listTitle;
       $('arAllTxt').textContent    = d.allTxt(d.totalCp);
-      $('arList').innerHTML = d.rows.map(r => personRow({ ...d.cp[r.k], v: r.v, late: r.late })).join('');
+      // топ-5 берём из того же списка, что и полный экран, — суммы всегда совпадают
+      $('arList').innerHTML = fullList(side).slice(0, 5).map(personRow).join('');
     }
 
     /* ---- полный список контрагентов (топ + сгенерированный «хвост») ---- */
@@ -4000,9 +4226,19 @@
     const PALS = [['#e4f6ec','#17a34a'],['#ede9fb','#6d4bd6'],['#fdeee0','#e07a1f'],
                   ['#e4eefc','#2f6fd0'],['#e2f0f1','#006F7D'],['#fdeef0','#d84a57'],['#fef3d6','#c9971a']];
 
+    function fullList(sd){
+      return FULL[sd] || (FULL[sd] = buildFull(sd));
+    }
+
+    // индекс контрагента в полном списке по названию (для строк, собранных из AR[side].cp)
+    function indexByName(sd, name){
+      const i = fullList(sd).findIndex(r => r.n === name);
+      return i < 0 ? null : i;
+    }
+
     function buildFull(sd){
       const d = AR[sd];
-      const rows = d.rows.map(r => ({ ...d.cp[r.k], v: r.v, late: r.late }));
+      const rows = d.rows.map(r => ({ ...d.cp[r.k], k: r.k, v: r.v, late: r.late }));
       let amt = rows[rows.length - 1].v;
       const seedOff = sd === 'deb' ? 0 : 11;
       for (let i = rows.length; i < d.totalCp; i++){
@@ -4020,13 +4256,13 @@
           v: amt, late,
         });
       }
+      rows.forEach((r, i) => { r.i = i; });
       return rows;
     }
 
     let fullQuery = '';
     function renderFull(){
-      const d = AR[side];
-      const list = FULL[side] || (FULL[side] = buildFull(side));
+      const list = fullList(side);
       const q = fullQuery.trim().toLowerCase();
       const shown = q ? list.filter(r => r.n.toLowerCase().includes(q)) : list;
 
@@ -4225,8 +4461,8 @@
             + CARET
             + `</div>`;
         }
-        const c = d.cp[r.k];
-        return `<div class="ar-row det">`
+        const c = d.cp[r.k], i = indexByName(side, c.n);
+        return `<div class="ar-row det"${i === null ? '' : ` data-cp="${i}"`}>`
           + `<div class="ar-av" style="background:${c.bg};color:${c.fg}">${c.a}</div>`
           + `<div class="ar-who"><div class="n">${c.n}</div><div class="d">${c.d}</div></div>`
           + `<div class="ar-amt"><div class="a">${full(r.v)}<i>UZS</i></div>`
@@ -4245,6 +4481,188 @@
       renderRing(); renderAgTable(); renderAgChart(); renderDetail();
     }
 
+    /* =========== экран контрагента: операции + правка общей суммы =========== */
+    const OPKIND = {
+      deb:  { up:'Реализация товаров и услуг', down:'Поступление на счёт' },
+      kred: { up:'Поступление товаров и услуг', down:'Оплата поставщику' },
+    };
+    const IC_BANK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+      + ' stroke-linejoin="round"><path d="M3 9.5L12 4l9 5.5M5 10v8M9.7 10v8M14.3 10v8M19 10v8M3 21h18"/></svg>';
+    const IC_PEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+      + ' stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.1 2.1 0 00-3-3L5 17v3z"/><path d="M14.5 6.5l3 3"/></svg>';
+
+    let cpSide = 'deb';     // сторона, с которой открыт контрагент
+    let cpIdx  = null;      // индекс в полном списке
+    let cpFrom = 'ar-main'; // экран, с которого пришли
+
+    const curCp = () => (cpIdx === null ? null : fullList(cpSide)[cpIdx]);
+
+    // «история» операций контрагента: сумма всех операций равна текущему долгу
+    function genOps(r){
+      const seed = (r.i * 13 + 7) % 9;
+      const n = 6 + seed % 3;
+      const rel = [];
+      for (let i = 0; i < n; i++){
+        const down = i > 1 && i % 3 === 2;
+        rel.push(down ? -0.35 : 0.8 + ((seed + i) % 4) * 0.15);
+      }
+      const sum = rel.reduce((s, v) => s + v, 0);
+      const ops = rel.map((v, i) => {
+        const amt = Math.round(r.v * v / sum / 1000) * 1000;
+        const d = new Date(picked.getFullYear(), picked.getMonth() - (n - i), 5 + ((seed + i * 3) % 20));
+        return { date: d, amount: amt, title: amt >= 0 ? OPKIND[cpSide].up : OPKIND[cpSide].down, manual: false };
+      });
+      // хвост подгоняем так, чтобы итог совпал с суммой задолженности до копейки
+      ops[n - 1].amount += r.v - ops.reduce((s, o) => s + o.amount, 0);
+      return ops;
+    }
+
+    const opsOf = r => (r.ops || (r.ops = genOps(r)));
+
+    function renderCp(){
+      const r = curCp();
+      if (!r) return;
+      const d = AR[cpSide];
+      const ops = opsOf(r);
+      const manCnt = ops.filter(o => o.manual).length;
+
+      $('arCpAv').style.background = r.bg;
+      $('arCpAv').style.color = r.fg;
+      $('arCpAv').textContent = r.a;
+      $('arCpName').textContent = r.n;
+      $('arCpDoc').textContent  = r.d;
+      $('arCpCap').textContent  = d.cap;
+      $('arCpVal').innerHTML    = `${full(r.v)}<i>UZS</i>`;
+      $('arCpSub').innerHTML =
+          `<span class="st ${r.late ? 'late' : 'ok'}">${r.late ? 'Просрочено ' + days(r.late) : 'Не просрочено'}</span>`
+        + `<span class="dot"></span><span class="cnt">на ${fmtDate(picked)}</span>`
+        + (manCnt ? `<span class="man-badge">${IC_PEN}Ручных корректировок: ${manCnt}</span>` : '');
+      $('arCpCnt').innerHTML = `Всего: <b>${ops.length}</b>`;
+
+      // остаток считаем от старых операций к новым, показываем — от новых к старым
+      let bal = 0;
+      const withBal = ops.map(o => ({ ...o, bal: (bal += o.amount) }));
+      $('arCpOps').innerHTML = withBal.slice().reverse().map(o =>
+        `<div class="op${o.manual ? ' man' : ''}">`
+        + `<div class="op-ic">${o.manual ? IC_PEN : IC_BANK}</div>`
+        + `<div class="op-m">`
+        +   `<div class="t">${o.title}</div>`
+        +   `<div class="dt">${fmtDate(o.date)}</div>`
+        +   (o.note ? `<div class="note">${esc(o.note)}</div>` : '')
+        +   (o.manual ? `<div class="man-badge">${IC_PEN}Добавлено вручную</div>` : '')
+        + `</div>`
+        + `<div class="op-r">`
+        +   `<div class="a ${o.amount >= 0 ? 'up' : 'down'}">${o.amount >= 0 ? '+' : '−'}${full(Math.abs(o.amount))}<i>UZS</i></div>`
+        +   `<div class="b">Остаток: ${full(o.bal)}</div>`
+        + `</div>`
+        + `</div>`
+      ).join('');
+    }
+
+    const esc = s => String(s).replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c]));
+
+    function openCp(i, from){
+      cpSide = side; cpIdx = i; cpFrom = from;
+      renderCp();
+      showScreen('ar-cp');
+    }
+
+    // открытие контрагента из любого списка
+    function bindCpOpen(id, from){
+      $(id).addEventListener('click', e => {
+        const row = e.target.closest('.ar-row[data-cp]');
+        if (row) openCp(+row.dataset.cp, from);
+      });
+    }
+
+    /* ---- лист «изменить сумму» ---- */
+    const parseAmt = s => { const v = s.replace(/\D/g, ''); return v === '' ? null : +v; };
+    const fmtAmt   = v => full(v);
+
+    function edDelta(){
+      const r = curCp(), v = parseAmt($('arEdInp').value);
+      if (!r || v === null) return null;
+      return v - r.v;
+    }
+
+    function renderEdPreview(){
+      const r = curCp(), v = parseAmt($('arEdInp').value), dl = edDelta();
+      const prev = $('arEdPrev');
+      const bad = v === null && $('arEdInp').value !== '';
+      $('arEdFld').classList.toggle('bad', bad);
+
+      prev.className = 'ar-ed-prev ' + (!dl ? 'none' : dl > 0 ? '' : 'down');
+      $('arEdPrevIc').innerHTML = dl ? IC_PEN : IC_BANK;
+      if (!dl){
+        $('arEdPrevT').textContent = 'Сумма не изменилась';
+        $('arEdPrevS').textContent = 'Введите новую сумму задолженности — операция на разницу создастся автоматически.';
+      } else {
+        const grow = dl > 0;
+        $('arEdPrevT').textContent = grow
+          ? `Задолженность вырастет на ${full(dl)} UZS`
+          : `Задолженность уменьшится на ${full(-dl)} UZS`;
+        $('arEdPrevS').textContent =
+          `Будет создана операция «${grow ? 'Ручная корректировка · увеличение' : 'Ручная корректировка · уменьшение'}»`
+          + ` от ${fmtDate(picked)} на ${grow ? '+' : '−'}${full(Math.abs(dl))} UZS. Итог: ${full(r.v + dl)} UZS.`;
+      }
+      $('arEdApply').disabled = !dl;
+    }
+
+    function openEd(){
+      const r = curCp();
+      if (!r) return;
+      $('arEdTitle').textContent = 'Изменить сумму';
+      $('arEdWho').textContent = `${AR[cpSide].cap} · ${r.n}`;
+      $('arEdCur').innerHTML = `${full(r.v)} UZS`;
+      $('arEdInp').value = fmtAmt(r.v);
+      $('arEdNote').value = '';
+      $('arEdFld').classList.remove('bad');
+      renderEdPreview();
+      $('arEdOverlay').classList.add('visible');
+    }
+    const closeEd = () => $('arEdOverlay').classList.remove('visible');
+
+    $('arCpEdit').addEventListener('click', openEd);
+    $('arEdClose').addEventListener('click', closeEd);
+    $('arEdOverlay').addEventListener('click', e => { if (e.target === $('arEdOverlay')) closeEd(); });
+
+    // ввод с разделителями разрядов, каретка остаётся у конца числа
+    $('arEdInp').addEventListener('input', e => {
+      const v = parseAmt(e.target.value);
+      e.target.value = v === null ? '' : fmtAmt(v);
+      renderEdPreview();
+    });
+
+    root.querySelectorAll('.ar-ed-quick button').forEach(b => {
+      b.addEventListener('click', () => {
+        const v = Math.max(0, (parseAmt($('arEdInp').value) || 0) + +b.dataset.q);
+        $('arEdInp').value = fmtAmt(v);
+        renderEdPreview();
+      });
+    });
+
+    $('arEdApply').addEventListener('click', () => {
+      const r = curCp(), dl = edDelta();
+      if (!r || !dl) return;
+
+      const note = $('arEdNote').value.trim();
+      opsOf(r).push({
+        date: new Date(picked),
+        amount: dl,
+        title: dl > 0 ? 'Ручная корректировка · увеличение' : 'Ручная корректировка · уменьшение',
+        manual: true,
+        note: note || null,
+      });
+
+      r.v += dl;
+      AR[cpSide].total += dl;      // сводка сверху пересчитывается на ту же разницу
+
+      closeEd();
+      renderCp();
+      renderSummary(); renderList();
+      if (cpFrom === 'ar-full') renderFull();
+    });
+
     /* ---- навигация между экранами ---- */
     const screens = root.querySelectorAll('.screen');
     function showScreen(id){
@@ -4254,6 +4672,11 @@
     }
     root.querySelector('.ar-link').addEventListener('click', () => showScreen('ar-aging'));
     $('arAgBack').addEventListener('click', () => showScreen('ar-main'));
+
+    bindCpOpen('arList', 'ar-main');
+    bindCpOpen('arFullList', 'ar-full');
+    bindCpOpen('arDetList', 'ar-aging');
+    $('arCpBack').addEventListener('click', () => showScreen(cpFrom));
 
     /* ---- полный список: открытие / поиск ---- */
     function openFull(focus){
