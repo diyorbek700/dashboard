@@ -1680,12 +1680,28 @@
   }
   #tab-ar .ar-ed-fld.note{box-shadow:inset 0 0 0 1px var(--frame-border);}
   #tab-ar .ar-ed-fld textarea::placeholder{color:#b7bcc9;font-weight:600;}
-  #tab-ar .ar-ed-quick{display:flex;gap:6px;margin-bottom:11px;}
-  #tab-ar .ar-ed-quick button{
-    flex:1;border:1px solid var(--frame-border);background:#fff;border-radius:10px;cursor:pointer;font-family:inherit;
-    padding:7px 4px;font-size:10.4px;font-weight:700;color:var(--text);letter-spacing:-.1px;transition:.12s;
+  #tab-ar .ar-ed-datefld{
+    width:100%;display:flex;align-items:center;gap:9px;cursor:pointer;font-family:inherit;text-align:left;
+    background:var(--soft-bg);border:1px solid transparent;border-radius:11px;padding:9px 11px;margin-bottom:9px;
+    transition:.12s;
   }
-  #tab-ar .ar-ed-quick button:hover{background:var(--soft-bg);}
+  #tab-ar .ar-ed-datefld:hover{background:#eceef3;}
+  #tab-ar .ar-ed-datefld.open{background:#fff;border-color:var(--blue);}
+  #tab-ar .ar-ed-datefld .cap{
+    flex:1;min-width:0;font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;
+  }
+  #tab-ar .ar-ed-datefld .val{
+    display:flex;align-items:center;gap:5px;flex:0 0 auto;
+    font-size:12.4px;font-weight:800;color:var(--text);letter-spacing:-.3px;
+  }
+  #tab-ar .ar-ed-datefld .val svg{width:12px;height:12px;color:var(--blue);}
+  #tab-ar .ar-ed-datefld .chev{width:9px;height:9px;flex:0 0 auto;color:var(--muted);transition:transform .2s;}
+  #tab-ar .ar-ed-datefld.open .chev{transform:rotate(180deg);}
+  #tab-ar .ar-ed-cal{
+    border:1px solid var(--frame-border);border-radius:12px;padding:9px 10px 10px;margin:-3px 0 11px;
+  }
+  #tab-ar .ar-ed-cal .ar-cal-nav{margin-bottom:8px;}
+  #tab-ar .ar-ed-caltitle{font-size:12.4px;font-weight:800;color:var(--text);letter-spacing:-.2px;}
   #tab-ar .ar-ed-prev{
     display:flex;align-items:flex-start;gap:9px;border-radius:12px;padding:10px 11px;margin-bottom:4px;
     background:var(--blue-bg);
@@ -2810,11 +2826,27 @@
             </div>
           </div>
 
-          <div class="ar-ed-quick">
-            <button data-q="-100000000">− 100 млн</button>
-            <button data-q="-10000000">− 10 млн</button>
-            <button data-q="10000000">+ 10 млн</button>
-            <button data-q="100000000">+ 100 млн</button>
+          <button class="ar-ed-datefld" id="arEdDateBtn">
+            <span class="cap">Дата операции</span>
+            <span class="val">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+              <span id="arEdDateTxt"></span>
+            </span>
+            <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l3.5 3 3.5-3"/></svg>
+          </button>
+
+          <div class="ar-ed-cal" id="arEdCal" style="display:none">
+            <div class="ar-cal-nav">
+              <button class="nv" id="arEdCalPrev" aria-label="Предыдущий месяц">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <span class="ar-ed-caltitle" id="arEdCalTitle"></span>
+              <button class="nv" id="arEdCalNext" aria-label="Следующий месяц">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+              </button>
+            </div>
+            <div class="ar-cal-dow"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+            <div class="ar-cal-grid" id="arEdCalGrid"></div>
           </div>
 
           <div class="ar-ed-fld note">
@@ -4576,6 +4608,8 @@
     }
 
     /* ---- лист «изменить сумму» ---- */
+    let edDate = null;          // дата ручной операции
+    let edCalY = 2023, edCalM = 0;
     const parseAmt = s => { const v = s.replace(/\D/g, ''); return v === '' ? null : +v; };
     const fmtAmt   = v => full(v);
 
@@ -4603,7 +4637,7 @@
           : `Задолженность уменьшится на ${full(-dl)} UZS`;
         $('arEdPrevS').textContent =
           `Будет создана операция «${grow ? 'Ручная корректировка · увеличение' : 'Ручная корректировка · уменьшение'}»`
-          + ` от ${fmtDate(picked)} на ${grow ? '+' : '−'}${full(Math.abs(dl))} UZS. Итог: ${full(r.v + dl)} UZS.`;
+          + ` от ${fmtDate(edDate)} на ${grow ? '+' : '−'}${full(Math.abs(dl))} UZS. Итог: ${full(r.v + dl)} UZS.`;
       }
       $('arEdApply').disabled = !dl;
     }
@@ -4617,6 +4651,9 @@
       $('arEdInp').value = fmtAmt(r.v);
       $('arEdNote').value = '';
       $('arEdFld').classList.remove('bad');
+      edDate = new Date(picked);
+      $('arEdDateTxt').textContent = fmtDate(edDate);
+      showEdCal(false);
       renderEdPreview();
       $('arEdOverlay').classList.add('visible');
     }
@@ -4633,12 +4670,43 @@
       renderEdPreview();
     });
 
-    root.querySelectorAll('.ar-ed-quick button').forEach(b => {
-      b.addEventListener('click', () => {
-        const v = Math.max(0, (parseAmt($('arEdInp').value) || 0) + +b.dataset.q);
-        $('arEdInp').value = fmtAmt(v);
-        renderEdPreview();
-      });
+    /* ---- дата операции: календарь прямо в листе ---- */
+    function renderEdCal(){
+      $('arEdCalTitle').textContent = `${MONTHS_FULL[edCalM]} ${edCalY}`;
+      const shift = (new Date(edCalY, edCalM, 1).getDay() + 6) % 7;
+      const dim   = new Date(edCalY, edCalM + 1, 0).getDate();
+      let h = '';
+      for (let i = 0; i < shift; i++) h += `<button class="empty" disabled></button>`;
+      for (let day = 1; day <= dim; day++){
+        const on = edDate.getFullYear() === edCalY && edDate.getMonth() === edCalM && edDate.getDate() === day;
+        h += `<button data-d="${day}"${on ? ' class="on"' : ''}>${day}</button>`;
+      }
+      $('arEdCalGrid').innerHTML = h;
+    }
+
+    function showEdCal(on){
+      $('arEdCal').style.display = on ? '' : 'none';
+      $('arEdDateBtn').classList.toggle('open', on);
+      if (on){ edCalY = edDate.getFullYear(); edCalM = edDate.getMonth(); renderEdCal(); }
+    }
+
+    $('arEdDateBtn').addEventListener('click', () => showEdCal($('arEdCal').style.display === 'none'));
+    $('arEdCalPrev').addEventListener('click', () => {
+      if (--edCalM < 0){ edCalM = 11; edCalY--; }
+      renderEdCal();
+    });
+    $('arEdCalNext').addEventListener('click', () => {
+      if (++edCalM > 11){ edCalM = 0; edCalY++; }
+      renderEdCal();
+    });
+    $('arEdCalGrid').addEventListener('click', e => {
+      const b = e.target.closest('button[data-d]');
+      if (!b) return;
+      edDate = new Date(edCalY, edCalM, +b.dataset.d);
+      $('arEdDateTxt').textContent = fmtDate(edDate);
+      renderEdCal();
+      showEdCal(false);
+      renderEdPreview();
     });
 
     $('arEdApply').addEventListener('click', () => {
@@ -4646,13 +4714,17 @@
       if (!r || !dl) return;
 
       const note = $('arEdNote').value.trim();
-      opsOf(r).push({
-        date: new Date(picked),
+      const op = {
+        date: new Date(edDate),
         amount: dl,
         title: dl > 0 ? 'Ручная корректировка · увеличение' : 'Ручная корректировка · уменьшение',
         manual: true,
         note: note || null,
-      });
+      };
+      // операция встаёт в ленту по своей дате, остатки ниже пересчитываются
+      const ops = opsOf(r);
+      const at = ops.findIndex(o => o.date > op.date);
+      ops.splice(at < 0 ? ops.length : at, 0, op);
 
       r.v += dl;
       AR[cpSide].total += dl;      // сводка сверху пересчитывается на ту же разницу
